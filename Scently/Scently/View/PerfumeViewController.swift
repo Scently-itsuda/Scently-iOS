@@ -96,7 +96,33 @@ final class PerfumeViewController: UIViewController {
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
         return button
     }()
+    
+    private lazy var perfuneCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
         
+        let inset: CGFloat = 16
+        let spacing: CGFloat = 12
+        let availableWidth = UIScreen.main.bounds.width - (inset * 2)
+        let estimatedItemWidth: CGFloat = 100  // 최소 보장할 셀 너비
+        let itemsInRow = floor((availableWidth + spacing) / (estimatedItemWidth + spacing))
+        let totalSpacing = spacing * (itemsInRow - 1)
+        let itemWidth = (availableWidth - totalSpacing) / itemsInRow
+
+        layout.itemSize = CGSize(width: itemWidth, height: itemWidth * 1.4)
+        layout.sectionInset = UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)
+        layout.minimumLineSpacing = spacing
+        layout.minimumInteritemSpacing = spacing
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .white
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(PerfumeCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        return collectionView
+    }()
+  
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
@@ -124,6 +150,7 @@ final class PerfumeViewController: UIViewController {
         scrollView.addSubview(containerView)
         self.view.addSubview(countLabel)
         self.view.addSubview(sortButton)
+        self.view.addSubview(perfuneCollectionView)
        
 
         logoStackView.snp.makeConstraints {
@@ -209,6 +236,13 @@ final class PerfumeViewController: UIViewController {
             $0.width.equalTo(47)
             $0.height.equalTo(14)
         }
+        
+        perfuneCollectionView.snp.makeConstraints {
+            $0.top.equalTo(countLabel.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalToSuperview()
+            
+        }
 
     }
     
@@ -230,3 +264,23 @@ final class PerfumeViewController: UIViewController {
         print("alertButtonDidTap")
     }
 }
+
+extension PerfumeViewController: UICollectionViewDelegate {
+    
+}
+
+extension PerfumeViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 15
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? PerfumeCollectionViewCell else {return UICollectionViewCell()}
+        cell.backgroundColor = .white
+        return cell
+    }
+    
+    
+}
+
+
