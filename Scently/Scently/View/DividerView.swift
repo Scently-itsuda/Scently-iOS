@@ -9,12 +9,20 @@ import UIKit
 import SnapKit
 
 final class DividerView: UIView {
-    init(backgroundColor: UIColor = .lightgray, height: CGFloat = 1.0) {
+    enum Axis {
+        case horizontal, vertical
+    }
+    init(backgroundColor: UIColor = .lightgray, height: CGFloat = 1.0,axis:Axis = .horizontal) {
         super.init(frame: .zero)
         self.backgroundColor = backgroundColor
         
-        snp.makeConstraints {
-            $0.height.equalTo(height)
+        self.snp.makeConstraints {
+            switch axis {
+            case .horizontal:
+                $0.height.equalTo(height)
+            case .vertical:
+                $0.width.equalTo(height)
+            }
         }
         
     }

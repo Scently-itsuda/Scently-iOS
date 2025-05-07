@@ -257,6 +257,42 @@ final class PerfumeViewController: UIViewController {
     @objc
     func searchButtonDidTap() {
         print("searchButtonDidTap")
+        let logoViewBottomPosition = self.logoStackView.frame.origin.y + self.logoStackView.frame.size.height
+        let viewHeight = self.view.frame.height
+        let availabelHeight = viewHeight - logoViewBottomPosition
+        print(availabelHeight)
+        
+        let filterVC = FilterViewController()
+        
+        if let sheet = filterVC.sheetPresentationController {
+            sheet.detents = [.custom { [weak self] context in
+                guard let self = self else { return 500 }
+                
+                print("logoStackView frame: \(self.logoStackView.frame)")
+                print("logoStackView bounds: \(self.logoStackView.bounds)")
+                print("View height: \(self.view.frame.height)")
+                
+                // 좌표계 변환을 사용하여 정확한 위치 계산
+                let convertedFrame = self.view.convert(self.logoStackView.frame, from: self.logoStackView.superview)
+                let logoViewBottomPosition = convertedFrame.maxY
+                
+                // SafeArea 고려
+//                let safeAreaTopInset = self.view.safeAreaInsets.top
+//                let safeAreaBottomInset = self.view.safeAreaInsets.bottom
+                
+                // 실제 사용 가능한 높이 계산 (SafeArea 고려)
+                let availableHeight = self.view.frame.height - logoViewBottomPosition
+                
+                print("Calculated height: \(availableHeight)")
+                
+                // 원하는 높이보다 약간 작게 설정하여 .large와 구분되게 만들기
+                return min(availableHeight - 40, 750)
+            }]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 30
+        }
+        present(filterVC,animated: true)
+      
     }
     
     @objc
