@@ -8,7 +8,13 @@
 import UIKit
 
 final class SocialViewController: UIViewController {
-        
+    let socialView = SocialView()
+    
+    override func loadView() {
+        super.loadView()
+        self.view = socialView
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
