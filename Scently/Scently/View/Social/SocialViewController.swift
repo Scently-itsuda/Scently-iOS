@@ -32,12 +32,15 @@ final class SocialViewController: UIViewController {
         registerCell()
         
         tabbarViewModel.setupViewControllers()
-
         pageViewController.didMove(toParent: self)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         currentPage = 0
+    }
+    
+    func didTapCell(at indexPath: IndexPath) {
+        currentPage = indexPath.item
     }
 }
 
@@ -92,6 +95,7 @@ extension SocialViewController: UICollectionViewDataSource, UICollectionViewDele
         }
 
         cell.titleLabel.text = tabbarViewModel.socialTabbarList[indexPath.item]
+
         return cell
     }
     
@@ -106,6 +110,7 @@ extension SocialViewController: UICollectionViewDataSource, UICollectionViewDele
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         print("TabbarCell Tapped")
+        self.didTapCell(at: indexPath)
     }
 }
 
@@ -138,5 +143,14 @@ extension SocialViewController: UIPageViewControllerDelegate, UIPageViewControll
         }
         
         return tabbarViewModel.dataSourceVC[nextIndex]
+    }
+    
+    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        guard let currentVC = pageViewController.viewControllers?.first,
+              let currentIndex = tabbarViewModel.dataSourceVC.firstIndex(of: currentVC) else {
+            return
+        }
+        
+        currentPage = currentIndex
     }
 }
