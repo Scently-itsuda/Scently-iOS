@@ -46,7 +46,7 @@ private extension TabBarCollectionViewCell {
     func setupConstraint() {
         containerView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
-            $0.top.bottom.equalToSuperview().offset(14)
+            $0.top.bottom.equalToSuperview().inset(14)
         }
         
         titleLabel.snp.makeConstraints {

@@ -58,6 +58,8 @@ final class NavigationView: UIView {
         return view
     }()
     
+    private let dividerView = DividerView()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -73,6 +75,7 @@ final class NavigationView: UIView {
 private extension NavigationView {
     func setupUI() {
         self.addSubview(containerView)
+        self.addSubview(dividerView)
         containerView.addSubview(logoStackView)
         
         self.buttonStackView.addArrangedSubview(searchButton)
@@ -113,6 +116,11 @@ private extension NavigationView {
         
         alertButton.snp.makeConstraints {
             $0.width.height.equalTo(24)
+        }
+        
+        dividerView.snp.makeConstraints {
+            $0.bottom.equalTo(containerView.snp.bottom)
+            $0.leading.trailing.equalToSuperview()
         }
     }
     

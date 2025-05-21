@@ -11,7 +11,6 @@ import SnapKit
 final class TabBarView: UIView {
     let collectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
-        //flowLayout.minimumLineSpacing = 12
         flowLayout.minimumInteritemSpacing = 12
         flowLayout.scrollDirection = .horizontal
 
@@ -20,6 +19,8 @@ final class TabBarView: UIView {
         
         return collectionView
     }()
+    
+    private let dividerView = DividerView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -35,11 +36,17 @@ final class TabBarView: UIView {
 private extension TabBarView {
     func setupUI() {
         self.addSubview(collectionView)
+        self.addSubview(dividerView)
     }
     
     func setupConstraint() {
         collectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
+        }
+        
+        dividerView.snp.makeConstraints {
+            $0.bottom.equalTo(collectionView.snp.bottom)
+            $0.leading.trailing.equalToSuperview()
         }
     }
 }
