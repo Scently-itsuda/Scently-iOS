@@ -201,17 +201,14 @@ final class FilterViewController: UIViewController {
                 boohangView.backgroundColor = .white
                 return boohangView
             case "브랜드":
-                let brandView = UIView()
-                brandView.backgroundColor = .blue
+                let brandView = BrandView()
+                brandView.backgroundColor = .white
                 return brandView
             case "국가":
                 let nationView = UIView()
                 nationView.backgroundColor = .gray
                 return nationView
-            
-              
-            
-            
+  
             default:
                 let view =  UIView()
                 view.backgroundColor = .red
@@ -221,7 +218,7 @@ final class FilterViewController: UIViewController {
     }
     
     private func setupSectionViews() {
-        // 각 섹션별 뷰 생성 및 contentView에 추가
+
         var previousView: UIView?
         
         for (index, sectionTitle) in section.enumerated() {

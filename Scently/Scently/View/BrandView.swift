@@ -1,18 +1,22 @@
 //
-//  Concentration.swift
+//  BrandView.swift
 //  Scently
 //
-//  Created by 임재현 on 5/10/25.
+//  Created by 임재현 on 5/24/25.
 //
 
 import UIKit
 import SnapKit
 
-final class ConcentrationView: UIView {
-    let buttontitles = ["퍼퓸","오 드 퍼퓸","오 드 뚜왈렛","오 드 코롱","오 프레쉬"]
-    let buttonSubtitles = ["20% ~ 40%","15% ~ 20%","5% ~ 15%","2% ~ 5%","1% ~ 3%"]
+final class BrandView: UIView {
+    let buttonTitles = ["샤넬","조말론","딥디크","디올","톰포드","바이레도","불가리","크리드","포맨트","랑방","구찌","버버리","르라보","끌로에","몽블랑","클린","러쉬","베르사체","지미추","겐조","아쿠 아디파르마","마크제이콥스","존바바토스","페라리","캘빈클라인","페라가모","조르지오아르마니"]
     
-    private var selectedIndex: Int? = nil
+    let subTitles = [
+        "CHANEL","JO MALONE","DIPTYQUE","DIOR","TOMFORD","BYREDO","BULGARI","CREED","FORMENT","LANVIN",
+        "GUCCI","BURBERRY","LE LABO","CHLOE","MONTBLANC","CLEAN","LASH","VERSACE","JIMMY CHOO","KENZO",
+        "ACQUA DI PARMA","MARC JACOBS","JOHN VARVATOS","FERRARI","CALVIN KLEIN","FERRAGAMO",
+        "GIORGIO ARMANI"
+    ]
     
     private lazy var buttonCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -23,7 +27,7 @@ final class ConcentrationView: UIView {
         collectionView.showsVerticalScrollIndicator = false
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.isScrollEnabled = false
+        collectionView.isScrollEnabled = true
         
         collectionView.register(ConcentrationCollectionViewCell.self, forCellWithReuseIdentifier: ConcentrationCollectionViewCell.reuseIdentifier)
         
@@ -48,8 +52,9 @@ final class ConcentrationView: UIView {
         layout.sectionInset = UIEdgeInsets(top: inset, left: inset/2, bottom: inset, right: inset)
     }
 
+    
     override init(frame: CGRect) {
-        super.init(frame: frame)
+        super.init(frame: .zero)
         setupUI()
     }
     
@@ -65,42 +70,22 @@ final class ConcentrationView: UIView {
             $0.bottom.equalToSuperview()
         }
     }
+    
 }
 
-extension ConcentrationView: UICollectionViewDelegate {}
-
-extension ConcentrationView: UICollectionViewDataSource {
+extension BrandView: UICollectionViewDelegate, UICollectionViewDataSource {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return buttontitles.count
+        return buttonTitles.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ConcentrationCollectionViewCell.reuseIdentifier, for: indexPath) as? ConcentrationCollectionViewCell else {return UICollectionViewCell()}
-      
-//        let item = buttontitles[indexPath.item]
-        let isSelected = selectedIndex == indexPath.item
+       
+        cell.configure(title: buttonTitles[indexPath.row],
+                       subtitle: subTitles[indexPath.row],
+                       isSelected: false)
         
-        cell.configure(
-            title: buttontitles[indexPath.row],
-            subtitle: buttonSubtitles[indexPath.row],
-            isSelected: isSelected
-        )
-        
-        cell.onTap = { [weak self] in
-               guard let self = self else { return }
-               
-            let previousIndex = self.selectedIndex
-            self.selectedIndex = (self.selectedIndex == indexPath.item) ? nil : indexPath.item
-
-            var indexPathsToReload = [IndexPath(item: indexPath.item, section: 0)]
-            if let previous = previousIndex, previous != indexPath.item {
-                indexPathsToReload.append(IndexPath(item: previous, section: 0))
-            }
-            self.buttonCollectionView.reloadItems(at: indexPathsToReload)
-           }
- 
         return cell
-        
     }
 }
