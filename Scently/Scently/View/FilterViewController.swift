@@ -67,6 +67,7 @@ final class FilterViewController: UIViewController {
         let scrollView = UIScrollView()
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.backgroundColor = .clear
+        scrollView.isScrollEnabled = false
         return scrollView
     }()
     
@@ -196,8 +197,8 @@ final class FilterViewController: UIViewController {
                 accordView.backgroundColor = .systemPink
                 return accordView
             case "부향률":
-                let boohangView = UIView()
-                boohangView.backgroundColor = .brown
+                let boohangView = ConcentrationView()
+                boohangView.backgroundColor = .white
                 return boohangView
             case "브랜드":
                 let brandView = UIView()

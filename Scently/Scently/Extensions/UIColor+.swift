@@ -16,4 +16,5 @@ extension UIColor {
     static let gray2 = UIColor(named: "383838") ?? ._383838
     static let lightgray = UIColor(named:"DDDDDD") ?? .DDDDDD
     static let gray3 = UIColor(named: "666666") ?? ._666666
+    static let gray4 = UIColor(named: "F4F4F4") ?? .F_4_F_4_F_4
 }
