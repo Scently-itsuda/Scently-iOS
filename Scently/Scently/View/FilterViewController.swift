@@ -185,8 +185,8 @@ final class FilterViewController: UIViewController {
     private func createSectionView(title:String,index:Int) -> UIView {
         switch title {
             case "가격":
-                let priceView = UIView()
-                priceView.backgroundColor = .yellow
+                let priceView = PriceView()
+                priceView.backgroundColor = .white
                 return priceView
             case "성별":
                 let genderView = UIView()

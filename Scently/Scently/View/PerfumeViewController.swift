@@ -194,7 +194,7 @@ final class PerfumeViewController: UIViewController {
             $0.edges.equalToSuperview()
             $0.height.equalToSuperview()
         }
-//        containerView.backgroundColor = .yellow
+
         containerView.isLayoutMarginsRelativeArrangement = true
         containerView.layoutMargins = UIEdgeInsets(top: 9, left: 20, bottom: 9, right: 20)
         

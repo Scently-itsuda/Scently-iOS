@@ -10,60 +10,8 @@ import SnapKit
 
 final class PriceView: UIView {
 
-    private lazy var checkButton: UIButton = {
-        var configuration = UIButton.Configuration.plain()
-        
-        configuration.image = UIImage(named: "Rectangle 1203")
-        configuration.title = "제목"
-        configuration.imagePlacement = .leading
-        configuration.imagePadding = 10
-        configuration.background.backgroundColor = .clear
-        configuration.background.strokeColor = .clear
-        configuration.background.strokeWidth = 0
+    private let checkButton = CheckButton()
 
-        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-            var outgoing = incoming
-            outgoing.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-            outgoing.foregroundColor = UIColor.black
-            return outgoing
-        }
-        
-        configuration.titleAlignment = .leading
-        
-        let button = UIButton(configuration: configuration)
-        
-
-        button.configurationUpdateHandler = { button in
-            var config = button.configuration
-            
-    
-            config?.image = button.isSelected ? UIImage(named: "Group 10") : UIImage(named: "Rectangle 1203")
-            
-            if button.isSelected {
-                config?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-                    var outgoing = incoming
-                    outgoing.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-                    outgoing.foregroundColor = UIColor.red
-                    return outgoing
-                }
-            } else {
-                config?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-                    var outgoing = incoming
-                    outgoing.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-                    outgoing.foregroundColor = UIColor.black 
-                    return outgoing
-                }
-            }
-            
-            config?.title = button.isSelected ? "선택됨" : "선택됨"
-            
-            button.configuration = config
-        }
-        button.adjustsImageWhenHighlighted = false
-        return button
-    }()
-    
-    
     override init(frame: CGRect) {
         super.init(frame: .zero)
         setupLayout()
