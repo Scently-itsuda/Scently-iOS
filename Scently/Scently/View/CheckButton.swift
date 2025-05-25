@@ -11,7 +11,7 @@ import UIKit
 final class CheckButton: UIButton {
     var buttonState: Bool = false
 
-    init() {
+    init(title: String) {
         var config = UIButton.Configuration.plain()
         config.image = UIImage(named: "Rectangle 1203")
         config.title = "선택됨"
@@ -32,15 +32,17 @@ final class CheckButton: UIButton {
             print("isSelected: \(buttonState)")
 
             newConfig.image = buttonState ? UIImage(named: "Group 10") : UIImage(named: "Rectangle 1203")
-            newConfig.title = buttonState ? "선택됨" : "선택됨"
+            newConfig.title = buttonState ? title : title
             newConfig.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var outgoing = incoming
-                outgoing.font = UIFont.systemFont(ofSize: 16, weight: self.buttonState ? .bold : .regular)
-                outgoing.foregroundColor = .black
+                outgoing.font = UIFont.pretendard(self.buttonState ? .bold : .regular, size: 12)
+                outgoing.foregroundColor = self.buttonState ? .black : .lightGray
+//                
                 return outgoing
             }
 
             button.configuration = newConfig
+            self.contentHorizontalAlignment = .leading
         }
 
         self.addTarget(self, action: #selector(didTap), for: .touchUpInside)

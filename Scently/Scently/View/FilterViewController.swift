@@ -253,6 +253,7 @@ final class FilterViewController: UIViewController {
     }
     
     @objc func didTapSection(_ sender: UIButton) {
+        view.endEditing(true)
         selectedButton?.backgroundColor = .clear
         selectedButton?.setTitleColor(.gray3,for: .normal)
         sender.backgroundColor = .black
