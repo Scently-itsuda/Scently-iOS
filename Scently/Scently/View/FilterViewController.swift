@@ -205,8 +205,8 @@ final class FilterViewController: UIViewController {
                 brandView.backgroundColor = .white
                 return brandView
             case "국가":
-                let nationView = UIView()
-                nationView.backgroundColor = .gray
+                let nationView = NationView()
+                nationView.backgroundColor = .white
                 return nationView
   
             default:
@@ -242,7 +242,7 @@ final class FilterViewController: UIViewController {
         // 마지막 뷰의 bottom을 contentView의 bottom과 연결
         if let lastView = previousView {
             lastView.snp.makeConstraints {
-                $0.bottom.equalTo(contentView)
+                $0.bottom.equalTo(contentView).inset(20)
             }
         }
     }

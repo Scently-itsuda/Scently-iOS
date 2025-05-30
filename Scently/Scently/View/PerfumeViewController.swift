@@ -290,6 +290,7 @@ final class PerfumeViewController: UIViewController {
             }]
             sheet.prefersGrabberVisible = true
             sheet.preferredCornerRadius = 30
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
         }
         present(filterVC,animated: true)
       
