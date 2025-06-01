@@ -135,12 +135,13 @@ final class FilterViewController: UIViewController {
         
         dividerView2.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(self.view.safeAreaLayoutGuide).offset(-50)
+            $0.bottom.equalTo(self.view.safeAreaLayoutGuide).offset(-70)
         }
         
         resetButton.snp.makeConstraints {
             $0.top.equalTo(dividerView2.snp.bottom).offset(13)
             $0.leading.equalToSuperview().offset(32)
+            $0.bottom.lessThanOrEqualTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(-12)
             $0.width.equalTo(112)
             $0.height.equalTo(44)
         }
@@ -149,6 +150,7 @@ final class FilterViewController: UIViewController {
             $0.top.equalTo(resetButton.snp.top)
             $0.leading.equalTo(resetButton.snp.trailing).offset(16)
             $0.trailing.equalToSuperview().offset(-32)
+            $0.bottom.lessThanOrEqualTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(-12)
             $0.height.equalTo(44)
         }
         scrollView.snp.makeConstraints {
@@ -189,12 +191,12 @@ final class FilterViewController: UIViewController {
                 priceView.backgroundColor = .white
                 return priceView
             case "성별":
-                let genderView = UIView()
-                genderView.backgroundColor = .blue
+                let genderView = GenderView()
+                genderView.backgroundColor = .white
                 return genderView
             case "어코드":
-                let accordView = UIView()
-                accordView.backgroundColor = .systemPink
+                let accordView = AccordView()
+                accordView.backgroundColor = .white
                 return accordView
             case "부향률":
                 let boohangView = ConcentrationView()

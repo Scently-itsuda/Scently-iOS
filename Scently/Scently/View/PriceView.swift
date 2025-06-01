@@ -128,7 +128,7 @@ final class PriceView: UIView {
 
         checkButtonStackView.snp.makeConstraints {
             $0.top.equalTo(dividerView.snp.bottom).offset(20)
-            $0.leading.trailing.equalToSuperview().inset(12)
+            $0.leading.equalToSuperview().inset(8)
         }
         
         minPriceTextField.snp.makeConstraints {

@@ -21,6 +21,7 @@ final class OptionButton: UIButton {
        let label = UILabel()
         label.font = .pretendard(.regular, size: 11)
         label.textColor = .gray3
+        label.textAlignment = .center
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return label
@@ -47,24 +48,29 @@ final class OptionButton: UIButton {
             self.addSubview(buttonTitle)
 
             iconImageView.snp.makeConstraints {
-                $0.leading.equalToSuperview().offset(8)
+                $0.leading.equalToSuperview().offset(14)
                 $0.centerY.equalToSuperview()
                 $0.size.equalTo(12)
             }
 
             buttonTitle.snp.makeConstraints {
-                $0.leading.equalTo(iconImageView.snp.trailing).offset(8)
+                $0.leading.equalTo(iconImageView.snp.trailing).offset(6)
                 $0.centerY.equalToSuperview()
-                $0.trailing.lessThanOrEqualToSuperview().inset(8)
+                $0.top.bottom.equalToSuperview().inset(4)
+                $0.trailing.equalToSuperview().inset(14)
             }
 
         } else {
             self.addSubview(buttonTitle)
 
             buttonTitle.snp.makeConstraints {
-                $0.center.equalToSuperview()
+                $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 3, left: 8, bottom: 3, right: 8))
             }
         }
+    }
+    
+    func configure(with text: String) {
+        buttonTitle.text = text
     }
 
 }
