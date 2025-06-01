@@ -64,7 +64,7 @@ final class OptionButton: UIButton {
             self.addSubview(buttonTitle)
 
             buttonTitle.snp.makeConstraints {
-                $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 3, left: 8, bottom: 3, right: 8))
+                $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 3, left: 14, bottom: 3, right: 14))
             }
         }
     }

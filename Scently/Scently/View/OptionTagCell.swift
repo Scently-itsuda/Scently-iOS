@@ -11,7 +11,7 @@ import SnapKit
 final class OptionTagCell: UICollectionViewCell {
     
     static let reuseIdentifier = "OptionTagCell"
-    private let optionButton = OptionButton(title: "123",hasImage: true)
+    private let optionButton = OptionButton(title: "123")
     
     override init(frame: CGRect) {
         super.init(frame: frame)
