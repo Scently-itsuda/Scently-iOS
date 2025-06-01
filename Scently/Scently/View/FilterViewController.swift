@@ -37,7 +37,7 @@ final class FilterViewController: UIViewController {
         return stackView
     }()
     
-    let section = ["가격","성별","어코드","부향률","브랜드","국가"]
+    let section = ["가격","성별","어코드","부향률","브랜드","국가","기타"]
     private var selectedButton: UIButton?
     
     private let resetButton: UIButton = {
@@ -210,6 +210,11 @@ final class FilterViewController: UIViewController {
                 let nationView = NationView()
                 nationView.backgroundColor = .white
                 return nationView
+            case "기타":
+                let nationView = ETCView()
+                nationView.backgroundColor = .white
+                return nationView
+            
   
             default:
                 let view =  UIView()
