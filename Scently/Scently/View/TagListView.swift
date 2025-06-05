@@ -70,7 +70,7 @@ final class TagListView: UIView {
             $0.leading.equalTo(titleLabel.snp.trailing).offset(8)
             $0.trailing.equalToSuperview().inset(8)
             $0.centerY.equalToSuperview()
-            $0.size.equalTo(16)
+            $0.size.equalTo(12)
         }
     }
     

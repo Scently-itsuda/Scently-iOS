@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 final class PerfumeViewController: UIViewController {
-    
+    let response = PerfumeMockService.shared.fetchMockPerfumes()
     private let logoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "LOGO")
@@ -97,7 +97,7 @@ final class PerfumeViewController: UIViewController {
         return button
     }()
     
-    private lazy var perfuneCollectionView: UICollectionView = {
+    private lazy var perfumeCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         
@@ -150,7 +150,7 @@ final class PerfumeViewController: UIViewController {
         scrollView.addSubview(containerView)
         self.view.addSubview(countLabel)
         self.view.addSubview(sortButton)
-        self.view.addSubview(perfuneCollectionView)
+        self.view.addSubview(perfumeCollectionView)
        
 
         logoStackView.snp.makeConstraints {
@@ -313,6 +313,8 @@ extension PerfumeViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? PerfumeCollectionViewCell else {return UICollectionViewCell()}
+        let perfume = response.data.datalist[indexPath.row]
+        cell.configure(title: perfume.name, subTitle: perfume.brand,imageURL: perfume.imageURL)
         cell.backgroundColor = .white
         return cell
     }

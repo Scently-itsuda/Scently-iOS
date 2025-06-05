@@ -178,6 +178,15 @@ final class PriceView: UIView {
     private func createButton(title: String) -> UIView {
         let buttons = CheckButton(title: title)
         buttons.backgroundColor = .white
+        let maxWidth = priceArrange.map { title in
+            let boldFont = UIFont.pretendard(.bold, size: 12)
+            let textSize = (title as NSString).size(withAttributes: [.font: boldFont])
+            return textSize.width + 50 
+        }.max() ?? 140
+        
+        buttons.snp.makeConstraints {
+            $0.width.equalTo(maxWidth)
+        }
         return buttons
     }
     

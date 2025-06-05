@@ -84,7 +84,10 @@ class PerfumeCollectionViewCell: UICollectionViewCell {
             $0.top.equalTo(titleLabel.snp.bottom).offset(2)
             $0.centerX.equalToSuperview()
         }
-        
-    
+    }
+    func configure(title: String, subTitle: String, imageURL: String) {
+        self.titleLabel.text = title
+        self.subTitleLabel.text = subTitle
+        self.perfumeImageView.image = UIImage(named: imageURL)
     }
 }

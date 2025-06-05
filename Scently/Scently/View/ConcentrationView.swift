@@ -87,18 +87,18 @@ extension ConcentrationView: UICollectionViewDataSource {
             isSelected: isSelected
         )
         
-        cell.onTap = { [weak self] in
-               guard let self = self else { return }
-               
-            let previousIndex = self.selectedIndex
-            self.selectedIndex = (self.selectedIndex == indexPath.item) ? nil : indexPath.item
-
-            var indexPathsToReload = [IndexPath(item: indexPath.item, section: 0)]
-            if let previous = previousIndex, previous != indexPath.item {
-                indexPathsToReload.append(IndexPath(item: previous, section: 0))
-            }
-            self.buttonCollectionView.reloadItems(at: indexPathsToReload)
-           }
+//        cell.onTap = { [weak self] in
+//               guard let self = self else { return }
+//               
+//            let previousIndex = self.selectedIndex
+//            self.selectedIndex = (self.selectedIndex == indexPath.item) ? nil : indexPath.item
+//
+//            var indexPathsToReload = [IndexPath(item: indexPath.item, section: 0)]
+//            if let previous = previousIndex, previous != indexPath.item {
+//                indexPathsToReload.append(IndexPath(item: previous, section: 0))
+//            }
+//            self.buttonCollectionView.reloadItems(at: indexPathsToReload)
+//           }
  
         return cell
         
