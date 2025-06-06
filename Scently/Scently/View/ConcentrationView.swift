@@ -7,12 +7,14 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class ConcentrationView: UIView {
     let buttontitles = ["퍼퓸","오 드 퍼퓸","오 드 뚜왈렛","오 드 코롱","오 프레쉬"]
     let buttonSubtitles = ["20% ~ 40%","15% ~ 20%","5% ~ 15%","2% ~ 5%","1% ~ 3%"]
     
-    private var selectedIndex: Int? = nil
+    private var cancellables = Set<AnyCancellable>()
+    @Published private var selectedIndices: Set<Int> = []
     
     private lazy var buttonCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -51,6 +53,7 @@ final class ConcentrationView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        setBinding()
     }
     
     required init?(coder: NSCoder) {
@@ -63,6 +66,22 @@ final class ConcentrationView: UIView {
             $0.top.equalToSuperview().offset(29)
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview()
+        }
+    }
+    
+    private func setBinding() {
+        $selectedIndices
+            .sink { [weak self] _ in
+                self?.buttonCollectionView.reloadData()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func handelCellTap(at index: Int) {
+        if selectedIndices.contains(index) {
+            selectedIndices.remove(index)
+        } else {
+            selectedIndices.insert(index)
         }
     }
 }
@@ -78,29 +97,17 @@ extension ConcentrationView: UICollectionViewDataSource {
         
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ConcentrationCollectionViewCell.reuseIdentifier, for: indexPath) as? ConcentrationCollectionViewCell else {return UICollectionViewCell()}
       
-//        let item = buttontitles[indexPath.item]
-        let isSelected = selectedIndex == indexPath.item
+        let isSelected = selectedIndices.contains(indexPath.item)
         
         cell.configure(
             title: buttontitles[indexPath.row],
             subtitle: buttonSubtitles[indexPath.row],
             isSelected: isSelected
         )
-        
-//        cell.onTap = { [weak self] in
-//               guard let self = self else { return }
-//               
-//            let previousIndex = self.selectedIndex
-//            self.selectedIndex = (self.selectedIndex == indexPath.item) ? nil : indexPath.item
-//
-//            var indexPathsToReload = [IndexPath(item: indexPath.item, section: 0)]
-//            if let previous = previousIndex, previous != indexPath.item {
-//                indexPathsToReload.append(IndexPath(item: previous, section: 0))
-//            }
-//            self.buttonCollectionView.reloadItems(at: indexPathsToReload)
-//           }
- 
         return cell
-        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        handelCellTap(at: indexPath.item)
     }
 }

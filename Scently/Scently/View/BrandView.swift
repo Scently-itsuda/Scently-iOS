@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class BrandView: UIView {
     let buttonTitles = ["샤넬","조말론","딥디크","디올","톰포드","바이레도","불가리","크리드","포맨트","랑방","구찌","버버리","르라보","끌로에","몽블랑","클린","러쉬","베르사체","지미추","겐조","아쿠 아디파르마","마크제이콥스","존바바토스","페라리","캘빈클라인","페라가모","조르지오아르마니"]
@@ -17,6 +18,9 @@ final class BrandView: UIView {
         "ACQUA DI PARMA","MARC JACOBS","JOHN VARVATOS","FERRARI","CALVIN KLEIN","FERRAGAMO",
         "GIORGIO ARMANI"
     ]
+    
+    private var cancellables = Set<AnyCancellable>()
+    @Published private var selectedIndex: Int? = nil
     
     private lazy var buttonCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()

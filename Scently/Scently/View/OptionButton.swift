@@ -32,9 +32,7 @@ final class OptionButton: UIButton {
 
         buttonTitle.text = title
         layer.cornerRadius = cornerRadius
-        layer.borderColor = borderColor.cgColor
-        layer.borderWidth = 1
-        backgroundColor = .white
+        backgroundColor = .gray4
         setupUI(hasImage: hasImage)
     }
     
@@ -72,5 +70,24 @@ final class OptionButton: UIButton {
     func configure(with text: String) {
         buttonTitle.text = text
     }
+}
 
+extension OptionButton {
+    func updateSelectedState(isSelected: Bool) {
+        UIView.animate(withDuration: 0.2) {
+            if isSelected {
+                self.buttonTitle.textColor = .white
+                self.buttonTitle.font = .pretendard(.bold, size: 11)
+                self.backgroundColor = .black
+            } else {
+                self.buttonTitle.textColor = .gray3
+                self.buttonTitle.font = .pretendard(.regular, size: 11)
+                self.backgroundColor = .gray4
+            }
+            
+            self.layoutIfNeeded()
+            self.setNeedsDisplay()
+        }
+    }
+    
 }
