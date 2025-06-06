@@ -56,3 +56,9 @@ final class ETCView: UIView {
         isNewProductSelected.toggle()
     }
 }
+
+extension ETCView {
+    var isNewProductSelectedPublisher: AnyPublisher<Bool, Never> {
+        return $isNewProductSelected.eraseToAnyPublisher()
+    }
+}

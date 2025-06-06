@@ -111,3 +111,14 @@ extension ConcentrationView: UICollectionViewDataSource {
         handelCellTap(at: indexPath.item)
     }
 }
+
+extension ConcentrationView {
+    var selectedConcentrationPublisher: AnyPublisher<[String], Never> {
+        return $selectedIndices
+            .map { [weak self] indices in
+                guard let self = self else { return [] }
+                return Array(indices).map {self.buttontitles[$0]}
+            }
+            .eraseToAnyPublisher()
+    }
+}

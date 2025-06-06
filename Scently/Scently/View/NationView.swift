@@ -165,3 +165,14 @@ extension NationView {
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
 }
+
+extension NationView {
+    var selectedNationPublisher: AnyPublisher<[String], Never> {
+        return $selectedIndices
+            .map { [weak self] indices in
+                guard let self = self else { return [] }
+                return Array(indices).map {self.items[$0]}
+            }
+            .eraseToAnyPublisher()
+    }
+}

@@ -13,9 +13,16 @@ final class PriceView: UIView {
     
     private var cancellables = Set<AnyCancellable>()
     @Published var selectedButtonIndex: Int? = nil
+    @Published private var minPriceText: String = ""
+    @Published private var maxPriceText: String = ""
     private var allButtons: [CheckButton] = []
    
-    let priceArrange = ["전체","5만원 ~ 10만원","20만원 ~ 30만원","직접입력","5만원 이하","10만원 ~ 20만원","30만원 이상"]
+    let priceArrange = [
+        "전체", "5만원 이하",
+        "5만원 ~ 10만원", "10만원 ~ 20만원",
+        "20만원 ~ 30만원", "30만원 이상",
+        "직접입력"
+    ]
     
     private let priceLabel: UILabel = {
         let label = UILabel()
@@ -168,11 +175,16 @@ final class PriceView: UIView {
             rowStack.spacing = 0
             rowStack.distribution = .fillEqually
             rowStack.alignment = .leading
-            let leftCell = createButton(title: priceArrange[row])
-            rowStack.addArrangedSubview(leftCell)
             
-            if row < 3 {
-                let rightCell = createButton(title:priceArrange[row+4] )
+            let leftIndex = row * 2
+            if leftIndex < priceArrange.count {
+                let leftCell = createButton(title: priceArrange[leftIndex])
+                rowStack.addArrangedSubview(leftCell)
+            }
+            
+            let rightIndex = row * 2 + 1
+            if rightIndex < priceArrange.count {
+                let rightCell = createButton(title: priceArrange[rightIndex])
                 rowStack.addArrangedSubview(rightCell)
             } else {
                 let spacer = UIView()
@@ -226,6 +238,9 @@ final class PriceView: UIView {
         } else {
             minPriceTextField.text = nil
             maxPriceTextField.text = nil
+            
+            minPriceText = ""
+            maxPriceText = ""
             
             minPriceTextField.resignFirstResponder()
             maxPriceTextField.resignFirstResponder()
@@ -290,11 +305,67 @@ final class PriceView: UIView {
         } else {
             textField.text = ""
         }
+        
+        switch textField {
+        case minPriceTextField:
+            minPriceText = textField.text ?? ""
+        case maxPriceTextField:
+            maxPriceText = textField.text ?? ""
+        default:
+            break
+        }
     }
 
     private func formatNumber(_ value: Int) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         return formatter.string(from: NSNumber(value: value)) ?? ""
+    }
+}
+
+extension PriceView {
+    
+    struct PriceSelection {
+        let selectedOption: String?
+        let minPrice: String?
+        let maxPrice: String?
+        let isDirectInput: Bool
+        
+        var isEmpty: Bool {
+            return selectedOption == nil && (minPrice?.isEmpty ?? true) && (maxPrice?.isEmpty ?? true)
+        }
+    }
+    
+    
+    var selectedPricePublisher: AnyPublisher<String?,Never> {
+        return $selectedButtonIndex
+            .map { [weak self] index  in
+                guard let self = self, let index = index else {return nil}
+                return self.priceArrange[index]
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    var priceSelectionPublisher: AnyPublisher<PriceSelection,Never> {
+        return Publishers.CombineLatest3 (
+            $selectedButtonIndex,
+            $minPriceText,
+            $maxPriceText
+        )
+        .map { [weak self] (buttonIndex, minText, maxText) in
+            guard let self = self else {
+                return PriceSelection(selectedOption: nil, minPrice: nil, maxPrice: nil, isDirectInput: false)
+            }
+            let selectedOption = buttonIndex.map { self.priceArrange[$0] }
+            let isDirectInput = selectedOption == "직접입력"
+            
+            return PriceSelection(
+                selectedOption: selectedOption,
+                minPrice: isDirectInput && !minText.isEmpty ? minText : nil,
+                maxPrice: isDirectInput && !maxText.isEmpty ? maxText : nil,
+                isDirectInput: isDirectInput
+            )
+        }
+        .eraseToAnyPublisher()
     }
 }

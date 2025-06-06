@@ -114,3 +114,14 @@ extension BrandView: UICollectionViewDelegate, UICollectionViewDataSource {
         handelCellTap(at: indexPath.item)
     }
 }
+
+extension BrandView {
+    var selectedBrandPublisher: AnyPublisher<[String], Never> {
+        return $selectedIndices
+            .map { [weak self] indices in
+                guard let self = self else { return [] }
+                return Array(indices).map {self.buttonTitles[$0]}
+            }
+            .eraseToAnyPublisher()
+    }
+}

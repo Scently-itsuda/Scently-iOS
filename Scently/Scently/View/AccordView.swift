@@ -163,3 +163,18 @@ extension AccordView {
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
 }
+
+extension AccordView {
+    var selectedIndicesPublisher: AnyPublisher<Set<Int>,Never> {
+        return $selectedIndices.eraseToAnyPublisher()
+    }
+    
+    var selectedAccordsPublisher: AnyPublisher<[String],Never> {
+        return $selectedIndices
+            .map { [weak self] indices in
+                guard let self = self else { return[] }
+                return Array(indices).map {self.items[$0]}
+            }
+            .eraseToAnyPublisher()
+    }
+}

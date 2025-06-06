@@ -7,8 +7,17 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class FilterViewController: UIViewController {
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    @Published private var currentFilterData = FilterData()
+    
+    private var isDirectInput: Bool = false
+    
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "필터"
@@ -86,6 +95,8 @@ final class FilterViewController: UIViewController {
         setupAddTarget()
         setupButtons()
         setupSectionViews()
+        setBinding()
+        
         // 처음 버튼 선택 지정
         if let firstButton = buttonStackView.arrangedSubviews.first as? UIButton {
             didTapSection(firstButton)
@@ -182,6 +193,7 @@ final class FilterViewController: UIViewController {
     
     private func setupAddTarget() {
         closeButton.addTarget(self, action: #selector(closeButtonDidTap), for: .touchUpInside)
+        applyButton.addTarget(self, action: #selector(applyButtonDidTap), for: .touchUpInside)
     }
     
     private func createSectionView(title:String,index:Int) -> UIView {
@@ -254,6 +266,77 @@ final class FilterViewController: UIViewController {
         }
     }
     
+    private func setBinding() {
+        DispatchQueue.main.async { [weak self] in
+            self?.bindFilterData()
+        }
+    }
+    
+    private func bindFilterData() {
+        if let priceView = sectionViews.first(where: { $0 is PriceView }) as? PriceView {
+            priceView.priceSelectionPublisher
+                .sink { [weak self] priceSelection in
+                    self?.currentFilterData.selectedPrice = priceSelection.selectedOption
+                    self?.currentFilterData.minPrice = priceSelection.minPrice
+                    self?.currentFilterData.maxPrice = priceSelection.maxPrice
+                    self?.isDirectInput = priceSelection.isDirectInput
+
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let genderView = sectionViews.first(where: { $0 is GenderView }) as? GenderView {
+            genderView.selectedGenderPublisher
+                .sink { [weak self] gender in
+                    self?.currentFilterData.selectedGender = gender
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let accordView = sectionViews.first(where: { $0 is AccordView }) as? AccordView {
+            accordView.selectedAccordsPublisher
+                .sink { [weak self] accords in
+                    self?.currentFilterData.selectedAccords = accords
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let concentrationView = sectionViews.first(where: { $0 is ConcentrationView }) as? ConcentrationView {
+            concentrationView.selectedConcentrationPublisher
+                .sink { [weak self] concentration in
+                    self?.currentFilterData.selectedConcentration = concentration
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let brandView = sectionViews.first(where: { $0 is BrandView }) as? BrandView {
+            brandView.selectedBrandPublisher
+                .sink { [weak self] brands in
+                    self?.currentFilterData.selectedBrands = brands
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let nationView = sectionViews.first(where: { $0 is NationView }) as? NationView {
+            nationView.selectedNationPublisher
+                .sink { [weak self] nations in
+                    self?.currentFilterData.selectedNations = nations
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let etcView = sectionViews.first(where: { $0 is ETCView }) as? ETCView {
+            etcView.isNewProductSelectedPublisher
+                .sink { [weak self] isSelected in
+                    self?.currentFilterData.isNewProduct = isSelected
+                }
+                .store(in: &cancellables)
+        }
+        
+        
+  
+    }
+    
     @objc func closeButtonDidTap() {
         print("closeButtod Tapped")
         self.dismiss(animated: true)
@@ -276,5 +359,19 @@ final class FilterViewController: UIViewController {
                 self.scrollView.contentOffset = CGPoint(x: 0, y: sectionView.frame.origin.y)
             }
         }
+    }
+    
+    @objc private func applyButtonDidTap() {
+        print("=== 최종 필터 데이터 ===")
+        print("가격: \(currentFilterData.selectedPrice ?? "없음")")
+        if isDirectInput {
+            print("최솟값:\(currentFilterData.minPrice),최댓값:\(currentFilterData.maxPrice)")
+        }
+        print("성별: \(currentFilterData.selectedGender?.title ?? "없음")")
+        print("어코드: \(currentFilterData.selectedAccords)")
+        print("부향률: \(currentFilterData.selectedConcentration)")
+        print("브랜드: \(currentFilterData.selectedBrands)")
+        print("국가: \(currentFilterData.selectedNations)")
+        print("신상품: \(currentFilterData.isNewProduct)")
     }
 }

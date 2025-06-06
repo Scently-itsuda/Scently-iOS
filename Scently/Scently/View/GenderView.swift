@@ -124,3 +124,9 @@ final class GenderView: UIView {
          }
     }
 }
+
+extension GenderView {
+    var selectedGenderPublisher: AnyPublisher<Gender?,Never> {
+        return $selectedGender.eraseToAnyPublisher()
+    }
+}
