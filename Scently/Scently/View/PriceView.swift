@@ -7,8 +7,13 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class PriceView: UIView {
+    
+    private var cancellables = Set<AnyCancellable>()
+    @Published var selectedButtonIndex: Int? = nil
+    private var allButtons: [CheckButton] = []
    
     let priceArrange = ["전체","5만원 ~ 10만원","20만원 ~ 30만원","직접입력","5만원 이하","10만원 ~ 20만원","30만원 이상"]
     
@@ -83,14 +88,9 @@ final class PriceView: UIView {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        setBinding()
+        setAddTarget()
         setupStackView()
-        minPriceTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-        maxPriceTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-           tapGesture.cancelsTouchesInView = false
-           self.addGestureRecognizer(tapGesture)
     }
     
     required init?(coder: NSCoder) {
@@ -150,8 +150,15 @@ final class PriceView: UIView {
             $0.height.equalTo(34)
             
         }
-        
-        
+    }
+    
+    private func setBinding() {
+        $selectedButtonIndex
+            .sink { [weak self] selectedIndex in
+                self?.updateButtonStates(selectedIndex: selectedIndex)
+                self?.updateTextFieldState(selectedIndex: selectedIndex)
+            }
+            .store(in: &cancellables)
     }
     
     private func setupStackView() {
@@ -187,13 +194,80 @@ final class PriceView: UIView {
         buttons.snp.makeConstraints {
             $0.width.equalTo(maxWidth)
         }
+        
+        allButtons.append(buttons)
+        buttons.addTarget(self, action: #selector(checkButtonTapped(_:)), for: .touchUpInside)
+        
         return buttons
+    }
+    
+    private func updateButtonStates(selectedIndex: Int?) {
+        for (index, button) in allButtons.enumerated() {
+            let shouldBeSelected = index == selectedIndex
+        print("버튼 \(index): 현재상태=\(button.buttonState), 변경될상태=\(shouldBeSelected)")
+            if button.buttonState != shouldBeSelected {
+                button.buttonState = shouldBeSelected
+            }
+        }
+    }
+    
+    private func updateTextFieldState(selectedIndex: Int?) {
+        let isDirectInputSelected = selectedIndex == 6
+        
+        
+        
+        minPriceTextField.isEnabled = isDirectInputSelected
+        maxPriceTextField.isEnabled = isDirectInputSelected
+        
+        
+        
+        if isDirectInputSelected {
+            minPriceTextField.becomeFirstResponder()
+        } else {
+            minPriceTextField.text = nil
+            maxPriceTextField.text = nil
+            
+            minPriceTextField.resignFirstResponder()
+            maxPriceTextField.resignFirstResponder()
+        }
+        
+
+        minPriceTextField.alpha = isDirectInputSelected ? 1.0 : 0.5
+        maxPriceTextField.alpha = isDirectInputSelected ? 1.0 : 0.5
+        waveLabel.alpha = isDirectInputSelected ? 1.0 : 0.5
+        minPriceTextField.backgroundColor = isDirectInputSelected ? .white : .systemGray6
+        maxPriceTextField.backgroundColor = isDirectInputSelected ? .white : .systemGray6
+    }
+    
+    private func setAddTarget() {
+        resetButton.addTarget(self, action: #selector(resetButtonDidTap), for: .touchUpInside)
+        
+        minPriceTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        maxPriceTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+           tapGesture.cancelsTouchesInView = false
+           self.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func checkButtonTapped(_ sender: CheckButton) {
+        guard let index = allButtons.firstIndex(of: sender) else { return}
+            if selectedButtonIndex == index {
+                selectedButtonIndex = nil
+            } else {
+                selectedButtonIndex = index
+            }
     }
     
     @objc private func dismissKeyboard() {
         self.endEditing(true)
     }
     
+    @objc private func resetButtonDidTap() {
+        allButtons.forEach { $0.buttonState = false }
+        selectedButtonIndex = nil
+    }
     // MARK: - ToDo - 추후에 ViewModel, VC 로 로직 분리
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
