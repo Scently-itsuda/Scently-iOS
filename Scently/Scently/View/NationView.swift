@@ -7,8 +7,12 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class NationView: UIView {
+    
+    private var cancellables = Set<AnyCancellable>()
+    @Published private var selectedIndices: Set<Int> = []
     
     private let items = [
         "대한민국", "프랑스", "영국",
@@ -22,6 +26,7 @@ final class NationView: UIView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(OptionTagCell.self, forCellWithReuseIdentifier: OptionTagCell.reuseIdentifier)
         collectionView.dataSource = self
+        collectionView.delegate = self
         collectionView.backgroundColor = .clear
         collectionView.showsVerticalScrollIndicator = false
         return collectionView
@@ -32,6 +37,7 @@ final class NationView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        setBinding()
     }
     
     required init?(coder: NSCoder) {
@@ -48,13 +54,30 @@ final class NationView: UIView {
             $0.bottom.equalToSuperview()
         }
     }
+    
+    private func setBinding() {
+        $selectedIndices
+            .sink { [weak self] _ in
+                self?.collectionView.reloadData()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func handelCellTap(at index: Int) {
+        if selectedIndices.contains(index) {
+            selectedIndices.remove(index)
+        } else {
+            selectedIndices.insert(index)
+        }
+    }
+
 }
 
 
 
 
 
-extension NationView: UICollectionViewDataSource {
+extension NationView: UICollectionViewDataSource,UICollectionViewDelegate {
     func collectionView(
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
@@ -72,13 +95,24 @@ extension NationView: UICollectionViewDataSource {
         ) as? OptionTagCell else {
             return UICollectionViewCell()
         }
+        
+        let isSelected = selectedIndices.contains(indexPath.item)
         cell
             .configure(
-                with: items[indexPath.item]
+                with: items[indexPath.item], isSelected: isSelected
             )
            return cell
        }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
+        handelCellTap(
+            at: indexPath.item
+        )
     }
+}
 
 extension NationView {
     func createVariableGroupLayout() -> UICollectionViewCompositionalLayout {

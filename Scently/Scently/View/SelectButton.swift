@@ -10,7 +10,7 @@ import SnapKit
 
 final class SelectButton: UIButton {
     
-    private let buttonTitle: UILabel = {
+     let buttonTitle: UILabel = {
         let label = UILabel()
         label.textColor = .gray3
         label.font = .pretendard(.medium, size: 12)
@@ -18,7 +18,7 @@ final class SelectButton: UIButton {
         return label
     }()
     
-    private let buttonSubTitle: UILabel = {
+     let buttonSubTitle: UILabel = {
         let label = UILabel()
         label.textColor = .gray3
         label.font = .pretendard(.light, size:8)

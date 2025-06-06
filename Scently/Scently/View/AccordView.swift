@@ -7,8 +7,12 @@
 
 import UIKit
 import SnapKit
-//
+import Combine
+
 final class AccordView: UIView {
+    
+    private var cancellables = Set<AnyCancellable>()
+    @Published private var selectedIndices: Set<Int> = []
 
     private let items = [
         "🍊 시트러스", "🌳 우디", "💚 그린",
@@ -27,6 +31,7 @@ final class AccordView: UIView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(OptionTagCell.self, forCellWithReuseIdentifier: OptionTagCell.reuseIdentifier)
         collectionView.dataSource = self
+        collectionView.delegate = self
         collectionView.backgroundColor = .clear
         collectionView.showsVerticalScrollIndicator = false
         return collectionView
@@ -36,6 +41,7 @@ final class AccordView: UIView {
     override init(frame: CGRect) {
         super.init(frame: .zero)
         setupUI()
+        setBinding()
     }
     
     required init?(coder: NSCoder) {
@@ -51,13 +57,29 @@ final class AccordView: UIView {
             $0.leading.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
-        DispatchQueue.main.async {
-               print("CollectionView width after constraint123: \(self.collectionView.frame.width)")
-           }
+//        DispatchQueue.main.async {
+//               print("CollectionView width after constraint123: \(self.collectionView.frame.width)")
+//           }
+    }
+    
+    private func setBinding() {
+        $selectedIndices
+            .sink { [weak self] _ in
+                self?.collectionView.reloadData()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func handelCellTap(at index: Int) {
+        if selectedIndices.contains(index) {
+            selectedIndices.remove(index)
+        } else {
+            selectedIndices.insert(index)
+        }
     }
 }
 
-extension AccordView: UICollectionViewDataSource {
+extension AccordView: UICollectionViewDataSource,UICollectionViewDelegate {
     func collectionView(
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
@@ -75,13 +97,20 @@ extension AccordView: UICollectionViewDataSource {
         ) as? OptionTagCell else {
             return UICollectionViewCell()
         }
+        
+        let isSelected = selectedIndices.contains(indexPath.item)
+        
         cell
             .configure(
-                with: items[indexPath.item]
+                with: items[indexPath.item], isSelected: isSelected
             )
            return cell
        }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        handelCellTap(at: indexPath.item)
     }
+}
 
 extension AccordView {
     func createVariableGroupLayout() -> UICollectionViewCompositionalLayout {

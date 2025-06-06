@@ -20,7 +20,7 @@ final class BrandView: UIView {
     ]
     
     private var cancellables = Set<AnyCancellable>()
-    @Published private var selectedIndex: Int? = nil
+    @Published private var selectedIndices: Set<Int> = []
     
     private lazy var buttonCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -60,6 +60,7 @@ final class BrandView: UIView {
     override init(frame: CGRect) {
         super.init(frame: .zero)
         setupUI()
+        setBinding()
     }
     
     required init?(coder: NSCoder) {
@@ -75,6 +76,20 @@ final class BrandView: UIView {
         }
     }
     
+    private func setBinding() {
+        $selectedIndices
+            .sink { [weak self] _ in
+                self?.buttonCollectionView.reloadData()
+            }
+            .store(in: &cancellables)
+    }
+    private func handelCellTap(at index: Int) {
+        if selectedIndices.contains(index) {
+            selectedIndices.remove(index)
+        } else {
+            selectedIndices.insert(index)
+        }
+    }
 }
 
 extension BrandView: UICollectionViewDelegate, UICollectionViewDataSource {
@@ -85,11 +100,17 @@ extension BrandView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ConcentrationCollectionViewCell.reuseIdentifier, for: indexPath) as? ConcentrationCollectionViewCell else {return UICollectionViewCell()}
+        
+        let isSelected = selectedIndices.contains(indexPath.item)
        
         cell.configure(title: buttonTitles[indexPath.row],
                        subtitle: subTitles[indexPath.row],
-                       isSelected: false)
+                       isSelected: isSelected)
         
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        handelCellTap(at: indexPath.item)
     }
 }

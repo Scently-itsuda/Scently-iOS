@@ -25,15 +25,23 @@ class ConcentrationCollectionViewCell: UICollectionViewCell,ReuseIdentifiable {
         button = SelectButton(buttonTitle: "", subTitle: "")
         super.init(frame: .zero)
         setupUI()
-        button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        button.isSelected = false
+        button.backgroundColor = .gray4
+        button.buttonTitle.textColor = .gray3
+        button.buttonSubTitle.textColor = .gray3
+    }
+    
     private func setupUI() {
         self.addSubview(button)
+        button.isUserInteractionEnabled = false
         button.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -46,7 +54,6 @@ class ConcentrationCollectionViewCell: UICollectionViewCell,ReuseIdentifiable {
     }
     
     @objc func buttonTapped(_ sender:SelectButton) {
-        sender.isSelected.toggle()
         onTap?()
     }
 }

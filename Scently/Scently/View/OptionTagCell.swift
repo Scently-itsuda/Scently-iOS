@@ -22,15 +22,21 @@ final class OptionTagCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        optionButton.updateSelectedState(isSelected: false)
+    }
+    
     private func setupUI() {
         self.addSubview(optionButton)
-        
+        optionButton.isUserInteractionEnabled = false
         optionButton.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
     }
     
-    func configure(with text: String) {
+    func configure(with text: String, isSelected: Bool) {
         self.optionButton.configure(with: text)
+        optionButton.updateSelectedState(isSelected: isSelected)
     }
 }
