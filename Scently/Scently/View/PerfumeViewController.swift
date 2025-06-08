@@ -10,6 +10,9 @@ import SnapKit
 
 final class PerfumeViewController: UIViewController {
     let response = PerfumeMockService.shared.fetchMockPerfumes()
+    private var currentFilters = FilterData()
+    private var tagViews: [String: TagListView] = [:]
+    
     private let logoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "LOGO")
@@ -198,12 +201,11 @@ final class PerfumeViewController: UIViewController {
         containerView.isLayoutMarginsRelativeArrangement = true
         containerView.layoutMargins = UIEdgeInsets(top: 9, left: 20, bottom: 9, right: 20)
         
-        let titles = ["전체","가격","성별","부향률","브랜드","국가","123","1234","123456"]
+        let titles = ["전체","가격","성별","어코드","부향률","브랜드","국가","신상품"]
         
         for title in titles {
             let tag = TagListView(title: title, buttonType: .dropDown)
             tag.snp.makeConstraints {
-//                $0.leading.equalToSuperview().offset(20)
                 $0.height.equalTo(28).priority(.low)
             }
             
@@ -215,11 +217,10 @@ final class PerfumeViewController: UIViewController {
                 print("Button tapped\(title)")
             }
             containerView.addArrangedSubview(tag)
-//            tag.backgroundColor = .blue.withAlphaComponent(0.3)
             tag.isUserInteractionEnabled = true
-
+            tagViews[title] = tag
         }
-        
+
         divider2.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
             $0.top.equalTo(scrollView.snp.bottom)
@@ -237,7 +238,7 @@ final class PerfumeViewController: UIViewController {
             $0.height.equalTo(14)
         }
         
-        perfuneCollectionView.snp.makeConstraints {
+        perfumeCollectionView.snp.makeConstraints {
             $0.top.equalTo(countLabel.snp.bottom).offset(8)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalToSuperview()
@@ -254,6 +255,11 @@ final class PerfumeViewController: UIViewController {
         tag.onTap = {print("onTap")}
     }
     
+    private func handleFiltersApplied(_ filterData: FilterData) {
+        currentFilters = filterData
+        
+    }
+    
     @objc
     func searchButtonDidTap() {
         print("searchButtonDidTap")
@@ -267,10 +273,10 @@ final class PerfumeViewController: UIViewController {
         if let sheet = filterVC.sheetPresentationController {
             sheet.detents = [.custom { [weak self] context in
                 guard let self = self else { return 500 }
-                
-                print("logoStackView frame: \(self.logoStackView.frame)")
-                print("logoStackView bounds: \(self.logoStackView.bounds)")
-                print("View height: \(self.view.frame.height)")
+//                
+//                print("logoStackView frame: \(self.logoStackView.frame)")
+//                print("logoStackView bounds: \(self.logoStackView.bounds)")
+//                print("View height: \(self.view.frame.height)")
                 
                 // 좌표계 변환을 사용하여 정확한 위치 계산
                 let convertedFrame = self.view.convert(self.logoStackView.frame, from: self.logoStackView.superview)
@@ -292,6 +298,12 @@ final class PerfumeViewController: UIViewController {
             sheet.preferredCornerRadius = 30
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
         }
+        
+        filterVC.onFiltersApplied = { [weak self] filterData in
+            print("=== 클로저 호출됨! ===")
+            self?.handleFilterApplied(filterData)
+        }
+        print("FilterVC에 클로저 설정 완료")
         present(filterVC,animated: true)
       
     }
@@ -307,7 +319,10 @@ extension PerfumeViewController: UICollectionViewDelegate {
 }
 
 extension PerfumeViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
         return 15
     }
     
@@ -318,7 +333,61 @@ extension PerfumeViewController: UICollectionViewDataSource {
         cell.backgroundColor = .white
         return cell
     }
+}
+
+extension PerfumeViewController {
+    private func handleFilterApplied(_ filterData: FilterData) {
+        print("=== handleFilterApplied 호출됨! ===")
+        currentFilters = filterData
+        
+        print("PerfumeVC에서 필터 데이터 받음!================")
+        print("가격: \(currentFilters.selectedPrice ?? "없음")")
+        print("성별: \(currentFilters.selectedGender?.title ?? "없음")")
+        print("어코드: \(currentFilters.selectedAccords)")
+        print("부항률: \(currentFilters.selectedConcentration)")
+        print("브랜드: \(currentFilters.selectedBrands)")
+        print("국가: \(currentFilters.selectedNations)")
+        print("신상품: \(currentFilters.isNewProduct)")
+        print("================================================")
+        updateTagViews(currentFilters)
+    }
     
+    private func updateTagViews(_ filterData: FilterData) {
+        print("=== updateTagViews 시작 ===")
+        
+        let hasPriceFilter = filterData.selectedPrice != nil
+        print("가격 필터 적용: \(hasPriceFilter)")
+        if let priceTag = tagViews["가격"] {
+                print("가격 태그 찾음: \(priceTag)")
+                priceTag.setFilterApplied(hasPriceFilter)
+            } else {
+                print("가격 태그를 찾을 수 없음")
+            }
+                
+        
+        let hasGenderFilter = filterData.selectedGender != nil
+        tagViews["성별"]?.setFilterApplied(hasGenderFilter)
+                
+            
+        let hasAccordFilter = !filterData.selectedAccords.isEmpty
+        tagViews["어코드"]?.setFilterApplied(hasAccordFilter)
+                
+              
+        let hasConcentrationFilter = !filterData.selectedConcentration.isEmpty
+        tagViews["부향률"]?.setFilterApplied(hasConcentrationFilter)
+                
+           
+        let hasBrandFilter = !filterData.selectedBrands.isEmpty
+        tagViews["브랜드"]?.setFilterApplied(hasBrandFilter)
+                
+                
+        let hasNationFilter = !filterData.selectedNations.isEmpty
+        tagViews["국가"]?.setFilterApplied(hasNationFilter)
+                
+                
+        let hasNewProductFilter = filterData.isNewProduct
+        tagViews["신상품"]?.setFilterApplied(hasNewProductFilter)
+    }
     
 }
 

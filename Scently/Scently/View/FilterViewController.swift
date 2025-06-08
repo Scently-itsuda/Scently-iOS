@@ -14,6 +14,7 @@ final class FilterViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
     
     @Published private var currentFilterData = FilterData()
+    var onFiltersApplied: ((FilterData) -> Void)?
     
     private var isDirectInput: Bool = false
     
@@ -332,9 +333,6 @@ final class FilterViewController: UIViewController {
                 }
                 .store(in: &cancellables)
         }
-        
-        
-  
     }
     
     @objc func closeButtonDidTap() {
@@ -373,5 +371,16 @@ final class FilterViewController: UIViewController {
         print("브랜드: \(currentFilterData.selectedBrands)")
         print("국가: \(currentFilterData.selectedNations)")
         print("신상품: \(currentFilterData.isNewProduct)")
+        
+//        onFiltersApplied?(currentFilterData)
+        if let closure = onFiltersApplied {
+                print("클로저 존재함, 호출 예정")
+                closure(currentFilterData)
+            } else {
+                print("onFiltersApplied 클로저가 nil!")
+            }
+        dismiss(animated: true)
+        
     }
+
 }

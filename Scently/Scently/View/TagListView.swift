@@ -27,11 +27,20 @@ final class TagListView: UIView {
     private let actionButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintColor = .gray
-//        button.backgroundColor = .red
         return button
     }()
     
-    private var buttonType:ButtonType = .delete
+    private var buttonType:ButtonType = .delete {
+        didSet {
+            configureButtonImage()
+        }
+    }
+    
+    private var isFilterApplied: Bool = false {
+        didSet {
+            updateAppearanceForFilter()
+        }
+    }
     
     var onAction:(()->Void)?
     var onTap: (()->Void)?
@@ -45,10 +54,11 @@ final class TagListView: UIView {
         layer.borderColor = borderColor.cgColor
         layer.borderWidth = 1
         backgroundColor = .white
+        titleLabel.textColor = .gray3
         
         setupUI()
         setupActions()
-        congifureButtonImage()
+        configureButtonImage()
         
     }
     
@@ -70,29 +80,12 @@ final class TagListView: UIView {
             $0.leading.equalTo(titleLabel.snp.trailing).offset(8)
             $0.trailing.equalToSuperview().inset(8)
             $0.centerY.equalToSuperview()
-            $0.size.equalTo(12)
+            $0.size.equalTo(8)
         }
     }
-    
-    private func congifureButtonImage() {
-        switch buttonType {
-        case .delete:
-            let image = UIImage(systemName: "xmark")
-            actionButton.setImage(image, for: .normal)
-        case .dropDown:
-            let image = UIImage(systemName: "chevron.down")
-            actionButton.setImage(image, for: .normal)
-        }
-    }
-    
-    
-    
     
     private func setupActions() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-//        tap.numberOfTapsRequired = 1
-//        tap.isEnabled = true
-//        tap.cancelsTouchesInView = false
         addGestureRecognizer(tap)
         actionButton.addTarget(self, action: #selector(handleAction), for: .touchUpInside)
     }
@@ -105,5 +98,47 @@ final class TagListView: UIView {
     @objc
     func handleAction() {
         onAction?()
+    }
+}
+
+extension TagListView {
+    func setFilterApplied(_ applied: Bool) {
+        print("setFilterApplied 호출 - title: \(titleLabel.text ?? "unknown"), applied: \(applied)")
+        
+        isFilterApplied = applied
+        buttonType = applied ? .delete : .dropDown
+        
+        // 즉시 UI 업데이트
+        DispatchQueue.main.async { [weak self] in
+            self?.updateAppearanceForFilter()
+            self?.configureButtonImage()
+        }
+    }
+    
+    private func updateAppearanceForFilter() {
+        if isFilterApplied {
+            layer.borderColor = UIColor.black.cgColor
+            layer.borderWidth = 1.0
+            titleLabel.textColor = .black
+            titleLabel.font = .pretendard(.medium, size: 11)
+            actionButton.tintColor = .black
+        } else {
+            layer.borderColor = UIColor.lightgray.cgColor
+            layer.borderWidth = 1
+            titleLabel.textColor = .gray3
+            titleLabel.font = .pretendard(.regular, size: 11)
+            actionButton.tintColor = .gray3
+        }
+    }
+    
+    private func configureButtonImage() {
+        switch buttonType {
+        case .delete:
+            let image = UIImage(systemName: "xmark")
+            actionButton.setImage(image, for: .normal)
+        case .dropDown:
+            let image = UIImage(systemName: "chevron.down")
+            actionButton.setImage(image, for: .normal)
+        }
     }
 }
