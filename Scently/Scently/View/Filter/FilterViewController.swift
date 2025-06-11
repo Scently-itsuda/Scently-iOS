@@ -7,8 +7,18 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class FilterViewController: UIViewController {
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    @Published private var currentFilterData = FilterData()
+    var onFiltersApplied: ((FilterData) -> Void)?
+    
+    private var isDirectInput: Bool = false
+    
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "필터"
@@ -37,7 +47,7 @@ final class FilterViewController: UIViewController {
         return stackView
     }()
     
-    let section = ["가격","성별","어코드","부향률","브랜드","국가"]
+    let section = ["가격","성별","어코드","부향률","브랜드","국가","기타"]
     private var selectedButton: UIButton?
     
     private let resetButton: UIButton = {
@@ -67,6 +77,7 @@ final class FilterViewController: UIViewController {
         let scrollView = UIScrollView()
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.backgroundColor = .clear
+        scrollView.isScrollEnabled = false
         return scrollView
     }()
     
@@ -85,6 +96,8 @@ final class FilterViewController: UIViewController {
         setupAddTarget()
         setupButtons()
         setupSectionViews()
+        setBinding()
+        
         // 처음 버튼 선택 지정
         if let firstButton = buttonStackView.arrangedSubviews.first as? UIButton {
             didTapSection(firstButton)
@@ -134,12 +147,13 @@ final class FilterViewController: UIViewController {
         
         dividerView2.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(self.view.safeAreaLayoutGuide).offset(-50)
+            $0.bottom.equalTo(self.view.safeAreaLayoutGuide).offset(-70)
         }
         
         resetButton.snp.makeConstraints {
             $0.top.equalTo(dividerView2.snp.bottom).offset(13)
             $0.leading.equalToSuperview().offset(32)
+            $0.bottom.lessThanOrEqualTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(-12)
             $0.width.equalTo(112)
             $0.height.equalTo(44)
         }
@@ -148,6 +162,7 @@ final class FilterViewController: UIViewController {
             $0.top.equalTo(resetButton.snp.top)
             $0.leading.equalTo(resetButton.snp.trailing).offset(16)
             $0.trailing.equalToSuperview().offset(-32)
+            $0.bottom.lessThanOrEqualTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(-12)
             $0.height.equalTo(44)
         }
         scrollView.snp.makeConstraints {
@@ -179,38 +194,41 @@ final class FilterViewController: UIViewController {
     
     private func setupAddTarget() {
         closeButton.addTarget(self, action: #selector(closeButtonDidTap), for: .touchUpInside)
+        applyButton.addTarget(self, action: #selector(applyButtonDidTap), for: .touchUpInside)
     }
     
     private func createSectionView(title:String,index:Int) -> UIView {
         switch title {
             case "가격":
-                let priceView = UIView()
-                priceView.backgroundColor = .yellow
+                let priceView = PriceView()
+                priceView.backgroundColor = .white
                 return priceView
             case "성별":
-                let genderView = UIView()
-                genderView.backgroundColor = .blue
+                let genderView = GenderView()
+                genderView.backgroundColor = .white
                 return genderView
             case "어코드":
-                let accordView = UIView()
-                accordView.backgroundColor = .systemPink
+                let accordView = AccordView()
+                accordView.backgroundColor = .white
                 return accordView
             case "부향률":
-                let boohangView = UIView()
-                boohangView.backgroundColor = .brown
+                let boohangView = ConcentrationView()
+                boohangView.backgroundColor = .white
                 return boohangView
             case "브랜드":
-                let brandView = UIView()
-                brandView.backgroundColor = .blue
+                let brandView = BrandView()
+                brandView.backgroundColor = .white
                 return brandView
             case "국가":
-                let nationView = UIView()
-                nationView.backgroundColor = .gray
+                let nationView = NationView()
+                nationView.backgroundColor = .white
+                return nationView
+            case "기타":
+                let nationView = ETCView()
+                nationView.backgroundColor = .white
                 return nationView
             
-              
-            
-            
+  
             default:
                 let view =  UIView()
                 view.backgroundColor = .red
@@ -220,7 +238,7 @@ final class FilterViewController: UIViewController {
     }
     
     private func setupSectionViews() {
-        // 각 섹션별 뷰 생성 및 contentView에 추가
+
         var previousView: UIView?
         
         for (index, sectionTitle) in section.enumerated() {
@@ -244,8 +262,76 @@ final class FilterViewController: UIViewController {
         // 마지막 뷰의 bottom을 contentView의 bottom과 연결
         if let lastView = previousView {
             lastView.snp.makeConstraints {
-                $0.bottom.equalTo(contentView)
+                $0.bottom.equalTo(contentView).inset(20)
             }
+        }
+    }
+    
+    private func setBinding() {
+        DispatchQueue.main.async { [weak self] in
+            self?.bindFilterData()
+        }
+    }
+    
+    private func bindFilterData() {
+        if let priceView = sectionViews.first(where: { $0 is PriceView }) as? PriceView {
+            priceView.priceSelectionPublisher
+                .sink { [weak self] priceSelection in
+                    self?.currentFilterData.selectedPrice = priceSelection.selectedOption
+                    self?.currentFilterData.minPrice = priceSelection.minPrice
+                    self?.currentFilterData.maxPrice = priceSelection.maxPrice
+                    self?.isDirectInput = priceSelection.isDirectInput
+
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let genderView = sectionViews.first(where: { $0 is GenderView }) as? GenderView {
+            genderView.selectedGenderPublisher
+                .sink { [weak self] gender in
+                    self?.currentFilterData.selectedGender = gender
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let accordView = sectionViews.first(where: { $0 is AccordView }) as? AccordView {
+            accordView.selectedAccordsPublisher
+                .sink { [weak self] accords in
+                    self?.currentFilterData.selectedAccords = accords
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let concentrationView = sectionViews.first(where: { $0 is ConcentrationView }) as? ConcentrationView {
+            concentrationView.selectedConcentrationPublisher
+                .sink { [weak self] concentration in
+                    self?.currentFilterData.selectedConcentration = concentration
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let brandView = sectionViews.first(where: { $0 is BrandView }) as? BrandView {
+            brandView.selectedBrandPublisher
+                .sink { [weak self] brands in
+                    self?.currentFilterData.selectedBrands = brands
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let nationView = sectionViews.first(where: { $0 is NationView }) as? NationView {
+            nationView.selectedNationPublisher
+                .sink { [weak self] nations in
+                    self?.currentFilterData.selectedNations = nations
+                }
+                .store(in: &cancellables)
+        }
+        
+        if let etcView = sectionViews.first(where: { $0 is ETCView }) as? ETCView {
+            etcView.isNewProductSelectedPublisher
+                .sink { [weak self] isSelected in
+                    self?.currentFilterData.isNewProduct = isSelected
+                }
+                .store(in: &cancellables)
         }
     }
     
@@ -255,6 +341,7 @@ final class FilterViewController: UIViewController {
     }
     
     @objc func didTapSection(_ sender: UIButton) {
+        view.endEditing(true)
         selectedButton?.backgroundColor = .clear
         selectedButton?.setTitleColor(.gray3,for: .normal)
         sender.backgroundColor = .black
@@ -271,4 +358,29 @@ final class FilterViewController: UIViewController {
             }
         }
     }
+    
+    @objc private func applyButtonDidTap() {
+        print("=== 최종 필터 데이터 ===")
+        print("가격: \(currentFilterData.selectedPrice ?? "없음")")
+        if isDirectInput {
+            print("최솟값:\(currentFilterData.minPrice),최댓값:\(currentFilterData.maxPrice)")
+        }
+        print("성별: \(currentFilterData.selectedGender?.title ?? "없음")")
+        print("어코드: \(currentFilterData.selectedAccords)")
+        print("부향률: \(currentFilterData.selectedConcentration)")
+        print("브랜드: \(currentFilterData.selectedBrands)")
+        print("국가: \(currentFilterData.selectedNations)")
+        print("신상품: \(currentFilterData.isNewProduct)")
+        
+//        onFiltersApplied?(currentFilterData)
+        if let closure = onFiltersApplied {
+                print("클로저 존재함, 호출 예정")
+                closure(currentFilterData)
+            } else {
+                print("onFiltersApplied 클로저가 nil!")
+            }
+        dismiss(animated: true)
+        
+    }
+
 }
