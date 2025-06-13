@@ -401,6 +401,17 @@ extension PerfumeViewController: UICollectionViewDataSource {
         cell.backgroundColor = .white
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print("셀 선택됨: \(indexPath.row)")
+        
+       // let selectedPerfume = response.data.datalist[indexPath.row]
+        
+        let detailVC = PerfumeDetailViewController()
+        detailVC.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(detailVC, animated: false)
+        
+    }
 }
 
 extension PerfumeViewController {
