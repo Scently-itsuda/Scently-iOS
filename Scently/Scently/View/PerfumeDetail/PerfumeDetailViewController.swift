@@ -172,6 +172,7 @@ final class PerfumeDetailViewController: UIViewController {
         return label
     }()
     
+    let bulletLabel = BulletPointLabel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -271,9 +272,17 @@ final class PerfumeDetailViewController: UIViewController {
                 accordCollectionView,
                 dividerView3,
                 noteIconImage,
-                noteLabel
+                noteLabel,
+                bulletLabel
             )
         
+        bulletLabel.font = .pretendard(.regular, size: 12)
+        
+        bulletLabel.setBulletPoints([
+            "탑 노트 : 아이리스, 피오니, 릴리오브더밸리",
+            "미들 노트 : 아프리콧, 로즈, 피치",
+            "베이스 노트 : 바닐라, 머스크, 통카 빈, 샌달우드, 벤조인"
+        ])
     }
     
     private func setupLayout() {
@@ -387,6 +396,14 @@ final class PerfumeDetailViewController: UIViewController {
         noteLabel.snp.makeConstraints {
             $0.leading.equalTo(noteIconImage.snp.trailing).offset(4)
             $0.centerY.equalTo(noteIconImage.snp.centerY)
+           
+        }
+        
+        bulletLabel.snp.makeConstraints {
+            $0.top.equalTo(noteIconImage.snp.bottom).offset(16)
+            $0.leading.equalTo(noteIconImage.snp.leading).offset(4)
+            $0.trailing.equalToSuperview().inset(16)
+            
             $0.bottom.equalToSuperview().inset(10)
         }
     }
