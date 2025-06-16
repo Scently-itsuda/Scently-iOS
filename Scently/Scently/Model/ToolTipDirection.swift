@@ -8,5 +8,5 @@
 import Foundation
 
 enum TooltipDirection {
-    case left, right, top, bottom
+    case left, right, top, bottom, center
 }

@@ -16,7 +16,7 @@ final class PerfumeDetailViewController: UIViewController {
     let concentration = ["퍼퓸","오 드 퍼퓸","오 드 뚜왈렛","오 드 코롱","오 프레쉬"]
     let concentrationSubtitles = ["20% ~ 40%","15% ~ 20%","5% ~ 15%","2% ~ 5%","1% ~ 3%"]
     let selectedConcentration = "오 드 퍼퓸"
-    private let accords = ["🍊 시트러스", "🌳 우디", "💚 그린","🍊 시트러스", "🌳 우디", "💚 그린","🍊 시트러스", "🌳 우디", "💚 그린"]
+    private let accords = ["🍊 시트러스", "🌳 우디", "💚 그린"]
     
     private let notes = ["탑노트","미들노트","베이스 노트"]
     
@@ -142,23 +142,20 @@ final class PerfumeDetailViewController: UIViewController {
         return label
     }()
     
-    private let accordScrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.showsVerticalScrollIndicator = false
-        scrollView.backgroundColor = .clear
-        return scrollView
-    }()
-
-    private let accordStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.spacing = 15
-        return stackView
-    }()
-    
     private let dividerView3 = DividerView(backgroundColor: .gray4,height: 1)
+    
+    private lazy var accordCollectionView: UICollectionView = {
+        let layout = createFixedRowLayout()
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.isScrollEnabled = false
+        collectionView.register(AccordButtonCell.self, forCellWithReuseIdentifier: "AccordButtonCell")
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        return collectionView
+    }()
     
     private let noteIconImage: UIImageView = {
         let imageView = UIImageView()
@@ -184,7 +181,71 @@ final class PerfumeDetailViewController: UIViewController {
         setupConcentrationButtons()
         setupAccordViews()
         setupLayout()
-
+    }
+    
+    private func createFixedRowLayout() -> UICollectionViewCompositionalLayout {
+        let sectionProvider = { (sectionIndex: Int, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+            
+            var groups: [NSCollectionLayoutGroup] = []
+            let totalItems = self.accords.count
+            
+            print("===== 3개씩 강제 그룹핑 =====")
+            print("총 아이템 개수: \(totalItems)")
+            
+            for i in stride(from: 0, to: totalItems, by: 3) {
+                var items: [NSCollectionLayoutItem] = []
+                
+                // 한 줄에 3개씩
+                let itemsInThisRow = min(3, totalItems - i)
+                
+                print("줄 \(i/3 + 1): \(itemsInThisRow)개 아이템 (인덱스 \(i)~\(i + itemsInThisRow - 1))")
+                
+                for j in 0..<itemsInThisRow {
+                    let itemSize = NSCollectionLayoutSize(
+                        widthDimension: .estimated(80),
+                        heightDimension: .absolute(36)
+                    )
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                    
+                    if j == 0 {
+                        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 4)
+                    } else {
+                        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4)
+                    }
+                    
+                    items.append(item)
+                }
+                
+                let groupSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .absolute(40)
+                )
+                let group = NSCollectionLayoutGroup.horizontal(
+                    layoutSize: groupSize,
+                    subitems: items
+                )
+                group.interItemSpacing = .fixed(15)
+                groups.append(group)
+            }
+            
+            print("총 \(groups.count)개 줄 생성")
+            
+            let containerGroupSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .estimated(CGFloat(groups.count * 44))
+            )
+            let containerGroup = NSCollectionLayoutGroup.vertical(
+                layoutSize: containerGroupSize,
+                subitems: groups
+            )
+            containerGroup.interItemSpacing = .fixed(12)
+            
+            let section = NSCollectionLayoutSection(group: containerGroup)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 20)
+            return section
+        }
+        
+        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
     
     private func setupUI() {
@@ -207,12 +268,11 @@ final class PerfumeDetailViewController: UIViewController {
                 dividerView2,
                 accordIconImage,
                 accordLabel,
-                accordScrollView,
+                accordCollectionView,
                 dividerView3,
                 noteIconImage,
                 noteLabel
             )
-        self.accordScrollView.addSubview(accordStackView)
         
     }
     
@@ -226,8 +286,6 @@ final class PerfumeDetailViewController: UIViewController {
         containerView.snp.makeConstraints {
             $0.edges.equalTo(scrollView.contentLayoutGuide)
             $0.width.equalTo(scrollView.frameLayoutGuide)
-//            $0.edges.equalToSuperview()
-//            $0.height.equalToSuperview()
         }
         
         scrollView.backgroundColor = .white
@@ -315,19 +373,8 @@ final class PerfumeDetailViewController: UIViewController {
             $0.centerY.equalTo(accordIconImage.snp.centerY)
         }
         
-        accordScrollView.snp.makeConstraints {
-            $0.top.equalTo(accordIconImage.snp.bottom).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(36)
-        }
-        
-        accordStackView.snp.makeConstraints {
-               $0.edges.equalTo(accordScrollView.contentLayoutGuide)
-               $0.height.equalTo(accordScrollView.frameLayoutGuide)
-           }
-        
         dividerView3.snp.makeConstraints {
-            $0.top.equalTo(accordStackView.snp.bottom).offset(28)
+            $0.top.equalTo(accordCollectionView.snp.bottom).offset(28)
             $0.leading.trailing.equalToSuperview().inset(16)
         }
         
@@ -409,14 +456,43 @@ final class PerfumeDetailViewController: UIViewController {
     }
     
     private func setupAccordViews() {
-        for (index, accord) in accords.enumerated() {
-            let button = OptionButton(title: accord)
-            button.tag = index
-            button.addTarget(self, action: #selector(accordButtonDidTapped(_:)), for: .touchUpInside)
-            accordButtons.append(button)
-            accordStackView.addArrangedSubview(button)
+        accordCollectionView.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(accordIconImage.snp.bottom).offset(12)
+            $0.height.equalTo(calculateCollectionViewHeight())
         }
         setupAccordBinding()
+    }
+    
+    private func calculateCollectionViewHeight() -> CGFloat {
+        let totalItems = accords.count
+        let totalRows = Int(ceil(Double(totalItems) / 3.0))
+        let cellHeight: CGFloat = 40
+        let lineSpacing: CGFloat = 12
+        
+        let calculatedHeight = CGFloat(totalRows) * cellHeight + CGFloat(max(0, totalRows - 1)) * lineSpacing
+        
+        print(" CollectionView 높이 계산 (3개 고정):")
+        print("   - 총 아이템: \(totalItems)")
+        print("   - 총 줄 수: \(totalRows)")
+        print("   - 계산된 높이: \(calculatedHeight)")
+        
+        return calculatedHeight
+    }
+    
+    private func updateCollectionViewHeight() {
+        accordCollectionView.layoutIfNeeded()
+        let contentHeight = accordCollectionView.collectionViewLayout.collectionViewContentSize.height
+        
+        print("CollectionView contentHeight: \(contentHeight)")
+        
+        accordCollectionView.snp.remakeConstraints {
+                $0.leading.trailing.equalToSuperview().inset(20)
+                $0.top.equalTo(accordIconImage.snp.bottom).offset(16)
+                $0.height.equalTo(contentHeight)
+            }
+        
+        view.layoutIfNeeded()
     }
     
     private func setupAccordBinding() {
@@ -428,11 +504,11 @@ final class PerfumeDetailViewController: UIViewController {
     }
 
     private func updateAccordButtonStates(selectedIndex: Int?) {
-        for (index, button) in accordButtons.enumerated() {
-            let isSelected = index == selectedIndex
-            button.updateSelectedState(isSelected: isSelected)
-        }
+        accordCollectionView.reloadData()
         
+        DispatchQueue.main.async {
+                self.updateCollectionViewHeight()
+            }
         if let selectedIndex = selectedIndex {
             print("선택된 어코드: \(accords[selectedIndex])")
         } else {
@@ -444,92 +520,6 @@ final class PerfumeDetailViewController: UIViewController {
             let label = UILabel()
             label.text = ""
         }
-    }
-    
-    @objc private func accordButtonDidTapped(_ sender: OptionButton) {
-        let tappedIndex = sender.tag
-        
-        // 토글 로직
-        if selectedAccordIndex == tappedIndex {
-            selectedAccordIndex = nil
-            hideTooltip()
-        } else {
-            selectedAccordIndex = tappedIndex
-            showToolTip(for: sender, text: getAccordDescription(for: sender.tag))
-            print(getAccordDescription(for: sender.tag))
-        }
-
-
-       
-    }
-    
-    private func adjustScrollForTooltip(button: OptionButton, completion: @escaping () -> Void) {
-        let buttonFrame = button.convert(button.bounds, to: accordScrollView)
-        let scrollViewBounds = accordScrollView.bounds
-        let tooltipWidth: CGFloat = 200
-        let margin: CGFloat = 20
-        
-        // 현재 스크롤 위치에서 버튼의 절대 위치
-        let buttonAbsoluteX = accordScrollView.contentOffset.x + buttonFrame.minX
-        
-        // 툴팁을 표시하기 위해 필요한 공간 계산
-        let requiredRightSpace = buttonAbsoluteX + tooltipWidth + margin
-        let requiredLeftSpace = buttonAbsoluteX - tooltipWidth - margin
-        
-        var targetOffsetX = accordScrollView.contentOffset.x
-        
-        // 오른쪽 공간이 충분한지 체크
-        let visibleRightEdge = accordScrollView.contentOffset.x + scrollViewBounds.width
-        
-        if requiredRightSpace > visibleRightEdge {
-            // 오른쪽 공간이 부족하면 왼쪽으로 스크롤
-            targetOffsetX = requiredRightSpace - scrollViewBounds.width
-        } else if requiredLeftSpace < accordScrollView.contentOffset.x && buttonAbsoluteX < accordScrollView.contentOffset.x + tooltipWidth {
-            // 왼쪽 공간이 필요하면 오른쪽으로 스크롤
-            targetOffsetX = max(0, requiredLeftSpace)
-        }
-        
-        // 스크롤 범위 제한
-        let maxOffsetX = max(0, accordScrollView.contentSize.width - scrollViewBounds.width)
-        targetOffsetX = min(maxOffsetX, max(0, targetOffsetX))
-        
-        if abs(targetOffsetX - accordScrollView.contentOffset.x) > 1 {
-            // 스크롤이 필요한 경우
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
-                self.accordScrollView.setContentOffset(CGPoint(x: targetOffsetX, y: 0), animated: false)
-            } completion: { _ in
-                completion()
-            }
-        } else {
-            // 스크롤이 필요없는 경우
-            completion()
-        }
-    }
-    
-
-    
-    private func showToolTip(for button: OptionButton, text: String) {
-        currentTooltip?.removeFromSuperview()
-        currentTooltip = nil
-        
-        let buttonFrame = button.convert(button.bounds, to: self.view)
-        let screenWidth = self.view.bounds.width
-        let requiredWidth: CGFloat = 200
-        
-        let rightMargin = screenWidth - buttonFrame.maxX
-        
-        // 항상 버튼 아래쪽, 오른쪽/왼쪽만 결정
-        let toolTipDirection: TooltipDirection
-        if rightMargin >= requiredWidth + 20 {
-            toolTipDirection = .right  // 실제로는 "아래쪽 + 오른쪽 정렬"
-            print("방향: 아래쪽 오른쪽 정렬")
-        } else {
-            toolTipDirection = .left   // 실제로는 "아래쪽 + 왼쪽 정렬"
-            print("방향: 아래쪽 왼쪽 정렬")
-        }
-        
-        let tooltip = createToolTip(text: text, direction: toolTipDirection)
-        positionToolTip(tooltip, relativeTo: button, direction: toolTipDirection)
     }
     
 
@@ -544,8 +534,11 @@ final class PerfumeDetailViewController: UIViewController {
             backgroundImageView.image = UIImage(named: "Group 70")
         case .left:   // 꼬리가 오른쪽에 있는 말풍선
             backgroundImageView.image = UIImage(named: "Group 71")
+        case .center:
+                backgroundImageView.image = UIImage(named: "Group 70")
             
-        default: break
+        default:
+            backgroundImageView.image = UIImage(named: "Group 70")
         }
         
         let textLabel = UILabel()
@@ -572,39 +565,6 @@ final class PerfumeDetailViewController: UIViewController {
            return toolTipContainer
     }
     
-    private func positionToolTip(_ tooltip: UIView, relativeTo button: OptionButton, direction: TooltipDirection) {
-        self.view.addSubview(tooltip)
-        currentTooltip = tooltip
-        
-        let buttonFrame = button.convert(button.bounds, to: self.view)
-        
-        tooltip.snp.makeConstraints {
-            $0.width.equalTo(130)
-            $0.height.equalTo(80)
-            $0.top.equalTo(buttonFrame.maxY + 10)  // 항상 버튼 아래
-            
-            switch direction {
-            case .right:  // 오른쪽 정렬 (꼬리가 왼쪽에)
-                $0.leading.equalTo(buttonFrame.minX)  // 버튼 왼쪽 끝에 맞춤
-                
-            case .left:   // 왼쪽 정렬 (꼬리가 오른쪽에)
-                $0.trailing.equalTo(buttonFrame.maxX)  // 버튼 오른쪽 끝에 맞춤
-                
-            default:
-                break
-            }
-        }
-        
-        // 애니메이션은 동일
-        tooltip.alpha = 0
-        tooltip.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-        
-        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.8) {
-            tooltip.alpha = 1
-            tooltip.transform = .identity
-        }
-    }
- 
     private func hideTooltip() {
         UIView.animate(withDuration: 0.2) {
             self.currentTooltip?.alpha = 0
@@ -614,17 +574,124 @@ final class PerfumeDetailViewController: UIViewController {
             self.currentTooltip = nil
         }
     }
-    
+
     private func getAccordDescription(for index: Int) -> String {
         let descriptions = [
             "🍊 시트러스": "상큼하고 활기찬 향으로 레몬, 오렌지 등이 포함됩니다",
             "🌳 우디": "따뜻하고 깊은 나무 향으로 자연스러운 느낌을 줍니다",
             "💚 그린": "꽃향기가 주를 이루는 로맨틱하고 우아한 향입니다"
-            
         ]
-        
         return descriptions[accords[index]] ?? "123"
     }
-    
+}
 
+extension PerfumeDetailViewController: UICollectionViewDataSource,UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return accords.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AccordButtonCell", for: indexPath) as! AccordButtonCell
+        
+        let isSelected = selectedAccordIndex == indexPath.item
+        cell.configure(with: accords[indexPath.item], tag: indexPath.item, isSelected: isSelected)
+
+        return cell
+    }
+
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let tappedIndex = indexPath.item
+        
+        print("\n🎯 ===== 셀 클릭 디버깅 =====")
+        print("클릭된 셀 인덱스: \(tappedIndex)")
+        print("전체 셀 개수: \(accords.count)")
+        
+        print("📱 CollectionView 정보:")
+        print("   - CollectionView frame: \(collectionView.frame)")
+        print("   - CollectionView bounds: \(collectionView.bounds)")
+        print("   - ContentSize: \(collectionView.contentSize)")
+        print("   - ContentOffset: \(collectionView.contentOffset)")
+        
+        // 셀 정보
+        guard let cellAttributes = collectionView.layoutAttributesForItem(at: indexPath) else {
+            print("셀 attributes를 가져올 수 없습니다")
+            return
+        }
+        
+        let cellFrame = cellAttributes.frame
+        print("셀 정보:")
+        print(" - CollectionView 내 셀 frame: \(cellFrame)")
+        
+        let buttonFrameInView = collectionView.convert(cellFrame, to: self.view)
+        print("   - View 기준 셀 frame: \(buttonFrameInView)")
+        
+        // 다른 셀들과 비교
+        for i in 0..<accords.count {
+            let ip = IndexPath(item: i, section: 0)
+            if let attr = collectionView.layoutAttributesForItem(at: ip) {
+                let converted = collectionView.convert(attr.frame, to: self.view)
+                print("   - 셀 \(i): CollectionView내(\(attr.frame)) → View기준(\(converted))")
+            }
+        }
+
+        if selectedAccordIndex == tappedIndex {
+            selectedAccordIndex = nil
+            hideTooltip()
+        } else {
+            selectedAccordIndex = tappedIndex
+            showToolTipAtPosition(frame: buttonFrameInView, text: getAccordDescription(for: indexPath.item))
+        }
+    }
+}
+
+extension PerfumeDetailViewController {
+
+    private func showToolTipAtPosition(frame: CGRect, text: String) {
+        currentTooltip?.removeFromSuperview()
+        currentTooltip = nil
+        
+        let tooltipWidth: CGFloat = 130
+        let tooltipHeight: CGFloat = 80
+        let margin: CGFloat = 10
+        
+        print("🔍 ===== 고정 레이아웃에서 툴팁 테스트 =====")
+        print("버튼 frame (view 기준): \(frame)")
+        
+        // 기존 ScrollView 방식으로 툴팁 추가
+        let buttonFrameInScrollView = self.view.convert(frame, to: scrollView)
+        let scrollViewWidth = scrollView.bounds.width
+        
+        let rightSpace = scrollViewWidth - buttonFrameInScrollView.maxX
+        let leftSpace = buttonFrameInScrollView.minX
+        
+        var tooltipX: CGFloat
+        if rightSpace >= tooltipWidth + margin {
+            tooltipX = buttonFrameInScrollView.minX
+        } else if leftSpace >= tooltipWidth + margin {
+            tooltipX = buttonFrameInScrollView.maxX - tooltipWidth
+        } else {
+            tooltipX = buttonFrameInScrollView.midX - (tooltipWidth / 2)
+        }
+        
+        tooltipX = max(margin, min(tooltipX, scrollViewWidth - tooltipWidth - margin))
+        let tooltipY = buttonFrameInScrollView.maxY + 5
+        
+        let tooltip = createToolTip(text: text, direction: rightSpace >= tooltipWidth + margin ? .right : .left)
+        scrollView.addSubview(tooltip)
+        currentTooltip = tooltip
+        
+        tooltip.frame = CGRect(x: tooltipX, y: tooltipY, width: tooltipWidth, height: tooltipHeight)
+        
+        print("툴팁 추가 완료 - 셀 위치 변화 없어야 함")
+        
+        // 애니메이션
+        tooltip.alpha = 0
+        tooltip.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        
+        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.8) {
+            tooltip.alpha = 1
+            tooltip.transform = .identity
+        }
+    }
 }
