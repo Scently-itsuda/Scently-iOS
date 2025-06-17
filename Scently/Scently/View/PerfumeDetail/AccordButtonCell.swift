@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 
-class AccordButtonCell: UICollectionViewCell {
+class AccordButtonCell: UICollectionViewCell,ReuseIdentifiable {
     let optionButton = OptionButton(title: "")
     
     override init(frame: CGRect) {

@@ -151,7 +151,7 @@ final class PerfumeDetailViewController: UIViewController {
         collectionView.showsVerticalScrollIndicator = false
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.isScrollEnabled = false
-        collectionView.register(AccordButtonCell.self, forCellWithReuseIdentifier: "AccordButtonCell")
+        collectionView.register(AccordButtonCell.self, forCellWithReuseIdentifier: AccordButtonCell.reuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         return collectionView
@@ -215,6 +215,27 @@ final class PerfumeDetailViewController: UIViewController {
     private let dividerView6 = DividerView(backgroundColor: .gray4,height: 4)
     
     private let reviewSummaryView = ReviewSummaryView()
+    
+    private let reviewTableView: SelfSizingTableView = {
+        let tableView = SelfSizingTableView()
+//        tableView.separatorStyle = .none
+        tableView.backgroundColor = .white
+        tableView.showsVerticalScrollIndicator = false
+        return tableView
+    }()
+    
+    private let writeReviewButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("리뷰쓰기", for: .normal)
+        button.titleLabel?.font = .pretendard(.regular, size: 14)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .black
+        button.layer.cornerRadius = 4.0
+        return button
+    }()
+
+    
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -224,6 +245,7 @@ final class PerfumeDetailViewController: UIViewController {
         setupConcentrationButtons()
         setupAccordViews()
         setupLayout()
+        setupTableView()
     }
     
     private func createFixedRowLayout() -> UICollectionViewCompositionalLayout {
@@ -325,7 +347,9 @@ final class PerfumeDetailViewController: UIViewController {
                 additionalInfoLabel,
                 additionalInfoDescriptionLabel,
                 dividerView6,
-                reviewSummaryView
+                reviewSummaryView,
+                reviewTableView,
+                writeReviewButton
             )
         
         noteDescriptionLabel.font = .pretendard(.regular, size: 12)
@@ -522,8 +546,30 @@ final class PerfumeDetailViewController: UIViewController {
         reviewSummaryView.snp.makeConstraints {
             $0.top.equalTo(dividerView6.snp.bottom).offset(8)
             $0.leading.trailing.equalToSuperview()
+        }
+    
+        reviewTableView.snp.makeConstraints {
+            $0.top.equalTo(reviewSummaryView.snp.bottom).offset(12)
+            $0.leading.trailing.equalToSuperview()
+        }
+        
+        writeReviewButton.snp.makeConstraints {
+            $0.top.equalTo(reviewTableView.snp.bottom).offset(16)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(43)
             $0.bottom.equalToSuperview().inset(10)
         }
+    }
+    
+    private func setupTableView() {
+        reviewTableView.dataSource = self
+        reviewTableView.delegate = self
+        reviewTableView.allowsSelection = false
+        reviewTableView.estimatedRowHeight = 60
+        reviewTableView.rowHeight = UITableView.automaticDimension
+        reviewTableView.backgroundColor = .white
+        reviewTableView.isScrollEnabled = false
+        reviewTableView.register(ReviewTableViewCell.self, forCellReuseIdentifier: ReviewTableViewCell.reuseIdentifier)
     }
     
     private func setupButtons() {
@@ -828,5 +874,23 @@ extension PerfumeDetailViewController {
             tooltip.alpha = 1
             tooltip.transform = .identity
         }
+    }
+}
+
+extension PerfumeDetailViewController: UITableViewDelegate, UITableViewDataSource {
+  
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 5
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ReviewTableViewCell.reuseIdentifier, for: indexPath) as? ReviewTableViewCell else {return UITableViewCell()}
+        let ratings = [3.5, 4.0, 2.5, 5.0, 1.5]
+        let rating = ratings[indexPath.row % ratings.count]
+        
+        cell.configure(nickname: "김아무개\(indexPath.row + 1)", createdAt: "123", rating: rating)
+
+        return cell
     }
 }
