@@ -172,7 +172,47 @@ final class PerfumeDetailViewController: UIViewController {
         return label
     }()
     
-    let bulletLabel = BulletPointLabel()
+    let noteDescriptionLabel = BulletPointLabel()
+    
+    private let dividerView4 = DividerView(backgroundColor: .gray4,height: 1)
+    
+    private let perfumeDetailIconImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = UIImage(named: "icon-perfume")
+        return imageView
+    }()
+    
+    private let perfumeDetailLabel : UILabel = {
+        let label = UILabel()
+        label.text = "향 설명"
+        label.font = .pretendard(.bold, size: 13)
+        label.textColor = .black
+        return label
+    }()
+    
+    let perfumeDescriptionLabel = BulletPointLabel()
+    
+    private let dividerView5 = DividerView(backgroundColor: .gray4,height: 1)
+    
+    private let additionalInfoIconImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = UIImage(named: "icon-perfume")
+        return imageView
+    }()
+    
+    private let additionalInfoLabel : UILabel = {
+        let label = UILabel()
+        label.text = "추가 정보"
+        label.font = .pretendard(.bold, size: 13)
+        label.textColor = .black
+        return label
+    }()
+    
+    let additionalInfoDescriptionLabel = BulletPointLabel()
+    
+    private let dividerView6 = DividerView(backgroundColor: .gray4,height: 4)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -273,15 +313,35 @@ final class PerfumeDetailViewController: UIViewController {
                 dividerView3,
                 noteIconImage,
                 noteLabel,
-                bulletLabel
+                noteDescriptionLabel,
+                dividerView4,
+                perfumeDetailIconImage,
+                perfumeDetailLabel,
+                perfumeDescriptionLabel,
+                dividerView5,
+                additionalInfoIconImage,
+                additionalInfoLabel,
+                additionalInfoDescriptionLabel,
+                dividerView6
             )
         
-        bulletLabel.font = .pretendard(.regular, size: 12)
+        noteDescriptionLabel.font = .pretendard(.regular, size: 12)
+        perfumeDescriptionLabel.font = .pretendard(.regular, size: 12)
+        additionalInfoDescriptionLabel.font = .pretendard(.regular, size: 12)
         
-        bulletLabel.setBulletPoints([
+        noteDescriptionLabel.setBulletPoints([
             "탑 노트 : 아이리스, 피오니, 릴리오브더밸리",
             "미들 노트 : 아프리콧, 로즈, 피치",
             "베이스 노트 : 바닐라, 머스크, 통카 빈, 샌달우드, 벤조인"
+        ])
+        
+        perfumeDescriptionLabel.setBulletPoints([
+           "다채로운 컬러의 풍성한 꽃들로 만들어진 말레피오리처럼 우아하고 매력적인 향"
+        ])
+        
+        additionalInfoDescriptionLabel.setBulletPoints([
+           "무료 각인 서비스",
+           "무료 선물포장 서비스"
         ])
     }
     
@@ -399,13 +459,68 @@ final class PerfumeDetailViewController: UIViewController {
            
         }
         
-        bulletLabel.snp.makeConstraints {
+        noteDescriptionLabel.snp.makeConstraints {
             $0.top.equalTo(noteIconImage.snp.bottom).offset(16)
             $0.leading.equalTo(noteIconImage.snp.leading).offset(4)
             $0.trailing.equalToSuperview().inset(16)
-            
-            $0.bottom.equalToSuperview().inset(10)
         }
+        
+        dividerView4.snp.makeConstraints {
+            $0.top.equalTo(noteDescriptionLabel.snp.bottom).offset(28)
+            $0.leading.trailing.equalToSuperview().inset(16)
+        }
+        
+        perfumeDetailIconImage.snp.makeConstraints {
+            $0.top.equalTo(dividerView4.snp.bottom).offset(16)
+            $0.leading.equalToSuperview().offset(16)
+            $0.size.equalTo(20)
+        }
+        
+        perfumeDetailLabel.snp.makeConstraints {
+            $0.leading.equalTo(perfumeDetailIconImage.snp.trailing).offset(4)
+            $0.centerY.equalTo(perfumeDetailIconImage.snp.centerY)
+           
+        }
+
+        perfumeDescriptionLabel.snp.makeConstraints {
+            $0.top.equalTo(perfumeDetailIconImage.snp.bottom).offset(16)
+            $0.leading.equalTo(perfumeDetailIconImage.snp.leading).offset(4)
+            $0.trailing.equalToSuperview().inset(16)
+        }
+        
+        dividerView5.snp.makeConstraints {
+            $0.top.equalTo(perfumeDescriptionLabel.snp.bottom).offset(28)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            
+        }
+        
+        additionalInfoIconImage.snp.makeConstraints {
+            $0.top.equalTo(dividerView5.snp.bottom).offset(16)
+            $0.leading.equalToSuperview().offset(16)
+            $0.size.equalTo(20)
+        }
+        
+        additionalInfoLabel.snp.makeConstraints {
+            $0.leading.equalTo(additionalInfoIconImage.snp.trailing).offset(4)
+            $0.centerY.equalTo(additionalInfoIconImage.snp.centerY)
+           
+        }
+        
+        additionalInfoDescriptionLabel.snp.makeConstraints {
+            $0.top.equalTo(additionalInfoIconImage.snp.bottom).offset(16)
+            $0.leading.equalTo(additionalInfoIconImage.snp.leading).offset(4)
+            $0.trailing.equalToSuperview().inset(16)
+            
+        }
+        
+        dividerView6.snp.makeConstraints {
+            $0.top.equalTo(additionalInfoDescriptionLabel.snp.bottom).offset(28)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(10)
+            
+        }
+        
+        
     }
     
     private func setupButtons() {
