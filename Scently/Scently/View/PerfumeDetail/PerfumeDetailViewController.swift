@@ -213,6 +213,8 @@ final class PerfumeDetailViewController: UIViewController {
     let additionalInfoDescriptionLabel = BulletPointLabel()
     
     private let dividerView6 = DividerView(backgroundColor: .gray4,height: 4)
+    
+    private let reviewSummaryView = ReviewSummaryView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -322,7 +324,8 @@ final class PerfumeDetailViewController: UIViewController {
                 additionalInfoIconImage,
                 additionalInfoLabel,
                 additionalInfoDescriptionLabel,
-                dividerView6
+                dividerView6,
+                reviewSummaryView
             )
         
         noteDescriptionLabel.font = .pretendard(.regular, size: 12)
@@ -503,24 +506,24 @@ final class PerfumeDetailViewController: UIViewController {
         additionalInfoLabel.snp.makeConstraints {
             $0.leading.equalTo(additionalInfoIconImage.snp.trailing).offset(4)
             $0.centerY.equalTo(additionalInfoIconImage.snp.centerY)
-           
         }
         
         additionalInfoDescriptionLabel.snp.makeConstraints {
             $0.top.equalTo(additionalInfoIconImage.snp.bottom).offset(16)
             $0.leading.equalTo(additionalInfoIconImage.snp.leading).offset(4)
             $0.trailing.equalToSuperview().inset(16)
-            
         }
         
         dividerView6.snp.makeConstraints {
             $0.top.equalTo(additionalInfoDescriptionLabel.snp.bottom).offset(28)
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalToSuperview().inset(10)
-            
         }
         
-        
+        reviewSummaryView.snp.makeConstraints {
+            $0.top.equalTo(dividerView6.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(10)
+        }
     }
     
     private func setupButtons() {
