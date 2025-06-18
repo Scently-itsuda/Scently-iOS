@@ -16,7 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
    
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
-        let loginViewController = TabViewController()
+        let loginViewController = LoginViewController()
         window.rootViewController = loginViewController
         window.makeKeyAndVisible()
         self.window = window
