@@ -11,6 +11,7 @@ import SnapKit
 final class SocialView: UIView {
     private var navigationView = NavigationView()
     let tabbarView = TabBarView()
+    let customSearchBar = SearchBarView()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -27,6 +28,7 @@ private extension SocialView {
     func setupUI() {
         self.addSubview(navigationView)
         self.addSubview(tabbarView)
+        self.addSubview(customSearchBar)
     }
     
     func setupConstraint() {
@@ -40,6 +42,11 @@ private extension SocialView {
             $0.top.equalTo(navigationView.snp.bottom)
             $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(44)
+        }
+        
+        customSearchBar.snp.makeConstraints {
+            $0.top.equalTo(tabbarView.snp.bottom)
+            $0.leading.trailing.equalToSuperview()
         }
     }
 }
