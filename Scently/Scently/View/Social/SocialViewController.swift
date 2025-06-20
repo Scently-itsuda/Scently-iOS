@@ -9,7 +9,7 @@ import UIKit
 
 final class SocialViewController: UIViewController {
     let socialView = SocialView()
-    let pageViewController = SocialTabbarPageViewController()
+    let pageViewController = SocialTabbarPageViewController()  // 초기화 될때 scroll 스타일 적용
     
     var tabbarViewModel = TabBarViewModel()
     
@@ -31,7 +31,14 @@ final class SocialViewController: UIViewController {
         setupCollectionViewDelegate()
         registerCell()
         
+        // 1. 뷰컨트롤러들을 생성하고 배열에 저장
         tabbarViewModel.setupViewControllers()
+
+        // 2. 생성된 배열에서 초기 페이지 설정
+        if let firstVC = tabbarViewModel.dataSourceVC.first {
+            pageViewController.setViewControllers([firstVC], direction: .forward, animated: false, completion: nil)
+        }
+        
         pageViewController.didMove(toParent: self)
     }
     

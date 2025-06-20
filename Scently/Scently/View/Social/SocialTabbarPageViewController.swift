@@ -8,16 +8,19 @@
 import UIKit
 
 final class SocialTabbarPageViewController: UIPageViewController {
-    lazy var pageViewController: UIPageViewController = {
-        let vc = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
-        
-        return vc
-    }()
-    
     var tabbarViewModel = TabBarViewModel()
-
+    
+    init() {
+        super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         tabbarViewModel.setupViewControllers()
+        self.view.backgroundColor = .clear
     }
 }
