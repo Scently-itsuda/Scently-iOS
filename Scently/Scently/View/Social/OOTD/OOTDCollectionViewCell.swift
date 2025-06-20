@@ -13,10 +13,9 @@ final class OOTDCollectionViewCell: UICollectionViewCell, ReuseIdentifying {
     
     private let ootdImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         //imageView.image = UIImage(named: "missDior")
         imageView.backgroundColor = .DDDDDD
-        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -27,12 +26,14 @@ final class OOTDCollectionViewCell: UICollectionViewCell, ReuseIdentifying {
         button.setTitleColor(.gray3, for: .normal)
         button.tintColor = .gray3
         button.semanticContentAttribute = .forceRightToLeft
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         return button
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupUI()
+        setupConstraint()
     }
     
     required init?(coder: NSCoder) {
@@ -59,7 +60,7 @@ private extension OOTDCollectionViewCell {
         
         likeButton.snp.makeConstraints {
             $0.top.trailing.equalTo(containerView)
-            $0.height.equalTo(40)
+            $0.width.height.equalTo(40)
         }
     }
 }
