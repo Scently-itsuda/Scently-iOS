@@ -65,12 +65,28 @@ extension OOTDViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let spacing: CGFloat = 8
+        let spacing: CGFloat = 1
         let numberOfItemsPerRow: CGFloat = 2
         
         let totalSpacing = spacing * (numberOfItemsPerRow + 1)
         let itemWidth = (collectionView.bounds.width - totalSpacing) / numberOfItemsPerRow
+        print("itemWidth \(itemWidth)")
         
         return CGSize(width: itemWidth, height: itemWidth)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        // 셀 사이의 간격
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        // 위 아래 간격
+        return 3
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        // 좌우 여백 없이
+        return .zero
     }
 }
