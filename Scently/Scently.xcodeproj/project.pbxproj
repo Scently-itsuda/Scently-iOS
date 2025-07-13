@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		463EB1022DC05F8B00A6C722 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 463EB1012DC05F8B00A6C722 /* SnapKit */; };
+		4669775E2E23D1D5009F9B75 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 4669775D2E23D1D5009F9B75 /* CombineMoya */; };
+		466977602E23D1D5009F9B75 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 4669775F2E23D1D5009F9B75 /* Moya */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,7 +71,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4669775E2E23D1D5009F9B75 /* CombineMoya in Frameworks */,
 				463EB1022DC05F8B00A6C722 /* SnapKit in Frameworks */,
+				466977602E23D1D5009F9B75 /* Moya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +135,8 @@
 			name = Scently;
 			packageProductDependencies = (
 				463EB1012DC05F8B00A6C722 /* SnapKit */,
+				4669775D2E23D1D5009F9B75 /* CombineMoya */,
+				4669775F2E23D1D5009F9B75 /* Moya */,
 			);
 			productName = Scently;
 			productReference = 463EAED52DBF6AC600A6C722 /* Scently.app */;
@@ -216,6 +222,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				463EB1002DC05F8B00A6C722 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				4669775C2E23D1D5009F9B75 /* XCRemoteSwiftPackageReference "Moya" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 463EAED62DBF6AC600A6C722 /* Products */;
@@ -590,6 +597,14 @@
 				minimumVersion = 5.7.1;
 			};
 		};
+		4669775C2E23D1D5009F9B75 /* XCRemoteSwiftPackageReference "Moya" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Moya/Moya.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.0.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -597,6 +612,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 463EB1002DC05F8B00A6C722 /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		4669775D2E23D1D5009F9B75 /* CombineMoya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4669775C2E23D1D5009F9B75 /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = CombineMoya;
+		};
+		4669775F2E23D1D5009F9B75 /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4669775C2E23D1D5009F9B75 /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
