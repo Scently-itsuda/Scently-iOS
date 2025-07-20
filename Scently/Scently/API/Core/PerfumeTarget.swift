@@ -10,6 +10,7 @@ import Moya
 
 enum PerfumeTarget {
     case getPerfumList
+    case getAccords
 }
 
 
@@ -25,19 +26,21 @@ extension PerfumeTarget: TargetType {
         switch self {
         case .getPerfumList:
             return "/api/v1/perfumes"
+        case .getAccords:
+            return "/api/v1/perfumes/accords"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getPerfumList:
+        case .getPerfumList,.getAccords:
             return .get
         }
     }
     
     var task: Moya.Task {
         switch self {
-        case .getPerfumList:
+        case .getPerfumList,.getAccords:
             return .requestPlain
         }
     }
@@ -49,6 +52,4 @@ extension PerfumeTarget: TargetType {
         
         return headers
     }
-    
-    
 }
