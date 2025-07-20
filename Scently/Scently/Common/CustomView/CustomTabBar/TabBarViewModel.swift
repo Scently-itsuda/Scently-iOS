@@ -14,7 +14,7 @@ final class TabBarViewModel {
     
     func setupViewControllers() {
         dataSourceVC = [OOTDViewController(),
-                        OOTDViewController(),
-                        OOTDViewController()]
+                        FreeBoardViewController(),
+                        ReviewViewController()]
     }
 }
