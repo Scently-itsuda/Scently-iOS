@@ -60,7 +60,7 @@ private extension SocialViewController {
     
     func setupConstraint() {
         pageViewController.view.snp.makeConstraints {
-            $0.top.equalTo(socialView.customSearchBar.snp.bottom)
+            $0.top.equalTo(socialView.customSearchBar.snp.bottom).offset(12)
             $0.leading.trailing.bottom.equalToSuperview()
         }
     }
