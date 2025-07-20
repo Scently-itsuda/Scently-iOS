@@ -47,7 +47,6 @@ private extension SocialView {
         customSearchBar.snp.makeConstraints {
             $0.top.equalTo(tabbarView.snp.bottom)
             $0.leading.trailing.equalToSuperview()
-
         }
     }
 }
