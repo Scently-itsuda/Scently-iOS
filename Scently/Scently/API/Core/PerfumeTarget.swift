@@ -11,6 +11,7 @@ import Moya
 enum PerfumeTarget {
     case getPerfumList
     case getAccords
+    case getPerfumeDetail(perfumeId: Int)
 }
 
 
@@ -28,19 +29,21 @@ extension PerfumeTarget: TargetType {
             return "/api/v1/perfumes"
         case .getAccords:
             return "/api/v1/perfumes/accords"
+        case .getPerfumeDetail(let perfumeId):
+            return "/api/v1/perfumes/\(perfumeId)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getPerfumList,.getAccords:
+        case .getPerfumList,.getAccords,.getPerfumeDetail:
             return .get
         }
     }
     
     var task: Moya.Task {
         switch self {
-        case .getPerfumList,.getAccords:
+        case .getPerfumList,.getAccords,.getPerfumeDetail:
             return .requestPlain
         }
     }
