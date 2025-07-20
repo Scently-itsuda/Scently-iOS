@@ -11,6 +11,10 @@ final class SocialViewController: UIViewController {
     let socialView = SocialView()
     let pageViewController = SocialTabbarPageViewController()  // 초기화 될때 scroll 스타일 적용
     
+    private var actionItemViews: [FloatingActionItemView] = []
+    private let floatingMainButton = UIButton(type: .custom)
+    private var isExpanded = false
+    
     var tabbarViewModel = TabBarViewModel()
     
     var currentPage: Int = 0 {
@@ -30,6 +34,7 @@ final class SocialViewController: UIViewController {
         setupConstraint()
         setupCollectionViewDelegate()
         registerCell()
+        setupFloatingButtons()
         
         // 1. 뷰컨트롤러들을 생성하고 배열에 저장
         tabbarViewModel.setupViewControllers()
@@ -78,7 +83,61 @@ private extension SocialViewController {
     func registerCell() {
         socialView.tabbarView.collectionView.register(TabBarCollectionViewCell.self, forCellWithReuseIdentifier: TabBarCollectionViewCell.reuseIdentifier)
     }
+    
+    func setupFloatingButtons() {
+        // 메인 + 버튼
+        floatingMainButton.backgroundColor = .black
+        floatingMainButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        floatingMainButton.tintColor = .white
+        floatingMainButton.layer.cornerRadius = 20
+        floatingMainButton.addTarget(self, action: #selector(toggleFloatingButtons), for: .touchUpInside)
+        view.addSubview(floatingMainButton)
+        
+        floatingMainButton.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(24)
+            $0.bottom.equalToSuperview().inset(96)
+            $0.width.height.equalTo(40)
+        }
+        
+        let items: [(String, String)] = [
+            ("리뷰쓰기", "person.crop.circle"),
+            ("자유게시판 글쓰기", "pencil.and.outline"),
+            ("OOTD 글쓰기", "square.and.pencil")
+        ]
+        
+        for (index, item) in items.enumerated() {
+            let itemView = FloatingActionItemView(title: item.0, iconName: item.1)
+            itemView.alpha = 0
+            view.addSubview(itemView)
+            
+            itemView.snp.makeConstraints {
+                $0.trailing.equalTo(floatingMainButton.snp.trailing)
+                $0.centerY.equalTo(floatingMainButton.snp.centerY)
+            }
+            
+            actionItemViews.append(itemView)
+        }
+    }
 
+    @objc func toggleFloatingButtons() {
+        isExpanded.toggle()
+
+        let iconName = isExpanded ? "xmark" : "plus"
+        floatingMainButton.setImage(UIImage(systemName: iconName), for: .normal)
+
+        for (index, itemView) in actionItemViews.enumerated() {
+            UIView.animate(withDuration: 0.3, delay: 0.05 * Double(index), options: [], animations: {
+                if self.isExpanded {
+                    itemView.alpha = 1
+                    itemView.transform = CGAffineTransform(translationX: 0, y: CGFloat(-60 * (index + 1)))
+                } else {
+                    itemView.alpha = 0
+                    itemView.transform = .identity
+                }
+            }, completion: nil)
+        }
+    }
+    
     func bind(oldValue: Int, newValue: Int) {
         // collectionView 에서 선택한 경우
         let direction: UIPageViewController.NavigationDirection = oldValue < newValue ? .forward : .reverse
