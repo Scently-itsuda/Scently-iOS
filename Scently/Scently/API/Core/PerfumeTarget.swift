@@ -12,6 +12,7 @@ enum PerfumeTarget {
     case getPerfumList
     case getAccords
     case getPerfumeDetail(perfumeId: Int)
+    case addToWishList(perfumeId: Int, userId: Int) // ToDo: userId 고정일 경우 수정 
 }
 
 
@@ -31,6 +32,8 @@ extension PerfumeTarget: TargetType {
             return "/api/v1/perfumes/accords"
         case .getPerfumeDetail(let perfumeId):
             return "/api/v1/perfumes/\(perfumeId)"
+        case .addToWishList(perfumeId: let perfumeId, _):
+            return "/api/v1/perfumes/\(perfumeId)/like"
         }
     }
     
@@ -38,6 +41,8 @@ extension PerfumeTarget: TargetType {
         switch self {
         case .getPerfumList,.getAccords,.getPerfumeDetail:
             return .get
+        case .addToWishList:
+            return .post
         }
     }
     
@@ -45,6 +50,10 @@ extension PerfumeTarget: TargetType {
         switch self {
         case .getPerfumList,.getAccords,.getPerfumeDetail:
             return .requestPlain
+        case .addToWishList(_ , let userId):
+            return .requestParameters(
+                parameters: ["userId": userId],
+                encoding: URLEncoding.queryString)
         }
     }
     
