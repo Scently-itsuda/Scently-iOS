@@ -11,6 +11,7 @@ import Combine
 
 protocol PerfumeRepository {
     func getPerfumes() -> AnyPublisher<[Perfume], Error>
+    func getPerfumeDetail(id: Int) -> AnyPublisher<PerfumeDetail, Error>
 }
 
 class DefaultPerfumeRepository: PerfumeRepository {
@@ -31,6 +32,19 @@ class DefaultPerfumeRepository: PerfumeRepository {
                 return Just([Perfume]())
                     .setFailureType(to: Error.self)
                     .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func getPerfumeDetail(id: Int) -> AnyPublisher<PerfumeDetail, Error> {
+        return networkService.request(.getPerfumeDetail(perfumeId: id), responseType: PerfumeDetailResponse.self)
+            .map(\.data)
+            .handleEvents(receiveOutput: { detail in
+                print("Successfully loaded detail for perfume \(id)")
+            })
+            .catch { error -> AnyPublisher<PerfumeDetail, Error> in
+                print("Failed to load perfume detail: \(error.localizedDescription)")
+                return Fail(error: error).eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
     }

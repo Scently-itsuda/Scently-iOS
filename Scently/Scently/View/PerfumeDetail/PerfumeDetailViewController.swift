@@ -11,6 +11,10 @@ import Combine
 
 final class PerfumeDetailViewController: UIViewController {
     
+    var perfumeId: Int?
+    private let viewModel = PerfumeDetailViewModel()
+    private var cancellables = Set<AnyCancellable>()
+    
     let volume = ["30ML","50ML","100ML","150ML"]
     let selectedML = "50ML"
     let concentration = ["퍼퓸","오 드 퍼퓸","오 드 뚜왈렛","오 드 코롱","오 프레쉬"]
@@ -20,7 +24,7 @@ final class PerfumeDetailViewController: UIViewController {
     
     private let notes = ["탑노트","미들노트","베이스 노트"]
     
-    private var cancellables = Set<AnyCancellable>()
+   
     @Published private var selectedAccordIndex: Int? = nil
     private var accordButtons: [OptionButton] = []
     private var currentTooltip: UIView?
@@ -246,6 +250,24 @@ final class PerfumeDetailViewController: UIViewController {
         setupAccordViews()
         setupLayout()
         setupTableView()
+        
+        setupBindings()
+        if let id = perfumeId {
+            print("전달받은 perfumeId: \(id)")
+           
+            viewModel.loadPerfumeDetail(id: id)
+          
+        }
+    }
+    
+    private func setupBindings() {
+        viewModel.perfumeDetail
+            .sink { [weak self] detail in
+                DispatchQueue.main.async {
+                   print("향수 detail 정보\(detail)")
+                }
+            }
+            .store(in: &cancellables)
     }
     
     private func createFixedRowLayout() -> UICollectionViewCompositionalLayout {

@@ -464,8 +464,11 @@ extension PerfumeViewController: UICollectionViewDataSource {
         print("셀 선택됨: \(indexPath.row)")
         
        // let selectedPerfume = response.data.datalist[indexPath.row]
+        let selectedPerfume = perfumes[indexPath.row]
         
         let detailVC = PerfumeDetailViewController()
+        detailVC.perfumeId = selectedPerfume.perfumeId
+        
         detailVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(detailVC, animated: true)
         
