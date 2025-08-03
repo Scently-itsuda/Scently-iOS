@@ -21,7 +21,8 @@ class DefaultPerfumeRepository: PerfumeRepository {
     }
     
     func getPerfumes() -> AnyPublisher<[Perfume], Error> {
-        return networkService.request(.getPerfumList, responseType: [Perfume].self)
+        return networkService.request(.getPerfumList, responseType: PerfumeResponse.self)
+            .map(\.data) 
             .handleEvents(receiveOutput: { perfumes in
                 print("Successfully loaded \(perfumes.count) perfumes")
             })

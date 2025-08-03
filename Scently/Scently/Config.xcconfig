@@ -1,0 +1,11 @@
+//
+//  Config.xcconfig
+//  Scently
+//
+//  Created by 임재현 on 7/27/25.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+BASE_URL = https:/$()/scently.kro.kr

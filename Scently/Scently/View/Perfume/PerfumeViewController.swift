@@ -7,11 +7,15 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class PerfumeViewController: UIViewController {
-    let response = PerfumeMockService.shared.fetchMockPerfumes()
+//    let response = PerfumeMockService.shared.fetchMockPerfumes()
     private var currentFilters = FilterData()
     private var tagViews: [String: TagListView] = [:]
+    private let viewModel = PerfumeViewModel()
+    private var cancellables = Set<AnyCancellable>()
+    private var perfumes: [Perfume] = []
     
     private let logoImageView: UIImageView = {
         let imageView = UIImageView()
@@ -164,6 +168,8 @@ final class PerfumeViewController: UIViewController {
         print("PerfumeViewController init")
         setupUI()
         setAddtarget()
+        setupBindings()
+        viewModel.loadPerfumes()
     }
     
     private func setupUI() {
@@ -311,6 +317,58 @@ final class PerfumeViewController: UIViewController {
         tag.onTap = {print("onTap")}
     }
     
+    private func setupBindings() {
+        viewModel.perfumes
+            .sink { [weak self] perfumes in
+                DispatchQueue.main.async {
+                    self?.updateUI(with: perfumes)
+                    self?.updateItemCount(perfumes.count)
+                }
+            }
+            .store(in: &cancellables)
+        
+        viewModel.isLoading
+            .sink { [weak self] isLoading in
+                DispatchQueue.main.async {
+                    self?.handelLoadingState(isLoading)
+                }
+            }
+            .store(in: &cancellables)
+        
+        viewModel.errorMessage
+            .compactMap { $0 }
+            .sink { [weak self] errorMessage in
+                DispatchQueue.main.async {
+                    self?.showError(errorMessage)
+                }
+            }
+            .store(in: &cancellables)
+        
+    }
+    
+    private func updateUI(with perfumes: [Perfume]) {
+        self.perfumes = perfumes
+        perfumeCollectionView.reloadData()
+    }
+    
+    private func updateItemCount(_ count: Int) {
+        countLabel.text = "\(count)개"
+    }
+    
+    private func handelLoadingState(_ isLoading: Bool) {
+        if isLoading {
+            print("loading 중")
+        } else {
+            print("loading 중 아님")
+        }
+    }
+    
+    private func showError(_ message: String) {
+        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
+    
     private func handleFiltersApplied(_ filterData: FilterData) {
         currentFilters = filterData
         
@@ -391,12 +449,12 @@ extension PerfumeViewController: UICollectionViewDataSource {
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        return 15
+        return perfumes.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? PerfumeCollectionViewCell else {return UICollectionViewCell()}
-        let perfume = response.data.datalist[indexPath.row]
+        let perfume = perfumes[indexPath.row]
         cell.configure(title: perfume.name, subTitle: perfume.brand,imageURL: perfume.imageURL)
         cell.backgroundColor = .white
         return cell
@@ -409,7 +467,7 @@ extension PerfumeViewController: UICollectionViewDataSource {
         
         let detailVC = PerfumeDetailViewController()
         detailVC.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(detailVC, animated: false)
+        navigationController?.pushViewController(detailVC, animated: true)
         
     }
 }
