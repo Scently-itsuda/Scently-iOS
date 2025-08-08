@@ -13,8 +13,22 @@ class NetworkService<Target: TargetType>: NetworkServiceProtocol {
     
     private let provider: MoyaProvider<Target>
     
-    init(provider: MoyaProvider<Target> = MoyaProvider<Target>()) {
-        self.provider = provider
+    init(provider: MoyaProvider<Target>? = nil) {
+        if let provider = provider {
+            self.provider = provider
+        } else {
+            var plugins: [PluginType] = []
+            
+            #if DEBUG
+            // Debug 모드에서만 로거 추가
+            let loggerPlugin = NetworkLoggerPlugin(configuration: .init(
+                logOptions: [.requestBody, .requestHeaders, .verbose]
+            ))
+            plugins.append(loggerPlugin)
+            #endif
+            
+            self.provider = MoyaProvider<Target>(plugins: plugins)
+        }
     }
     
     func request<T: Codable>(_ target: Target, responseType: T.Type) -> AnyPublisher<T, Error> {
