@@ -2,7 +2,7 @@
 //  UIView+.swift
 //  Scently
 //
-//  Created by 임재현 on 6/9/25.
+//  Created by sy0201 on 7/20/25.
 //
 
 import UIKit
