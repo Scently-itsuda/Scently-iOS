@@ -90,4 +90,13 @@ extension OOTDViewController: UICollectionViewDelegate, UICollectionViewDataSour
         // 좌우 여백 없이
         return .zero
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print("didSelectItemAt cell \(indexPath.row)")
+        let detailVC = OOTDDetailViewController()
+        detailVC.configure(num: "\(indexPath.row)")
+        self.navigationController?.navigationBar.isHidden = false
+        detailVC.hidesBottomBarWhenPushed = true
+        self.navigationController?.pushViewController(detailVC, animated: true)
+    }
 }
