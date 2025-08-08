@@ -8,7 +8,7 @@
 import Foundation
 
 struct FilterData {
-    var selectedGender: GenderView.Gender?
+    var selectedGender: Gender?
     var selectedPrice: String?
     var minPrice: String?
     var maxPrice: String?

@@ -9,6 +9,10 @@ import UIKit
 import SnapKit
 
 final class OptionButton: UIButton {
+    
+    private var currentFont: UIFont = .pretendard(.regular, size: 11)
+    private var normalTextColor: UIColor = .gray3
+    private var selectedTextColor: UIColor = .white
   
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
@@ -77,16 +81,27 @@ extension OptionButton {
         UIView.animate(withDuration: 0.2) {
             if isSelected {
                 self.buttonTitle.textColor = .white
-                self.buttonTitle.font = .pretendard(.bold, size: 11)
+                self.buttonTitle.font = self.currentFont
                 self.backgroundColor = .black
             } else {
                 self.buttonTitle.textColor = .gray3
-                self.buttonTitle.font = .pretendard(.regular, size: 11)
+                self.buttonTitle.font = self.currentFont
                 self.backgroundColor = .gray4
             }
             
             self.layoutIfNeeded()
             self.setNeedsDisplay()
+        }
+    }
+    
+    func configure(font: UIFont? = nil, textColor: UIColor? = nil) {
+        if let font = font {
+            self.currentFont = font
+            buttonTitle.font = font
+        }
+        if let textColor = textColor {
+            self.normalTextColor = textColor
+            buttonTitle.textColor = textColor
         }
     }
     

@@ -88,6 +88,32 @@ class PerfumeCollectionViewCell: UICollectionViewCell {
     func configure(title: String, subTitle: String, imageURL: String) {
         self.titleLabel.text = title
         self.subTitleLabel.text = subTitle
-        self.perfumeImageView.image = UIImage(named: imageURL)
+        self.perfumeImageView.image = UIImage(named: "perfume")
+        
+        loadImage(from: "https://scently-pefume-s3.s3.ap-northeast-2.amazonaws.com/perfumes/byredo_mumbai_noise.jpg")
     }
+    
+    private func loadImage(from urlString: String) {
+        guard !urlString.isEmpty,
+              let url = URL(string: urlString) else {
+            self.perfumeImageView.image = UIImage(named: "perfume")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let data = data,
+                  let image = UIImage(data: data),
+                  error == nil else {
+                DispatchQueue.main.async {
+                    self?.perfumeImageView.image = UIImage(named: "placeholder")
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self?.perfumeImageView.image = image
+            }
+        }.resume()
+    }
+
 }

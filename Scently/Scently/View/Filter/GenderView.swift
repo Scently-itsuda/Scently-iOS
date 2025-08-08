@@ -9,25 +9,32 @@ import UIKit
 import SnapKit
 import Combine
 
+enum Gender: String, CaseIterable {
+    case all = "전체"
+    case male = "남성"
+    case female = "여성"
+    
+    var title: String {
+        switch self {
+        case .all: return "전체"
+        case .male: return "남성"
+        case .female: return "여성"
+        }
+    }
+    
+    var titleForInfo: String {
+        switch self {
+        case .all: return "비공개"
+        case .male: return " ♂️남성"
+        case .female: return "♀️여성"
+        }
+    }
+}
+
 final class GenderView: UIView {
     
     private var cancellables = Set<AnyCancellable>()
     @Published private var selectedGender: Gender? = nil
-    
-    enum Gender: String, CaseIterable {
-        case all = "전체"
-        case male = "남성"
-        case female = "여성"
-        
-        var title: String {
-            switch self {
-            case .all: return "전체"
-            case .male: return "남성"
-            case .female: return "여성"
-            }
-        }
-    }
-    
     private let allButton = OptionButton(title: Gender.all.rawValue, hasImage: false)
     private let maleButton = OptionButton(title: Gender.male.rawValue, hasImage: false)
     private let femaleButton = OptionButton(title: Gender.female.rawValue, hasImage: false)
