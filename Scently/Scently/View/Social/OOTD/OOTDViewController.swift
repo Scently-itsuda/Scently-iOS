@@ -95,7 +95,7 @@ extension OOTDViewController: UICollectionViewDelegate, UICollectionViewDataSour
         print("didSelectItemAt cell \(indexPath.row)")
         let detailVC = OOTDDetailViewController()
         detailVC.configure(num: "\(indexPath.row)")
-        self.navigationController?.navigationBar.isHidden = false
+        self.navigationController?.navigationBar.isHidden = true
         detailVC.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(detailVC, animated: true)
     }

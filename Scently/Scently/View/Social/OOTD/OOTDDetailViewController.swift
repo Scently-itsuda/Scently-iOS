@@ -10,6 +10,8 @@ import SnapKit
 
 final class OOTDDetailViewController: UIViewController {
     
+    private var navigationView = OOTDNavigationView()
+    
     private let perfumeTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "미스 디올 오 드 퍼퓸"
@@ -18,31 +20,28 @@ final class OOTDDetailViewController: UIViewController {
         return label
     }()
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: true)
-        setupNavigationBar()
-    }
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemMint
         setupUI()
         setupConstraint()
+        
+        navigationView.delegate = self
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: true)
-    }
-    
     
     private func setupUI() {
-        self.view.addSubview(perfumeTitleLabel)
+        self.view.addSubviews(navigationView,perfumeTitleLabel)
     }
     
     private func setupConstraint() {
+        
+        navigationView.snp.makeConstraints {
+            $0.top.equalTo(self.view.safeAreaLayoutGuide)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(62)
+        }
+        
         perfumeTitleLabel.snp.makeConstraints {
             $0.centerY.centerX.equalToSuperview()
         }
@@ -53,34 +52,13 @@ final class OOTDDetailViewController: UIViewController {
     }
 }
 
-extension OOTDDetailViewController {
-    
-    private func setupNavigationBar() {
-        navigationController?.navigationBar.prefersLargeTitles = false
-        navigationItem.largeTitleDisplayMode = .never
-        
-        navigationController?.navigationBar.barTintColor = .black
-        navigationController?.navigationBar.tintColor = .white
-        navigationController?.navigationBar.titleTextAttributes = [
-            .foregroundColor: UIColor.white,
-            .font: UIFont.pretendard(.bold, size: 18)
-        ]
-        self.title = "Navigation Title"
-        
-        if #available(iOS 15.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .black
-            appearance.titleTextAttributes = [
-                .foregroundColor: UIColor.white,
-                .font: UIFont.pretendard(.bold, size: 18)
-            ]
-            
-            navigationController?.navigationBar.standardAppearance = appearance
-            navigationController?.navigationBar.scrollEdgeAppearance = appearance
-            navigationController?.navigationBar.compactAppearance = appearance
-        }
+extension OOTDDetailViewController: OOTDNavigationViewDelegate {
+
+    func didTapBackButton() {
+        navigationController?.popViewController(animated: true)
     }
     
+    func didTapAlertButton() {
+        print("VC에서 alertButton 동작 전달받음")
+    }
 }
-
