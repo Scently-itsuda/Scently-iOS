@@ -13,6 +13,7 @@ final class OOTDDetailViewController: UIViewController {
     private var navigationView = OOTDNavigationView()
     private var userProfileView = OOTDDetailUserProfileView()
     private var imageSliderView = ImageSliderView()
+    private var postInteractionView = PostInteractionView()
     
     private let perfumeTitleLabel: UILabel = {
         let label = UILabel()
@@ -28,6 +29,7 @@ final class OOTDDetailViewController: UIViewController {
         self.view.backgroundColor = .systemMint
         setupUI()
         setupConstraint()
+        setupInteractions()
         
         navigationView.delegate = self
     }
@@ -38,7 +40,8 @@ final class OOTDDetailViewController: UIViewController {
                 navigationView,
                 userProfileView,
                 perfumeTitleLabel,
-                imageSliderView
+                imageSliderView,
+                postInteractionView
             )
     }
     
@@ -66,11 +69,26 @@ final class OOTDDetailViewController: UIViewController {
             $0.height.equalTo(375)
         }
         
-        imageSliderView.backgroundColor = .systemGray
+        postInteractionView.snp.makeConstraints {
+            $0.top.equalTo(imageSliderView.snp.bottom).offset(16)
+            $0.leading.equalTo(self.view.safeAreaLayoutGuide).offset(16)
+            $0.height.equalTo(24)
+            
+        }
     }
     
     func configure(num: String) {
         self.perfumeTitleLabel.text = num
+    }
+    
+    private func setupInteractions() {
+        postInteractionView.onLikeButtonTapped = {
+            print("좋아요 버튼 클릭")
+        }
+        
+        postInteractionView.onCommentButtonTapped = {
+            print("댓글 버튼 클릭")
+        }
     }
 }
 
