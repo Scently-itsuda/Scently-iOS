@@ -11,6 +11,7 @@ import SnapKit
 final class OOTDDetailViewController: UIViewController {
     
     private var navigationView = OOTDNavigationView()
+    private var userProfileView = OOTDDetailUserProfileView()
     
     private let perfumeTitleLabel: UILabel = {
         let label = UILabel()
@@ -31,7 +32,12 @@ final class OOTDDetailViewController: UIViewController {
     }
     
     private func setupUI() {
-        self.view.addSubviews(navigationView,perfumeTitleLabel)
+        self.view
+            .addSubviews(
+                navigationView,
+                userProfileView,
+                perfumeTitleLabel
+            )
     }
     
     private func setupConstraint() {
@@ -42,6 +48,12 @@ final class OOTDDetailViewController: UIViewController {
             $0.height.equalTo(62)
         }
         
+        userProfileView.snp.makeConstraints {
+            $0.top.equalTo(navigationView.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.height.equalTo(41)
+        }
+                
         perfumeTitleLabel.snp.makeConstraints {
             $0.centerY.centerX.equalToSuperview()
         }
