@@ -12,6 +12,7 @@ final class OOTDDetailViewController: UIViewController {
     
     private var navigationView = OOTDNavigationView()
     private var userProfileView = OOTDDetailUserProfileView()
+    private var imageSliderView = ImageSliderView()
     
     private let perfumeTitleLabel: UILabel = {
         let label = UILabel()
@@ -36,7 +37,8 @@ final class OOTDDetailViewController: UIViewController {
             .addSubviews(
                 navigationView,
                 userProfileView,
-                perfumeTitleLabel
+                perfumeTitleLabel,
+                imageSliderView
             )
     }
     
@@ -57,6 +59,14 @@ final class OOTDDetailViewController: UIViewController {
         perfumeTitleLabel.snp.makeConstraints {
             $0.centerY.centerX.equalToSuperview()
         }
+        
+        imageSliderView.snp.makeConstraints {
+            $0.top.equalTo(userProfileView.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(375)
+        }
+        
+        imageSliderView.backgroundColor = .systemGray
     }
     
     func configure(num: String) {
