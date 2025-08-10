@@ -71,6 +71,7 @@ extension PostContentView {
         contentLabel.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.top.equalTo(userInfoLabel.snp.bottom).offset(8)
+            $0.bottom.equalToSuperview()
         }
     }
     

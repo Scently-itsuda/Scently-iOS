@@ -15,6 +15,7 @@ final class OOTDDetailViewController: UIViewController {
     private var imageSliderView = ImageSliderView()
     private var postInteractionView = PostInteractionView()
     private var postContentView = PostContentView()
+    private var productListView = ProductListView()
     
     private let perfumeTitleLabel: UILabel = {
         let label = UILabel()
@@ -43,7 +44,8 @@ final class OOTDDetailViewController: UIViewController {
                 perfumeTitleLabel,
                 imageSliderView,
                 postInteractionView,
-                postContentView
+                postContentView,
+                productListView
             )
     }
     
@@ -80,8 +82,13 @@ final class OOTDDetailViewController: UIViewController {
         postContentView.snp.makeConstraints {
             $0.top.equalTo(postInteractionView.snp.bottom).offset(8)
             $0.leading.trailing.equalToSuperview()
-            $0.height.greaterThanOrEqualTo(50)
-
+        }
+        
+        productListView.snp.makeConstraints {
+            $0.top.equalTo(postContentView.snp.bottom).offset(16)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(300)
+            
         }
     }
     
