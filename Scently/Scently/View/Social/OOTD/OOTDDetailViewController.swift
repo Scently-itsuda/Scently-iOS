@@ -14,6 +14,7 @@ final class OOTDDetailViewController: UIViewController {
     private var userProfileView = OOTDDetailUserProfileView()
     private var imageSliderView = ImageSliderView()
     private var postInteractionView = PostInteractionView()
+    private var postContentView = PostContentView()
     
     private let perfumeTitleLabel: UILabel = {
         let label = UILabel()
@@ -41,7 +42,8 @@ final class OOTDDetailViewController: UIViewController {
                 userProfileView,
                 perfumeTitleLabel,
                 imageSliderView,
-                postInteractionView
+                postInteractionView,
+                postContentView
             )
     }
     
@@ -73,7 +75,13 @@ final class OOTDDetailViewController: UIViewController {
             $0.top.equalTo(imageSliderView.snp.bottom).offset(16)
             $0.leading.equalTo(self.view.safeAreaLayoutGuide).offset(16)
             $0.height.equalTo(24)
-            
+        }
+        
+        postContentView.snp.makeConstraints {
+            $0.top.equalTo(postInteractionView.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.greaterThanOrEqualTo(50)
+
         }
     }
     
@@ -89,6 +97,8 @@ final class OOTDDetailViewController: UIViewController {
         postInteractionView.onCommentButtonTapped = {
             print("댓글 버튼 클릭")
         }
+        
+        postContentView.configure(text: "실제 리뷰 텍스트가 여기에 들어갑니다. 매우 긴 텍스트일 수도 있고 짧을 수도 있습니다.실제 리뷰 텍스트가 여기에 들어갑니다. 매우")
     }
 }
 
