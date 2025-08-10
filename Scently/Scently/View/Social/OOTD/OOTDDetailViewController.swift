@@ -111,9 +111,24 @@ final class OOTDDetailViewController: UIViewController {
         postInteractionView.onLikeButtonTapped = {
             print("좋아요 버튼 클릭")
         }
-        
-        postInteractionView.onCommentButtonTapped = {
+
+        postInteractionView.onCommentButtonTapped = { [weak self] in
             print("댓글 버튼 클릭")
+            let commentVC = OOTDCommentViewController()
+            commentVC.modalPresentationStyle = .pageSheet
+            
+      
+            if let sheet = commentVC.sheetPresentationController {
+                sheet.detents = [
+                    .custom { _ in
+                        return UIScreen.main.bounds.height * 0.7
+                    }
+                ]
+                sheet.prefersGrabberVisible = true
+                sheet.preferredCornerRadius = 16
+            }
+            
+            self?.present(commentVC, animated: true)
         }
         
         postContentView.configure(text: "실제 리뷰 텍스트가 여기에 들어갑니다. 매우 긴 텍스트일 수도 있고 짧을 수도 있습니다.실제 리뷰 텍스트가 여기에 들어갑니다. 매우")
