@@ -78,5 +78,32 @@ extension CommentTableViewCell {
             $0.bottom.equalToSuperview().offset(-12)
         }
     }
+    
+    func configure(with item: CommentDisplayItem) {
+
+        let additionalOffset: CGFloat = item.isChild ? 20 : 0
+        
+        userProfileView.snp.updateConstraints {
+            $0.leading.equalToSuperview().inset(16 + additionalOffset)
+            $0.trailing.equalToSuperview().inset(16)
+        }
+        
+        contentLabel.snp.updateConstraints {
+            $0.leading.equalToSuperview().inset(20 + additionalOffset)
+            $0.trailing.equalToSuperview().inset(20)
+        }
+        
+        commentInteractionView.snp.updateConstraints {
+            $0.leading.equalToSuperview().offset(20 + additionalOffset)
+        }
+
+        switch item.type {
+        case .parent(let commentInfo):
+            contentLabel.text = commentInfo.content
+            
+        case .child(let childInfo):
+            contentLabel.text = childInfo.content
+        }
+    }
 }
 

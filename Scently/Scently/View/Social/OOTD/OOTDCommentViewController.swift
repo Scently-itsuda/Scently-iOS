@@ -12,10 +12,13 @@ final class OOTDCommentViewController: UIViewController {
     private var headerView = OOTDCommentHeaderView()
     private var commentListView = CommentListView()
     
+    let mockComments = CommentResponse.mockData
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
+        configureComments()
     }
 }
 
@@ -37,5 +40,9 @@ extension OOTDCommentViewController {
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(self.view.safeAreaLayoutGuide).offset(-16)
         }
+    }
+    
+    private func configureComments() {
+        commentListView.configure(with: mockComments)
     }
 }

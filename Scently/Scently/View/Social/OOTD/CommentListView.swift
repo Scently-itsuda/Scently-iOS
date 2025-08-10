@@ -8,14 +8,26 @@
 import UIKit
 import SnapKit
 
+enum CommentType {
+    case parent(CommentInfo)
+    case child(ChildCommentInfo)
+}
+
+struct CommentDisplayItem {
+    let type: CommentType
+    let isChild: Bool
+}
+
 final class CommentListView: UIView {
+    
+    private var displayItems: [CommentDisplayItem] = []
     
     private let tableView: UITableView = {
        let tableView = UITableView()
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
         tableView.backgroundColor = .clear
-        tableView.isScrollEnabled = false
+        tableView.isScrollEnabled = true
         return tableView
     }()
     
@@ -24,7 +36,6 @@ final class CommentListView: UIView {
         setupUI()
         setupConstraints()
         setupTableView()
-        configure()
     }
     
     required init?(coder: NSCoder) {
@@ -43,8 +54,21 @@ extension CommentListView {
             $0.edges.equalToSuperview()
         }
     }
-    private func configure() {
+    
+     func configure(with commentResponse: CommentResponse) {
+        guard let data = commentResponse.data else {return}
         
+        displayItems.removeAll()
+        
+        for commentInfo in data.commentInfos {
+            displayItems.append(CommentDisplayItem(type: .parent(commentInfo), isChild: false))
+            
+            for childComment in commentInfo.childCommentInfos {
+                displayItems.append(CommentDisplayItem(type: .child(childComment), isChild: true))
+            }
+        }
+        
+        tableView.reloadData()
     }
     
     private func setupTableView() {
@@ -64,7 +88,7 @@ extension CommentListView: UITableViewDelegate, UITableViewDataSource {
         _ tableView: UITableView,
         numberOfRowsInSection section: Int
     ) -> Int {
-        return 3
+        return displayItems.count
     }
     
     func tableView(
@@ -77,6 +101,9 @@ extension CommentListView: UITableViewDelegate, UITableViewDataSource {
         ) as? CommentTableViewCell else{
             return UITableViewCell()
         }
+        
+        let item = displayItems[indexPath.row]
+        cell.configure(with: item)
         return cell
     }
     
