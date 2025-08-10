@@ -52,6 +52,10 @@ extension CommentListView {
         tableView.dataSource = self
         
         tableView.register(CommentTableViewCell.self, forCellReuseIdentifier: CommentTableViewCell.reuseIdentifier)
+        
+        tableView.separatorStyle = .singleLine
+        tableView.separatorColor = .lightgray
+        tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
     }
 }
 
@@ -80,6 +84,13 @@ extension CommentListView: UITableViewDelegate, UITableViewDataSource {
         _ tableView: UITableView,
         heightForRowAt indexPath: IndexPath
     ) -> CGFloat {
-        return 66
+        return UITableView.automaticDimension
+    }
+    
+    func tableView(
+        _ tableView: UITableView,
+        estimatedHeightForRowAt indexPath: IndexPath
+    ) -> CGFloat {
+        return 80 // 예상 높이
     }
 }

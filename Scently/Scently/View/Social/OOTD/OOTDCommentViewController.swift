@@ -35,7 +35,7 @@ extension OOTDCommentViewController {
         commentListView.snp.makeConstraints {
             $0.top.equalTo(headerView.snp.bottom).offset(16)
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(300)
+            $0.bottom.equalTo(self.view.safeAreaLayoutGuide).offset(-16)
         }
     }
 }

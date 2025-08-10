@@ -92,3 +92,14 @@ extension OOTDDetailUserProfileView {
         
     }
 }
+
+extension OOTDDetailUserProfileView {
+    func configureForComment() {
+        profileImageView.layer.cornerRadius = 12
+        
+        profileImageView.snp.remakeConstraints {
+            $0.width.height.equalTo(24)
+            $0.leading.centerY.equalToSuperview()
+        }
+    }
+}
