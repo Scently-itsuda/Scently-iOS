@@ -31,7 +31,7 @@ final class OOTDDetailViewController: UIViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .systemMint
+        self.view.backgroundColor = .white
         setupUI()
         setupConstraint()
         setupInteractions()
@@ -90,7 +90,7 @@ final class OOTDDetailViewController: UIViewController {
         }
         
         postContentView.snp.makeConstraints {
-            $0.top.equalTo(postInteractionView.snp.bottom).offset(8)
+            $0.top.equalTo(postInteractionView.snp.bottom).offset(16)
             $0.leading.trailing.equalToSuperview()
         }
         
@@ -101,7 +101,6 @@ final class OOTDDetailViewController: UIViewController {
             $0.bottom.equalToSuperview().offset(-20)
             
         }
-        productListView.backgroundColor = .systemPink
     }
     
     func configure(num: String) {

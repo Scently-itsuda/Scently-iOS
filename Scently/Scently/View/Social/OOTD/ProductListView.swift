@@ -80,6 +80,6 @@ extension ProductListView: UITableViewDelegate, UITableViewDataSource {
         _ tableView: UITableView,
         heightForRowAt indexPath: IndexPath
     ) -> CGFloat {
-        return 80
+        return 66
     }
 }

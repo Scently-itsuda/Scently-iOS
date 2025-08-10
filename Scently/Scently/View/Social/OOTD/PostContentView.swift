@@ -48,8 +48,6 @@ final class PostContentView: UIView {
         setupUI()
         setupConstraints()
         setupGesture()
-        self.backgroundColor = .systemBlue
-            contentLabel.backgroundColor = .systemRed
     }
     
     required init?(coder: NSCoder) {
