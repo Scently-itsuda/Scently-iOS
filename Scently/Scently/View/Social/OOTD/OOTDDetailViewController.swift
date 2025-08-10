@@ -17,15 +17,18 @@ final class OOTDDetailViewController: UIViewController {
     private var postContentView = PostContentView()
     private var productListView = ProductListView()
     
-    private let perfumeTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "미스 디올 오 드 퍼퓸"
-        label.font = .pretendard(.bold, size: 16)
-        label.textColor = .black
-        return label
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
+        return scrollView
     }()
     
-    
+    private let contentView: UIView = {
+        let view = UIView()
+        return view
+    }()
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemMint
@@ -37,11 +40,12 @@ final class OOTDDetailViewController: UIViewController {
     }
     
     private func setupUI() {
-        self.view
+        self.view.addSubviews(scrollView)
+        self.scrollView.addSubview(contentView)
+        self.contentView
             .addSubviews(
                 navigationView,
                 userProfileView,
-                perfumeTitleLabel,
                 imageSliderView,
                 postInteractionView,
                 postContentView,
@@ -51,8 +55,18 @@ final class OOTDDetailViewController: UIViewController {
     
     private func setupConstraint() {
         
+
+        scrollView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        contentView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.width.equalToSuperview()
+        }
+        
         navigationView.snp.makeConstraints {
-            $0.top.equalTo(self.view.safeAreaLayoutGuide)
+            $0.top.equalToSuperview()
             $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(62)
         }
@@ -63,10 +77,6 @@ final class OOTDDetailViewController: UIViewController {
             $0.height.equalTo(41)
         }
                 
-        perfumeTitleLabel.snp.makeConstraints {
-            $0.centerY.centerX.equalToSuperview()
-        }
-        
         imageSliderView.snp.makeConstraints {
             $0.top.equalTo(userProfileView.snp.bottom).offset(8)
             $0.leading.trailing.equalToSuperview()
@@ -87,13 +97,15 @@ final class OOTDDetailViewController: UIViewController {
         productListView.snp.makeConstraints {
             $0.top.equalTo(postContentView.snp.bottom).offset(16)
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(300)
+            $0.height.equalTo(240)
+            $0.bottom.equalToSuperview().offset(-20)
             
         }
+        productListView.backgroundColor = .systemPink
     }
     
     func configure(num: String) {
-        self.perfumeTitleLabel.text = num
+//        self.perfumeTitleLabel.text = num
     }
     
     private func setupInteractions() {
