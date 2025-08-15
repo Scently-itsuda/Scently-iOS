@@ -64,6 +64,7 @@ extension OOTDCommentHeaderView {
         dividerView.snp.makeConstraints {
             $0.top.equalTo(commentLabel.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
     }
 }
