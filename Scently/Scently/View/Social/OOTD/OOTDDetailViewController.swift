@@ -131,7 +131,7 @@ final class OOTDDetailViewController: UIViewController {
             self?.present(commentVC, animated: true)
         }
         
-        postContentView.configure(text: "실제 리뷰 텍스트가 여기에 들어갑니다. 매우 긴 텍스트일 수도 있고 짧을 수도 있습니다.실제 리뷰 텍스트가 여기에 들어갑니다. 매우")
+        postContentView.configure(text: "실제 리뷰 텍스트가 여기에 들어갑니다. 매우 긴 텍스트일 수도 있고 짧을 수도 있습니다.실제 리뷰 텍스트가 여기에 들어갑니다. 매우실제 리뷰 텍스트가 여기에 들어갑니다. 매우 긴 텍스트일 수도 있고 짧을 수도 있습니다.실제 리뷰 텍스트가 여기에 들어갑니다. 매우실제 리뷰 텍스트가 여기에 들어갑니다. 매우 긴 텍스트일 수도 있고 짧을 수도 있습니다.실제 리뷰 텍스트가 여기에 들어갑니다. 매우")
     }
 }
 
