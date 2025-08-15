@@ -41,7 +41,7 @@ extension FreeBoardViewController {
     private func setupTableView() {
         freeBoardtableView.dataSource = self
         freeBoardtableView.delegate = self
-        freeBoardtableView.allowsSelection = false
+        freeBoardtableView.allowsSelection = true
         freeBoardtableView.estimatedRowHeight = 60
         freeBoardtableView.rowHeight = UITableView.automaticDimension
         freeBoardtableView.backgroundColor = .white
@@ -65,5 +65,13 @@ extension FreeBoardViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: FreeBoardTableViewCell.reuseIdentifier, for: indexPath) as? FreeBoardTableViewCell else {return UITableViewCell()}
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+      
+        let detailVC = FreeBoardDetailViewController()
+        self.navigationController?.navigationBar.isHidden = true
+        detailVC.hidesBottomBarWhenPushed = true
+        self.navigationController?.pushViewController(detailVC, animated: true)
     }
 }
