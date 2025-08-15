@@ -161,6 +161,12 @@ final class PerfumeViewController: UIViewController {
         collectionView.register(PerfumeCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
         return collectionView
     }()
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
   
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -469,6 +475,7 @@ extension PerfumeViewController: UICollectionViewDataSource {
         let detailVC = PerfumeDetailViewController()
         detailVC.perfumeId = selectedPerfume.perfumeId
         
+        self.navigationController?.navigationBar.isHidden = false
         detailVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(detailVC, animated: true)
         

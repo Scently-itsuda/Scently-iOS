@@ -238,9 +238,12 @@ final class PerfumeDetailViewController: UIViewController {
         return button
     }()
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: true)
+        setupNavigationBar()
+    }
     
-    
-
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
@@ -250,7 +253,6 @@ final class PerfumeDetailViewController: UIViewController {
         setupAccordViews()
         setupLayout()
         setupTableView()
-        
         setupBindings()
         if let id = perfumeId {
             print("전달받은 perfumeId: \(id)")
@@ -916,3 +918,36 @@ extension PerfumeDetailViewController: UITableViewDelegate, UITableViewDataSourc
         return cell
     }
 }
+
+extension PerfumeDetailViewController {
+    private func setupNavigationBar() {
+        navigationController?.navigationBar.prefersLargeTitles = false
+        navigationItem.largeTitleDisplayMode = .never
+        
+        navigationController?.navigationBar.barTintColor = .black
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.titleTextAttributes = [
+            .foregroundColor: UIColor.white,
+            .font: UIFont.pretendard(.bold, size: 18)
+        ]
+        self.title = "OOTD 상세"
+        
+        // iOS 15+ 대응
+        if #available(iOS 15.0, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .black
+            appearance.titleTextAttributes = [
+                .foregroundColor: UIColor.white,
+                .font: UIFont.pretendard(.bold, size: 18)
+            ]
+            
+            navigationController?.navigationBar.standardAppearance = appearance
+            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+            navigationController?.navigationBar.compactAppearance = appearance
+        }
+    }
+}
+
+
+
