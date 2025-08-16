@@ -9,9 +9,36 @@ import UIKit
 
 final class MyViewController: UIViewController {
         
+    private var myPageHeaderView = MyPageHeaderView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+        setupConstraints()
         self.view.backgroundColor = .white
         print("MyViewController init")
+        myPageHeaderView.delegate = self
     }
+}
+
+
+extension MyViewController {
+    private func setupUI() {
+        self.view.addSubviews(myPageHeaderView)
+    }
+    private func setupConstraints() {
+        myPageHeaderView.snp.makeConstraints {
+            $0.top.equalTo(self.view.safeAreaLayoutGuide)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(60)
+        }
+        
+    }
+}
+
+extension MyViewController: MyPageActionDelegate {
+    func alertButtonDidTap() {
+        print("Alert Button Did Tapped")
+    }
+    
 }
