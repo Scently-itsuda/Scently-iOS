@@ -12,7 +12,7 @@ class PerfumeCollectionViewCell: UICollectionViewCell,ReuseIdentifying {
    
     private let perfumeImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         imageView.image = UIImage(named: "dior 향수")
         imageView.backgroundColor = .white
         imageView.clipsToBounds = true
@@ -90,7 +90,7 @@ class PerfumeCollectionViewCell: UICollectionViewCell,ReuseIdentifying {
         self.subTitleLabel.text = subTitle
         self.perfumeImageView.image = UIImage(named: "perfume")
         
-        loadImage(from: "https://scently-pefume-s3.s3.ap-northeast-2.amazonaws.com/perfumes/byredo_mumbai_noise.jpg")
+        loadImage(from: imageURL)
     }
     
     private func loadImage(from urlString: String) {

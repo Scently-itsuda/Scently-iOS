@@ -28,7 +28,7 @@ final class RecentProductsView: UIView {
     
     private let rightArrowView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "chevron.right")
+        imageView.image = UIImage(named: "icon-enter")
         imageView.tintColor = .black
         
         return imageView
@@ -128,8 +128,14 @@ extension RecentProductsView: UICollectionViewDelegate,UICollectionViewDataSourc
         cell.configure(
             title: "제품 \(indexPath.item + 1)",
             subTitle: "브랜드 \(indexPath.item + 1)",
-            imageURL: "https://scently-pefume-s3.s3.ap-northeast-2.amazonaws.com/perfumes/byredo_mumbai_noise.jpg"
+            imageURL: "https://picsum.photos/200/300?random=\(indexPath.item + 1)"
         )
+        
+//        cell.configure(
+//            title: "제품 \(indexPath.item + 1)",
+//            subTitle: "브랜드 \(indexPath.item + 1)",
+//            imageURL: "https://scently-pefume-s3.s3.ap-northeast-2.amazonaws.com/perfumes/byredo_mumbai_noise.jpg"
+//        )
         
         return cell
     }
