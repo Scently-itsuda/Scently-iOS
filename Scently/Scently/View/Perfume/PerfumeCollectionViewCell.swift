@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class PerfumeCollectionViewCell: UICollectionViewCell {
+class PerfumeCollectionViewCell: UICollectionViewCell,ReuseIdentifying {
    
     private let perfumeImageView: UIImageView = {
         let imageView = UIImageView()

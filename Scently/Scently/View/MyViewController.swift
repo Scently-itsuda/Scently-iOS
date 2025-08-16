@@ -11,6 +11,7 @@ final class MyViewController: UIViewController {
         
     private var myPageHeaderView = MyPageHeaderView()
     private var myPageProfileView = MyPageProfileView()
+    private var recentProductsView = RecentProductsView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,7 +26,7 @@ final class MyViewController: UIViewController {
 
 extension MyViewController {
     private func setupUI() {
-        self.view.addSubviews(myPageHeaderView,myPageProfileView)
+        self.view.addSubviews(myPageHeaderView,myPageProfileView,recentProductsView)
     }
     private func setupConstraints() {
         myPageHeaderView.snp.makeConstraints {
@@ -39,6 +40,14 @@ extension MyViewController {
             $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(64)
         }
+        
+        recentProductsView.snp.makeConstraints {
+            $0.top.equalTo(myPageProfileView.snp.bottom).offset(4)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(240)
+        }
+        
+        recentProductsView.backgroundColor = .systemMint
     }
 }
 
