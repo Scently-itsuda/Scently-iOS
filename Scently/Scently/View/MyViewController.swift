@@ -21,6 +21,7 @@ final class MyViewController: UIViewController {
         self.view.backgroundColor = .white
         print("MyViewController init")
         myPageHeaderView.delegate = self
+        myPageProfileView.delegate = self
     }
 }
 
@@ -62,8 +63,15 @@ extension MyViewController {
     }
 }
 
-extension MyViewController: MyPageActionDelegate {
+extension MyViewController: MyPageActionDelegate,MyPageProfileViewDelegate {
     func alertButtonDidTap() {
         print("Alert Button Did Tapped")
+    }
+    
+    func profileEditButtonDidTap() {
+        let profileEditVC = ProfileEditViewController()
+        self.navigationController?.navigationBar.isHidden = true
+        profileEditVC.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(profileEditVC, animated: false)
     }
 }

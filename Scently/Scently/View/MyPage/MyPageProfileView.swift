@@ -8,7 +8,13 @@
 import UIKit
 import SnapKit
 
+protocol MyPageProfileViewDelegate: AnyObject {
+    func profileEditButtonDidTap()
+}
+
 final class MyPageProfileView: UIView {
+    
+    weak var delegate: MyPageProfileViewDelegate?
     
     let profileImageView: UIImageView = {
         let imageView = UIImageView()
@@ -59,6 +65,7 @@ final class MyPageProfileView: UIView {
         super.init(frame: frame)
         setupUI()
         setupConstraints()
+        setupAddTarget()
     }
     
     required init?(coder: NSCoder) {
@@ -76,7 +83,6 @@ extension MyPageProfileView {
             profileEditButton,
             dividerView
         )
-   
     }
     
     private func setupConstraints() {
@@ -107,6 +113,15 @@ extension MyPageProfileView {
             $0.top.equalTo(profileImageView.snp.bottom).offset(12)  
             $0.leading.trailing.equalToSuperview()
         }
+    }
+    
+    private func setupAddTarget() {
+        profileEditButton.addTarget(self, action: #selector(editButtonDidTap), for: .touchUpInside)
+    }
+    
+    @objc
+    func editButtonDidTap() {
+        delegate?.profileEditButtonDidTap()
     }
 }
 
