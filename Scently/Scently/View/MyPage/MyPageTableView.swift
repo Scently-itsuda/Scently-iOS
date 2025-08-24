@@ -10,6 +10,7 @@ import SnapKit
 
 protocol MyPageTableViewDelegate: AnyObject {
     func didSelectNotificationSettings()
+    func didSelecteNotices()
 }
 
 
@@ -94,6 +95,8 @@ extension MyPageTableView: UITableViewDelegate {
         switch indexPath.row {
         case 0:
             delegate?.didSelectNotificationSettings()
+        case 2:
+            delegate?.didSelecteNotices()
         default:
             break
         }

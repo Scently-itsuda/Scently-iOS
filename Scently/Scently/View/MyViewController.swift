@@ -78,8 +78,14 @@ extension MyViewController: MyPageActionDelegate,MyPageProfileViewDelegate {
 }
 
 extension MyViewController: MyPageTableViewDelegate {
+    
     func didSelectNotificationSettings() {
         let notificationVC = NotificationSettingsViewController()
         navigationController?.pushViewController(notificationVC, animated: true)
+    }
+    
+    func didSelecteNotices() {
+        let noticeVC = NoticeViewController()
+        navigationController?.pushViewController(noticeVC, animated: true)
     }
 }
