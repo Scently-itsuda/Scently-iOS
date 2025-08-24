@@ -158,7 +158,7 @@ final class PerfumeViewController: UIViewController {
         collectionView.showsVerticalScrollIndicator = false
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(PerfumeCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        collectionView.register(PerfumeCollectionViewCell.self, forCellWithReuseIdentifier: PerfumeCollectionViewCell.reuseIdentifier)
         return collectionView
     }()
     
@@ -459,7 +459,7 @@ extension PerfumeViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? PerfumeCollectionViewCell else {return UICollectionViewCell()}
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PerfumeCollectionViewCell.reuseIdentifier, for: indexPath) as? PerfumeCollectionViewCell else {return UICollectionViewCell()}
         let perfume = perfumes[indexPath.row]
         cell.configure(title: perfume.name, subTitle: perfume.brand,imageURL: perfume.imageURL)
         cell.backgroundColor = .white
