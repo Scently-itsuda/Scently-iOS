@@ -22,6 +22,7 @@ final class MyViewController: UIViewController {
         print("MyViewController init")
         myPageHeaderView.delegate = self
         myPageProfileView.delegate = self
+        myPageTableView.delegate = self
     }
 }
 
@@ -73,5 +74,12 @@ extension MyViewController: MyPageActionDelegate,MyPageProfileViewDelegate {
         self.navigationController?.navigationBar.isHidden = true
         profileEditVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(profileEditVC, animated: false)
+    }
+}
+
+extension MyViewController: MyPageTableViewDelegate {
+    func didSelectNotificationSettings() {
+        let notificationVC = NotificationSettingsViewController()
+        navigationController?.pushViewController(notificationVC, animated: true)
     }
 }

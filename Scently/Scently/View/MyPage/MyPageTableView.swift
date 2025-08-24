@@ -8,7 +8,14 @@
 import UIKit
 import SnapKit
 
+protocol MyPageTableViewDelegate: AnyObject {
+    func didSelectNotificationSettings()
+}
+
+
 final class MyPageTableView: UIView {
+    
+    weak var delegate: MyPageTableViewDelegate?
     
     private let menuTitles = [
          "알림 설정",
@@ -84,7 +91,11 @@ extension MyPageTableView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let selectedTitle = menuTitles[indexPath.row]
-        print("선택된 메뉴: \(selectedTitle)")
+        switch indexPath.row {
+        case 0:
+            delegate?.didSelectNotificationSettings()
+        default:
+            break
+        }
     }
 }
