@@ -23,13 +23,19 @@ final class PostContentView: UIView {
         return label
     }()
     
-    private let contentLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 2
-        label.font = .pretendard(.regular, size: 14)
-        label.textColor = .black
-        label.isUserInteractionEnabled = true
-        return label
+    
+    private let contentTextView: UITextView = {
+        let textView = UITextView()
+        textView.font = .pretendard(.regular, size: 14)
+        textView.textColor = .black
+        textView.backgroundColor = .clear
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.textContainer.lineFragmentPadding = 0
+        textView.textContainerInset = .zero
+        textView.textContainer.lineBreakMode = .byTruncatingTail
+        textView.textContainer.maximumNumberOfLines = 2
+        return textView
     }()
     
     private let containerView: UIView = {
@@ -47,7 +53,8 @@ final class PostContentView: UIView {
         super.init(frame: frame)
         setupUI()
         setupConstraints()
-        setupGesture()
+     //   setupGesture()
+        setupTextViewDelegate()
     }
     
     required init?(coder: NSCoder) {
@@ -57,7 +64,7 @@ final class PostContentView: UIView {
 
 extension PostContentView {
     private func setupUI() {
-        self.addSubviews(userInfoLabel,contentLabel)
+        self.addSubviews(userInfoLabel,contentTextView)
     }
     
     private func setupConstraints() {
@@ -66,53 +73,17 @@ extension PostContentView {
             $0.leading.equalToSuperview().inset(16)
         }
         
-        contentLabel.snp.makeConstraints {
+        contentTextView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.top.equalTo(userInfoLabel.snp.bottom).offset(8)
             $0.bottom.equalToSuperview()
         }
     }
     
-    private func setupGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
+    private func setupTextViewDelegate() {
+          contentTextView.delegate = self
+      }
         
-        contentLabel.addGestureRecognizer(tapGesture)
-        
-        print("제스처 추가됨")
-            print("contentLabel isUserInteractionEnabled: \(contentLabel.isUserInteractionEnabled)")
-    }
-    
-    @objc
-    func labelTapped(_ gesture: UITapGestureRecognizer) {
-        let location = gesture.location(in: contentLabel)
-        print("🔥 레이블 터치됨!")
-        if !isExpanded {
-            let labelWidth = contentLabel.bounds.width
-            let labelHeight = contentLabel.bounds.height
-            
-            if location.x > labelWidth * 0.75 && location.y > labelHeight * 0.75 {
-                toggleExpansion()
-            }
-        } else {
-            if checkIfTappedCollapseArea(location: location) {
-                toggleExpansion()
-            }
-        }
-    }
-    
-    private func checkIfTappedCollapseArea(location: CGPoint) -> Bool {
-        guard let attributedText = contentLabel.attributedText else {return false}
-        
-        let textLength = attributedText.length
-        let collapseText = " 접기"
-        let collapseRange = NSRange(location: textLength - collapseText.count, length: collapseText.count)
-        
-        let labelWidth = contentLabel.bounds.width
-        let labelHeight = contentLabel.bounds.height
-        
-        return location.x > labelWidth * 0.8 && location.y > labelHeight * 0.8
-    }
-    
     private func toggleExpansion() {
         print("토글 실행! isExpanded: \(isExpanded) -> \(!isExpanded)")
         isExpanded.toggle()
@@ -121,9 +92,6 @@ extension PostContentView {
     
     func configure(text: String) {
         fullText = text
-        contentLabel.numberOfLines = 2
-        contentLabel.attributedText = nil
-        self.contentLabel.text = text
         isExpanded = false
         
         DispatchQueue.main.async {
@@ -131,44 +99,90 @@ extension PostContentView {
         }
     }
     
-    func updateContentDisplay() {
+    private func updateContentDisplay() {
         print("updateContentDisplay 호출, isExpanded: \(isExpanded), fullText 길이: \(fullText.count)")
+        
         guard fullText.count > maxCharacterCount else {
-            contentLabel.text = fullText
-            contentLabel.numberOfLines = 0
+            contentTextView.textContainer.maximumNumberOfLines = 0
+            contentTextView.text = fullText
+            contentTextView.linkTextAttributes = [:]
             return
         }
         
         if !isExpanded {
             print("축약 모드")
-            contentLabel.numberOfLines = 2
-            contentLabel.addTrailing(with: "", moreText: " ... 더보기", moreTextFont: .pretendard(.light, size: 12), moreTextColor: .gray3)
+            contentTextView.textContainer.maximumNumberOfLines = 2
+            
+            let truncatedText = createTruncatedText()
+            let attributedString = NSMutableAttributedString(string: truncatedText, attributes: [
+                NSAttributedString.Key.font: contentTextView.font ?? UIFont.systemFont(ofSize: 14)
+            ])
+            
+            // "더보기" 링크 추가
+            let moreText = " ... 더보기"
+            let moreRange = NSRange(location: truncatedText.count - moreText.count, length: moreText.count)
+            
+            attributedString.addAttributes([
+                NSAttributedString.Key.font: UIFont.pretendard(.light, size: 12),
+                NSAttributedString.Key.foregroundColor: UIColor.gray3,
+                NSAttributedString.Key.link: "more://"
+            ], range: moreRange)
+            
+            contentTextView.attributedText = attributedString
+            
         } else {
             print("확장 모드")
-            contentLabel.numberOfLines = 0
+            contentTextView.textContainer.maximumNumberOfLines = 0
+            
             let fullTextWithCollapse = fullText + " 접기"
+            let attributedString = NSMutableAttributedString(string: fullTextWithCollapse, attributes: [
+                NSAttributedString.Key.font: contentTextView.font ?? UIFont.systemFont(ofSize: 14)
+            ])
             
-            let attributedString = NSMutableAttributedString(string: fullTextWithCollapse, attributes: [NSAttributedString.Key.font: contentLabel.font as Any])
-            
+            // "접기" 링크 추가
             let collapseRange = NSRange(location: fullText.count + 1, length: 2)
             attributedString.addAttributes([
                 NSAttributedString.Key.font: UIFont.pretendard(.light, size: 12),
-                NSAttributedString.Key.foregroundColor: UIColor.gray3
+                NSAttributedString.Key.foregroundColor: UIColor.gray3,
+                NSAttributedString.Key.link: "collapse://"
             ], range: collapseRange)
             
-            contentLabel.attributedText = attributedString
-            
+            contentTextView.attributedText = attributedString
         }
+        
+        // 링크 스타일 설정
+        contentTextView.linkTextAttributes = [
+            NSAttributedString.Key.underlineStyle: 0  // 밑줄 제거
+        ]
     }
     
-    func checkIfNeededMoreButton() {
-  
-        guard let contentTextLength = self.contentLabel.text?.count else {return}
+    private func createTruncatedText() -> String {
+        let maxLength = maxCharacterCount
+        let moreText = " ... 더보기"
         
-        if contentTextLength > 60 {
-            DispatchQueue.main.async {
-                self.contentLabel.addTrailing(with: "", moreText: " ... 더보기", moreTextFont: .pretendard(.light, size: 12), moreTextColor: .gray3)
-            }
+        if fullText.count <= maxLength {
+            return fullText + moreText
         }
+        
+        let truncateLength = maxLength - moreText.count
+        let truncatedContent = String(fullText.prefix(truncateLength))
+        return truncatedContent + moreText
+    }
+}
+
+extension PostContentView: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        
+        if URL.scheme == "more" {
+            print("더보기 터치됨!")
+            toggleExpansion()
+            return false
+        } else if URL.scheme == "collapse" {
+            print("접기 터치됨!")
+            toggleExpansion()
+            return false
+        }
+        
+        return false
     }
 }
