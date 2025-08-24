@@ -23,6 +23,7 @@ final class MyViewController: UIViewController {
         myPageHeaderView.delegate = self
         myPageProfileView.delegate = self
         myPageTableView.delegate = self
+        recentProductsView.delegate = self
     }
 }
 
@@ -88,4 +89,13 @@ extension MyViewController: MyPageTableViewDelegate {
         let noticeVC = NoticeViewController()
         navigationController?.pushViewController(noticeVC, animated: true)
     }
+}
+
+extension MyViewController: RecentProductsViewDelegate {
+    func didTapRecentProducts() {
+        let recentlyViewedVC = RecentlyViewedViewController()
+        navigationController?.pushViewController(recentlyViewedVC, animated: true)
+    }
+    
+    
 }

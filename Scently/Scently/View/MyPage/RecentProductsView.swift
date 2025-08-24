@@ -8,7 +8,13 @@
 import UIKit
 import SnapKit
 
+protocol RecentProductsViewDelegate: AnyObject {
+    func didTapRecentProducts()
+}
+
 final class RecentProductsView: UIView {
+    
+    weak var delegate: RecentProductsViewDelegate?
     
     private let headerView: UIView = {
         let view = UIView()
@@ -66,6 +72,7 @@ final class RecentProductsView: UIView {
         super.init(frame: frame)
         setupUI()
         setupConstraints()
+        setupGestures()
     }
     
     required init?(coder: NSCoder) {
@@ -103,6 +110,17 @@ extension RecentProductsView {
             $0.bottom.equalToSuperview()
         }
     }
+    
+    
+    private func setupGestures() {
+           let tapGesture = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
+           headerView.addGestureRecognizer(tapGesture)
+           headerView.isUserInteractionEnabled = true
+       }
+       
+       @objc private func headerTapped() {
+           delegate?.didTapRecentProducts()
+       }
 }
 
 extension RecentProductsView: UICollectionViewDelegate,UICollectionViewDataSource {
