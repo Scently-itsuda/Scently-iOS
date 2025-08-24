@@ -67,7 +67,7 @@ final class NicknameInputView: UIView {
     private func setupLayout() {
         containerView.snp.makeConstraints {
             $0.top.leading.trailing.equalToSuperview()
-            $0.height.equalTo(50)
+            $0.height.equalTo(52) // 컨테이너 자체를 52로 유지
         }
         
         nicknameTextField.snp.makeConstraints {
@@ -80,12 +80,14 @@ final class NicknameInputView: UIView {
             $0.trailing.equalToSuperview().offset(-16)
             $0.centerY.equalToSuperview()
             $0.width.equalTo(60)
+            $0.height.equalTo(32)
         }
         
         errorLabel.snp.makeConstraints {
-            $0.top.equalTo(containerView.snp.bottom).offset(8)
+            $0.top.equalTo(containerView.snp.bottom).offset(4)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalToSuperview()
+            $0.height.greaterThanOrEqualTo(16)
         }
     }
     
