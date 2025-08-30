@@ -10,6 +10,8 @@ import Moya
 
 enum OOTDTarget {
     case getOOTDList(order: String, page: Int, size: Int)
+    case createOOTD(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data])
+    
 }
 
 extension OOTDTarget: TargetType {
@@ -25,6 +27,8 @@ extension OOTDTarget: TargetType {
             
         case .getOOTDList:
             return "/api/v1/ootds"
+        case .createOOTD:
+            return "/api/v1/ootds"
         }
     }
     
@@ -33,6 +37,8 @@ extension OOTDTarget: TargetType {
             
         case .getOOTDList:
             return .get
+        case .createOOTD:
+            return .post
         }
     }
     
@@ -47,14 +53,70 @@ extension OOTDTarget: TargetType {
                 ],
                 encoding: URLEncoding.queryString
             )
+        case .createOOTD(let content, let volume, let perfumeIds, let tagNames, let images):
+            
+            var multipartData: [MultipartFormData] = []
+            
+            let jsonData: [String: Any] = [
+                "content": content,
+                "volume": volume,
+                "perfumeIds": perfumeIds,
+                "tagNames": tagNames
+            ]
+            
+            if let jsonDataEncoded = try? JSONSerialization.data(withJSONObject: jsonData) {
+                multipartData.append(MultipartFormData(provider: .data(jsonDataEncoded), name: "data",mimeType: "application/json"))
+            }
+            
+            for (index, imageData) in images.enumerated() {
+                multipartData.append(MultipartFormData(provider: .data(imageData),
+                                                     name: "images",
+                                                     fileName: "image\(index).jpg",
+                                                     mimeType: "image/jpeg"))
+            }
+            
+            return .uploadMultipart(multipartData)
+            
         }
     }
     
     var headers: [String : String]? {
-        var headers = [
-            "Content=Type:" : "application/json"
-        ]
+        var headers: [String: String] = [:]
+        
+        switch self {
+        case .getOOTDList:
+            headers["Content-Type"] = "application/json"
+            
+        case .createOOTD:
+            headers["Content-Type"] = "multipart/form-data"
+        }
+        
+        if needsAuthentication {
+            if let token = TokenManager.shared.accessToken {
+                headers["Authorization"] = "Bearer \(token)"
+            }
+        }
         
         return headers
+    }
+
+    private var needsAuthentication: Bool {
+        switch self {
+        case .getOOTDList:
+            return false
+        case .createOOTD:
+            return true
+        }
+    }
+}
+
+
+#warning("추후 KeyChain 로직으로 변경")
+class TokenManager {
+    static let shared = TokenManager()
+    private init() {}
+    
+    var accessToken: String? {
+        return UserDefaults.standard.string(forKey: "access_token")
     }
 }
