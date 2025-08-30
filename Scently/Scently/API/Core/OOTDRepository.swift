@@ -11,6 +11,7 @@ import Combine
 
 protocol OOTDRepositoryProtocol {
     func getOOTDList(order: String, page: Int, size: Int) -> AnyPublisher<OOTDListData, Error>
+    func createOOTD(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data]) -> AnyPublisher<Int, Error>
 }
 
 class OOTDRepository: OOTDRepositoryProtocol {
@@ -22,6 +23,7 @@ class OOTDRepository: OOTDRepositoryProtocol {
         self.networkService = networkService
     }
     
+    //MARK: - OOTD 목록 조회
     func getOOTDList(order: String, page: Int, size: Int) -> AnyPublisher<OOTDListData, Error> {
         return networkService
             .request(.getOOTDList(order: order, page: page, size: size),
@@ -35,6 +37,26 @@ class OOTDRepository: OOTDRepositoryProtocol {
             .catch { error -> AnyPublisher<OOTDListData, Error> in
                 print("Failed to load OOTD list: \(error.localizedDescription)")
                 return Just(OOTDListData(dataList: [], pageInfo: PageInfo(page: 0, size: 0, totalElements: 0, totalPages: 0)))
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    //MARK: - OOTD 게시글 작성
+    func createOOTD(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data]) -> AnyPublisher<Int, Error> {
+        return networkService
+            .request(.createOOTD(content: content, volume: volume, perfumeIds: perfumeIds, tagNames: tagNames, images: images),
+                    responseType: CreateOOTDResponse.self)
+            .map { response in
+                return response.data?.ootdId ?? 0
+            }
+            .handleEvents(receiveOutput: { ootdId in
+                print("Successfully created OOTD with ID: \(ootdId)")
+            })
+            .catch { error -> AnyPublisher<Int, Error> in
+                print("Failed to create OOTD: \(error.localizedDescription)")
+                return Just(0)
                     .setFailureType(to: Error.self)
                     .eraseToAnyPublisher()
             }
