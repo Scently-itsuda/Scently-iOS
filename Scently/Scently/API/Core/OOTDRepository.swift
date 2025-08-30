@@ -12,6 +12,7 @@ import Combine
 protocol OOTDRepositoryProtocol {
     func getOOTDList(order: String, page: Int, size: Int) -> AnyPublisher<OOTDListData, Error>
     func createOOTD(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data]) -> AnyPublisher<Int, Error>
+    func getOOTDPerfume(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data]) -> AnyPublisher<[PerfumeItem], Error>
 }
 
 class OOTDRepository: OOTDRepositoryProtocol {
@@ -57,6 +58,26 @@ class OOTDRepository: OOTDRepositoryProtocol {
             .catch { error -> AnyPublisher<Int, Error> in
                 print("Failed to create OOTD: \(error.localizedDescription)")
                 return Just(0)
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    //MARK: - OOTD 향수 조회
+    
+    func getOOTDPerfume(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data]) -> AnyPublisher<[PerfumeItem], Error> {
+        return networkService
+            .request(.getOOTDPerfume(content: content, volume: volume, perfumeIds: perfumeIds, tagNames: tagNames, images: images),
+                    responseType: OOTDPerfumeResponse.self)
+            .map { response in
+                return response.data?.perfumes ?? []
+            }
+            .handleEvents(receiveOutput: { perfumes in
+                print("Successfully loaded \(perfumes.count) perfumes for OOTD")
+            })
+            .catch { error -> AnyPublisher<[PerfumeItem], Error> in
+                print("Failed to load OOTD perfumes: \(error.localizedDescription)")
+                return Just([PerfumeItem]())
                     .setFailureType(to: Error.self)
                     .eraseToAnyPublisher()
             }
