@@ -11,6 +11,7 @@ import Moya
 enum OOTDTarget {
     case getOOTDList(order: String, page: Int, size: Int)
     case createOOTD(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data])
+    case getOOTDPerfume(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data])
     
 }
 
@@ -29,13 +30,15 @@ extension OOTDTarget: TargetType {
             return "/api/v1/ootds"
         case .createOOTD:
             return "/api/v1/ootds"
+        case .getOOTDPerfume:
+            return "/api/v1/ootds/perfumes"
         }
     }
     
     var method: Moya.Method {
         switch self {
             
-        case .getOOTDList:
+        case .getOOTDList, .getOOTDPerfume:
             return .get
         case .createOOTD:
             return .post
@@ -53,29 +56,10 @@ extension OOTDTarget: TargetType {
                 ],
                 encoding: URLEncoding.queryString
             )
-        case .createOOTD(let content, let volume, let perfumeIds, let tagNames, let images):
             
-            var multipartData: [MultipartFormData] = []
-            
-            let jsonData: [String: Any] = [
-                "content": content,
-                "volume": volume,
-                "perfumeIds": perfumeIds,
-                "tagNames": tagNames
-            ]
-            
-            if let jsonDataEncoded = try? JSONSerialization.data(withJSONObject: jsonData) {
-                multipartData.append(MultipartFormData(provider: .data(jsonDataEncoded), name: "data",mimeType: "application/json"))
-            }
-            
-            for (index, imageData) in images.enumerated() {
-                multipartData.append(MultipartFormData(provider: .data(imageData),
-                                                     name: "images",
-                                                     fileName: "image\(index).jpg",
-                                                     mimeType: "image/jpeg"))
-            }
-            
-            return .uploadMultipart(multipartData)
+        case .createOOTD(let content, let volume, let perfumeIds, let tagNames, let images),
+                .getOOTDPerfume(let content, let volume, let perfumeIds, let tagNames, let images):
+               return createMultipartTask(content: content, volume: volume, perfumeIds: perfumeIds, tagNames: tagNames, images: images)
             
         }
     }
@@ -87,7 +71,7 @@ extension OOTDTarget: TargetType {
         case .getOOTDList:
             headers["Content-Type"] = "application/json"
             
-        case .createOOTD:
+        case .createOOTD, .getOOTDPerfume:
             headers["Content-Type"] = "multipart/form-data"
         }
         
@@ -106,7 +90,33 @@ extension OOTDTarget: TargetType {
             return false
         case .createOOTD:
             return true
+        case .getOOTDPerfume:
+            return true
         }
+    }
+    
+    private func createMultipartTask(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data]) -> Moya.Task {
+        var multipartData: [MultipartFormData] = []
+        
+        let jsonData: [String: Any] = [
+            "content": content,
+            "volume": volume,
+            "perfumeIds": perfumeIds,
+            "tagNames": tagNames
+        ]
+        
+        if let jsonDataEncoded = try? JSONSerialization.data(withJSONObject: jsonData) {
+            multipartData.append(MultipartFormData(provider: .data(jsonDataEncoded), name: "data", mimeType: "application/json"))
+        }
+        
+        for (index, imageData) in images.enumerated() {
+            multipartData.append(MultipartFormData(provider: .data(imageData),
+                                                 name: "images",
+                                                 fileName: "image\(index).jpg",
+                                                 mimeType: "image/jpeg"))
+        }
+        
+        return .uploadMultipart(multipartData)
     }
 }
 
