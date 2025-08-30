@@ -86,11 +86,13 @@ class PerfumeCollectionViewCell: UICollectionViewCell,ReuseIdentifying {
         }
     }
     func configure(title: String, subTitle: String, imageURL: String) {
-        self.titleLabel.text = title
-        self.subTitleLabel.text = subTitle
+//        self.titleLabel.text = title
+//        self.subTitleLabel.text = subTitle
+        self.titleLabel.text = "Dior"
+        self.subTitleLabel.text = "디올"
         self.perfumeImageView.image = UIImage(named: "perfume")
         
-        loadImage(from: imageURL)
+//        loadImage(from: imageURL)
     }
     
     private func loadImage(from urlString: String) {

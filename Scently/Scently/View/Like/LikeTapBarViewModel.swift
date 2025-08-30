@@ -12,7 +12,7 @@ final class LikeTapBarViewModel {
     var dataSourceVC: [UIViewController] = []
     
     func setupViewControllers() {
-        dataSourceVC = [OOTDViewController(),
-                        FreeBoardViewController() ]
+        dataSourceVC = [LikePerfumeViewController(),
+                        LikeOOTDViewController() ]
     }
 }

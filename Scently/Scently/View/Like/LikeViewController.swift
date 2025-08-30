@@ -9,7 +9,7 @@ import UIKit
 
 final class LikeViewController: UIViewController {
     let likeView = LikeView()
-    let pageViewController = SocialTabbarPageViewController()  // 초기화 될때 scroll 스타일 적용
+    let pageViewController = LikelTabbarPageViewController()  // 초기화 될때 scroll 스타일 적용
     
     private let floatingMainButton = UIButton(type: .custom)
     private var isExpanded = false
@@ -63,7 +63,7 @@ private extension LikeViewController {
     
     func setupConstraint() {
         pageViewController.view.snp.makeConstraints {
-            $0.top.equalTo(likeView.snp.bottom).offset(13)
+            $0.top.equalTo(likeView.tabbarView.snp.bottom).offset(13)
             $0.leading.trailing.bottom.equalToSuperview()
         }
     }
@@ -119,7 +119,7 @@ extension LikeViewController: UICollectionViewDataSource, UICollectionViewDelega
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 0  
+        return 0
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
