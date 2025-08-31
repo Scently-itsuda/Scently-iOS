@@ -214,6 +214,32 @@ class OOTDRepository: OOTDRepositoryProtocol {
             .eraseToAnyPublisher()
     }
     
+    //MARK: - OOTD 상세 댓글 조회
+    
+    func getOOTDDetailComments(ootdId: Int) -> AnyPublisher<CommentData, Error> {
+        return networkService
+            .request(.getOOTDDetailComments(ootdId: ootdId),
+                    responseType: OOTDCommentResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                return response.data ?? CommentData.empty()
+            }
+            .handleEvents(receiveOutput: { commentData in
+                print("Successfully loaded \(commentData.totalCommentCount) comments")
+            })
+            .catch { error -> AnyPublisher<CommentData, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Failed to load comments: \(networkError.errorDescription ?? "")")
+                }
+                return Just(CommentData.empty())
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
     
     private func createEmptyDetailData() -> OOTDDetailData {
         return OOTDDetailData(

@@ -15,6 +15,7 @@ enum OOTDTarget {
     case getOOTDDetails(ootdId: Int)
     case deleteOOTD(ootdId: Int)
     case likeOOTD(ootdId: Int)
+    case getOOTDDetailComments(ootdId: Int)
     
 }
 
@@ -41,13 +42,15 @@ extension OOTDTarget: TargetType {
             return "/api/v1/ootds/\(ootdId)"
         case .likeOOTD(let ootdId):
             return "/api/v1/ootds/\(ootdId)"
+        case .getOOTDDetailComments(let ootdId):
+            return "/api/v1/ootds/\(ootdId)/comments"
         }
     }
     
     var method: Moya.Method {
         switch self {
             
-        case .getOOTDList, .getOOTDPerfume, .getOOTDDetails:
+        case .getOOTDList, .getOOTDPerfume, .getOOTDDetails, .getOOTDDetailComments:
             return .get
         case .createOOTD, .likeOOTD:
             return .post
@@ -72,7 +75,7 @@ extension OOTDTarget: TargetType {
                 .getOOTDPerfume(let content, let volume, let perfumeIds, let tagNames, let images):
                return createMultipartTask(content: content, volume: volume, perfumeIds: perfumeIds, tagNames: tagNames, images: images)
             
-        case .getOOTDDetails, .deleteOOTD:
+        case .getOOTDDetails, .deleteOOTD,.likeOOTD, .getOOTDDetailComments:
             return .requestPlain
         }
     }
@@ -81,7 +84,7 @@ extension OOTDTarget: TargetType {
         var headers: [String: String] = [:]
         
         switch self {
-        case .getOOTDList, .getOOTDDetails, .deleteOOTD, .likeOOTD:
+        case .getOOTDList, .getOOTDDetails, .deleteOOTD, .likeOOTD, .getOOTDDetailComments:
             headers["Content-Type"] = "application/json"
             
         case .createOOTD, .getOOTDPerfume:
