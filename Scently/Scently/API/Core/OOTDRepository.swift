@@ -14,6 +14,8 @@ protocol OOTDRepositoryProtocol {
     func createOOTD(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data]) -> AnyPublisher<Int, Error>
     func getOOTDPerfume(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data]) -> AnyPublisher<[PerfumeItem], Error>
     func getOOTDDetail(ootdId: Int) -> AnyPublisher<OOTDDetailData, Error>
+    func deleteOOTD(ootdId: Int) -> AnyPublisher<Bool, Error>
+    func likeOOTD(ootdId: Int) -> AnyPublisher<Bool, Error>
 }
 
 class OOTDRepository: OOTDRepositoryProtocol {
@@ -176,6 +178,27 @@ class OOTDRepository: OOTDRepositoryProtocol {
         return networkService
             .request(.deleteOOTD(ootdId: ootdId),
                     responseType: DeleteOOTDResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                return true
+            }
+            .catch { error -> AnyPublisher<Bool, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Delete failed: \(networkError.errorDescription ?? "")")
+                }
+                return Just(false).setFailureType(to: Error.self).eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    //MARK: - OOTD 좋아요
+    
+    func likeOOTD(ootdId: Int) -> AnyPublisher<Bool, Error> {
+        return networkService
+            .request(.likeOOTD(ootdId: ootdId),
+                    responseType: LikeOOTDResponse.self)
             .tryMap { response in
                 if !response.success {
                     throw response.networkError ?? NetworkError.unknownError

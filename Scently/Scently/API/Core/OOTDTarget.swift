@@ -14,6 +14,7 @@ enum OOTDTarget {
     case getOOTDPerfume(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data])
     case getOOTDDetails(ootdId: Int)
     case deleteOOTD(ootdId: Int)
+    case likeOOTD(ootdId: Int)
     
 }
 
@@ -38,6 +39,8 @@ extension OOTDTarget: TargetType {
             return "/api/v1/ootds/\(ootdId)"
         case .deleteOOTD(let ootdId):
             return "/api/v1/ootds/\(ootdId)"
+        case .likeOOTD(let ootdId):
+            return "/api/v1/ootds/\(ootdId)"
         }
     }
     
@@ -46,7 +49,7 @@ extension OOTDTarget: TargetType {
             
         case .getOOTDList, .getOOTDPerfume, .getOOTDDetails:
             return .get
-        case .createOOTD:
+        case .createOOTD, .likeOOTD:
             return .post
         case .deleteOOTD:
             return .delete
@@ -78,7 +81,7 @@ extension OOTDTarget: TargetType {
         var headers: [String: String] = [:]
         
         switch self {
-        case .getOOTDList, .getOOTDDetails, .deleteOOTD:
+        case .getOOTDList, .getOOTDDetails, .deleteOOTD, .likeOOTD:
             headers["Content-Type"] = "application/json"
             
         case .createOOTD, .getOOTDPerfume:
