@@ -7,12 +7,8 @@
 
 import Foundation
 
-struct CreateOOTDResponse: Codable {
-    let success: Bool
-    let data: CreateOOTDData?
-    let error: String?
-    let message: String
-}
+
+typealias CreateOOTDResponse = BaseResponse<CreateOOTDData>
 
 struct CreateOOTDData: Codable {
     let ootdId: Int

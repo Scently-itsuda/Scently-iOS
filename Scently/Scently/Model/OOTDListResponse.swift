@@ -7,12 +7,7 @@
 
 import Foundation
 
-struct OOTDListResponse: Codable {
-    let success: Bool
-    let data: OOTDListData?
-    let error: String?
-    let message: String
-}
+typealias OOTDListResponse = BaseResponse<OOTDListData>
 
 struct OOTDListData: Codable {
     let dataList: [OOTDItem]

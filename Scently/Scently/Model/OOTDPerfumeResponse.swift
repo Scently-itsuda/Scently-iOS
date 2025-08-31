@@ -7,12 +7,7 @@
 
 import Foundation
 
-struct OOTDPerfumeResponse: Codable {
-    let success: Bool
-    let data: OOTDPerfumeData?
-    let error: String?
-    let message: String
-}
+typealias OOTDPerfumeResponse = BaseResponse<OOTDPerfumeData>
 
 struct OOTDPerfumeData: Codable {
     let perfumes: [PerfumeItem]

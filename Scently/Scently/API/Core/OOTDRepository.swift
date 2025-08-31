@@ -30,14 +30,21 @@ class OOTDRepository: OOTDRepositoryProtocol {
         return networkService
             .request(.getOOTDList(order: order, page: page, size: size),
                     responseType: OOTDListResponse.self)
-            .map { response in
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
                 return response.data ?? OOTDListData(dataList: [], pageInfo: PageInfo(page: 0, size: 0, totalElements: 0, totalPages: 0))
             }
             .handleEvents(receiveOutput: { ootdListData in
                 print("Successfully loaded \(ootdListData.dataList.count) OOTDs")
             })
             .catch { error -> AnyPublisher<OOTDListData, Error> in
-                print("Failed to load OOTD list: \(error.localizedDescription)")
+                if let networkError = error as? NetworkError {
+                    print("Failed to load OOTD list: \(networkError.errorDescription ?? "")")
+                } else {
+                    print("Failed to load OOTD list: \(error.localizedDescription)")
+                }
                 return Just(OOTDListData(dataList: [], pageInfo: PageInfo(page: 0, size: 0, totalElements: 0, totalPages: 0)))
                     .setFailureType(to: Error.self)
                     .eraseToAnyPublisher()
@@ -50,14 +57,32 @@ class OOTDRepository: OOTDRepositoryProtocol {
         return networkService
             .request(.createOOTD(content: content, volume: volume, perfumeIds: perfumeIds, tagNames: tagNames, images: images),
                     responseType: CreateOOTDResponse.self)
-            .map { response in
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
                 return response.data?.ootdId ?? 0
             }
             .handleEvents(receiveOutput: { ootdId in
                 print("Successfully created OOTD with ID: \(ootdId)")
             })
             .catch { error -> AnyPublisher<Int, Error> in
-                print("Failed to create OOTD: \(error.localizedDescription)")
+                if let networkError = error as? NetworkError {
+                    print("Failed to create OOTD: \(networkError.errorDescription ?? "")")
+                    
+                    switch networkError {
+                    case .invalidToken, .expiredToken:
+                        // 토큰 관련 에러 - 로그인 화면으로 이동 등
+                        break
+                    case .internalServerError:
+                        // 서버 에러 - 재시도 유도
+                        break
+                    default:
+                        break
+                    }
+                } else {
+                    print("Failed to create OOTD: \(error.localizedDescription)")
+                }
                 return Just(0)
                     .setFailureType(to: Error.self)
                     .eraseToAnyPublisher()
@@ -70,14 +95,32 @@ class OOTDRepository: OOTDRepositoryProtocol {
         return networkService
             .request(.getOOTDPerfume(content: content, volume: volume, perfumeIds: perfumeIds, tagNames: tagNames, images: images),
                     responseType: OOTDPerfumeResponse.self)
-            .map { response in
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
                 return response.data?.perfumes ?? []
             }
             .handleEvents(receiveOutput: { perfumes in
                 print("Successfully loaded \(perfumes.count) perfumes for OOTD")
             })
             .catch { error -> AnyPublisher<[PerfumeItem], Error> in
-                print("Failed to load OOTD perfumes: \(error.localizedDescription)")
+                if let networkError = error as? NetworkError {
+                    print("Failed to load OOTD perfumes: \(networkError.errorDescription ?? "")")
+                    
+                    switch networkError {
+                    case .invalidToken, .expiredToken:
+                        // 토큰 관련 에러 처리
+                        break
+                    case .internalServerError:
+                        // 서버 에러 처리
+                        break
+                    default:
+                        break
+                    }
+                } else {
+                    print("Failed to load OOTD perfumes: \(error.localizedDescription)")
+                }
                 return Just([PerfumeItem]())
                     .setFailureType(to: Error.self)
                     .eraseToAnyPublisher()
@@ -91,14 +134,35 @@ class OOTDRepository: OOTDRepositoryProtocol {
         return networkService
             .request(.getOOTDDetails(ootdId: ootdId),
                     responseType: OOTDDetailResponse.self)
-            .map { response in
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
                 return response.data ?? self.createEmptyDetailData()
             }
             .handleEvents(receiveOutput: { detailData in
                 print("Successfully loaded OOTD detail for ID: \(detailData.ootdInfo.ootdId)")
             })
             .catch { error -> AnyPublisher<OOTDDetailData, Error> in
-                print("Failed to load OOTD detail: \(error.localizedDescription)")
+                if let networkError = error as? NetworkError {
+                    print("Failed to load OOTD detail: \(networkError.errorDescription ?? "")")
+                    
+                    switch networkError {
+                    case .ootdNotFound, .ootdAlreadyDeleted:
+                        // OOTD를 찾을 수 없는 경우 - 이전 화면으로 이동
+                        break
+                    case .invalidToken, .expiredToken:
+                        // 토큰 관련 에러 처리
+                        break
+                    case .internalServerError:
+                        // 서버 에러 처리
+                        break
+                    default:
+                        break
+                    }
+                } else {
+                    print("Failed to load OOTD detail: \(error.localizedDescription)")
+                }
                 return Just(self.createEmptyDetailData())
                     .setFailureType(to: Error.self)
                     .eraseToAnyPublisher()

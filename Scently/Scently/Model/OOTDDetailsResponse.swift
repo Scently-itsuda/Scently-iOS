@@ -7,12 +7,7 @@
 
 import Foundation
 
-struct OOTDDetailResponse: Codable {
-    let success: Bool
-    let data: OOTDDetailData?
-    let error: String?
-    let message: String
-}
+typealias OOTDDetailResponse = BaseResponse<OOTDDetailData>
 
 // OOTD 상세 데이터
 struct OOTDDetailData: Codable {
