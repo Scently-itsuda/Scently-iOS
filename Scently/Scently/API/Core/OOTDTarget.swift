@@ -13,6 +13,7 @@ enum OOTDTarget {
     case createOOTD(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data])
     case getOOTDPerfume(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data])
     case getOOTDDetails(ootdId: Int)
+    case deleteOOTD(ootdId: Int)
     
 }
 
@@ -35,6 +36,8 @@ extension OOTDTarget: TargetType {
             return "/api/v1/ootds/perfumes"
         case .getOOTDDetails(let ootdId):
             return "/api/v1/ootds/\(ootdId)"
+        case .deleteOOTD(let ootdId):
+            return "/api/v1/ootds/\(ootdId)"
         }
     }
     
@@ -45,6 +48,8 @@ extension OOTDTarget: TargetType {
             return .get
         case .createOOTD:
             return .post
+        case .deleteOOTD:
+            return .delete
         }
     }
     
@@ -64,7 +69,7 @@ extension OOTDTarget: TargetType {
                 .getOOTDPerfume(let content, let volume, let perfumeIds, let tagNames, let images):
                return createMultipartTask(content: content, volume: volume, perfumeIds: perfumeIds, tagNames: tagNames, images: images)
             
-        case .getOOTDDetails:
+        case .getOOTDDetails, .deleteOOTD:
             return .requestPlain
         }
     }
@@ -73,7 +78,7 @@ extension OOTDTarget: TargetType {
         var headers: [String: String] = [:]
         
         switch self {
-        case .getOOTDList, .getOOTDDetails:
+        case .getOOTDList, .getOOTDDetails, .deleteOOTD:
             headers["Content-Type"] = "application/json"
             
         case .createOOTD, .getOOTDPerfume:
@@ -93,12 +98,9 @@ extension OOTDTarget: TargetType {
         switch self {
         case .getOOTDList:
             return false
-        case .createOOTD:
+        default:
             return true
-        case .getOOTDPerfume:
-            return true
-        case .getOOTDDetails:
-            return true
+
         }
     }
     
