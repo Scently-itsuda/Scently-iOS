@@ -13,6 +13,7 @@ protocol OOTDRepositoryProtocol {
     func getOOTDList(order: String, page: Int, size: Int) -> AnyPublisher<OOTDListData, Error>
     func createOOTD(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data]) -> AnyPublisher<Int, Error>
     func getOOTDPerfume(content: String, volume: Int, perfumeIds: [Int], tagNames: [String], images: [Data]) -> AnyPublisher<[PerfumeItem], Error>
+    func getOOTDDetail(ootdId: Int) -> AnyPublisher<OOTDDetailData, Error>
 }
 
 class OOTDRepository: OOTDRepositoryProtocol {
@@ -82,5 +83,48 @@ class OOTDRepository: OOTDRepositoryProtocol {
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
+    }
+    
+    //MARK: - OOTD 상세 조회
+    
+    func getOOTDDetail(ootdId: Int) -> AnyPublisher<OOTDDetailData, Error> {
+        return networkService
+            .request(.getOOTDDetails(ootdId: ootdId),
+                    responseType: OOTDDetailResponse.self)
+            .map { response in
+                return response.data ?? self.createEmptyDetailData()
+            }
+            .handleEvents(receiveOutput: { detailData in
+                print("Successfully loaded OOTD detail for ID: \(detailData.ootdInfo.ootdId)")
+            })
+            .catch { error -> AnyPublisher<OOTDDetailData, Error> in
+                print("Failed to load OOTD detail: \(error.localizedDescription)")
+                return Just(self.createEmptyDetailData())
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    private func createEmptyDetailData() -> OOTDDetailData {
+        return OOTDDetailData(
+            ootdInfo:
+                OOTDInfo(
+                    ootdId: 0,
+                    createdAt: Date(),
+                    ootdImageUrls: [],
+                    likeCount: 0,
+                    commentCount: 0,
+                    volume: 0,
+                    content: "",
+                    tags: [],
+                    isLiked: false
+                ),
+            userInfo: UserInfo(
+                gender: "",
+                age: 0
+            ),
+            perfumeInfo: []
+        )
     }
 }
