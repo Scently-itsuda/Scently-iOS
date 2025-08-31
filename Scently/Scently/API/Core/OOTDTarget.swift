@@ -17,6 +17,7 @@ enum OOTDTarget {
     case likeOOTD(ootdId: Int)
     case getOOTDDetailComments(ootdId: Int)
     case postOOTDComments(ootdId: Int, commentId: Int?, comment: String)
+    case likeOOTDComments(ootdId: Int, commentId: Int)
     
 }
 
@@ -47,6 +48,8 @@ extension OOTDTarget: TargetType {
             return "/api/v1/ootds/\(ootdId)/comments"
         case .postOOTDComments(let ootdId, _,_):
             return "/api/v1/ootds/\(ootdId)/comments"
+        case .likeOOTDComments(let ootdId, let commentId):
+            return "/api/v1/ootds/\(ootdId)/comments/\(commentId)/like"
         }
     }
     
@@ -55,7 +58,7 @@ extension OOTDTarget: TargetType {
             
         case .getOOTDList, .getOOTDPerfume, .getOOTDDetails, .getOOTDDetailComments:
             return .get
-        case .createOOTD, .likeOOTD, .postOOTDComments:
+        case .createOOTD, .likeOOTD, .postOOTDComments, .likeOOTDComments:
             return .post
         case .deleteOOTD:
             return .delete
@@ -78,7 +81,7 @@ extension OOTDTarget: TargetType {
                 .getOOTDPerfume(let content, let volume, let perfumeIds, let tagNames, let images):
                return createMultipartTask(content: content, volume: volume, perfumeIds: perfumeIds, tagNames: tagNames, images: images)
             
-        case .getOOTDDetails, .deleteOOTD,.likeOOTD, .getOOTDDetailComments:
+        case .getOOTDDetails, .deleteOOTD,.likeOOTD, .getOOTDDetailComments, .likeOOTDComments:
             return .requestPlain
             
         case .postOOTDComments(_, let commentId, let comment):
@@ -104,7 +107,7 @@ extension OOTDTarget: TargetType {
         var headers: [String: String] = [:]
         
         switch self {
-        case .getOOTDList, .getOOTDDetails, .deleteOOTD, .likeOOTD, .getOOTDDetailComments, .postOOTDComments:
+        case .getOOTDList, .getOOTDDetails, .deleteOOTD, .likeOOTD, .getOOTDDetailComments, .postOOTDComments, .likeOOTDComments:
             headers["Content-Type"] = "application/json"
             
         case .createOOTD, .getOOTDPerfume:

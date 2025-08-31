@@ -21,7 +21,7 @@ final class FreeBoardDetailViewController: UIViewController {
     private var commentTextView = CommentTextView()
     
     
-    let mockComments = CommentResponse.mockData
+//    let mockComments = CommentResponse.mockData
     
     
     private let scrollView: UIScrollView = {
@@ -201,6 +201,6 @@ extension FreeBoardDetailViewController: FreeBoardNavigationViewDelegate {
     }
     
     private func configureComments() {
-        commentListView.configure(with: mockComments)
+//        commentListView.configure(with: mockComments)
     }
 }

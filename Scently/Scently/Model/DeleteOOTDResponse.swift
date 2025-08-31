@@ -9,4 +9,6 @@ import Foundation
 
 typealias DeleteOOTDResponse = BaseResponse<EmptyData>
 typealias LikeOOTDResponse = BaseResponse<EmptyData>
+typealias LikeCommentResponse = BaseResponse<EmptyData>
+
 struct EmptyData: Codable {}

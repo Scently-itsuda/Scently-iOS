@@ -16,6 +16,9 @@ protocol OOTDRepositoryProtocol {
     func getOOTDDetail(ootdId: Int) -> AnyPublisher<OOTDDetailData, Error>
     func deleteOOTD(ootdId: Int) -> AnyPublisher<Bool, Error>
     func likeOOTD(ootdId: Int) -> AnyPublisher<Bool, Error>
+    func getOOTDDetailComments(ootdId: Int) -> AnyPublisher<CommentData, Error>
+    func postOOTDComment(ootdId: Int, commentId: Int?, comment: String) -> AnyPublisher<Int, Error>
+    
 }
 
 class OOTDRepository: OOTDRepositoryProtocol {
@@ -240,6 +243,8 @@ class OOTDRepository: OOTDRepositoryProtocol {
             .eraseToAnyPublisher()
     }
     
+    //MARK: - OOTD 댓글 작성
+    
     func postOOTDComment(ootdId: Int, commentId: Int?, comment: String) -> AnyPublisher<Int, Error> {
          return networkService
              .request(.postOOTDComments(ootdId: ootdId, commentId: commentId, comment: comment),
@@ -278,12 +283,59 @@ class OOTDRepository: OOTDRepositoryProtocol {
                  } else {
                      print("Failed to post comment: \(error.localizedDescription)")
                  }
-                 return Just(0) /
+                 return Just(0)
                      .setFailureType(to: Error.self)
                      .eraseToAnyPublisher()
              }
              .eraseToAnyPublisher()
      }
+    
+    //MARK: - OOTD 댓글 좋아요
+    
+    func likeOOTDComment(ootdId: Int, commentId: Int) -> AnyPublisher<Bool, Error> {
+        return networkService
+            .request(.likeOOTDComments(ootdId: ootdId, commentId: commentId),
+                    responseType: LikeCommentResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                return true
+            }
+            .handleEvents(receiveOutput: { isSuccess in
+                if isSuccess {
+                    print("Successfully liked comment ID: \(commentId)")
+                }
+            })
+            .catch { error -> AnyPublisher<Bool, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Failed to like comment: \(networkError.errorDescription ?? "")")
+                    
+                    switch networkError {
+                    case .invalidToken, .expiredToken:
+                        // 토큰 관련 에러 처리
+                        break
+                    case .ootdNotFound:
+                        // OOTD를 찾을 수 없는 경우
+                        break
+                    case .userNotFound:
+                        // 사용자 관련 에러
+                        break
+                    case .internalServerError:
+                        // 서버 에러 처리
+                        break
+                    default:
+                        break
+                    }
+                } else {
+                    print("Failed to like comment: \(error.localizedDescription)")
+                }
+                return Just(false)
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
     
     
     private func createEmptyDetailData() -> OOTDDetailData {
