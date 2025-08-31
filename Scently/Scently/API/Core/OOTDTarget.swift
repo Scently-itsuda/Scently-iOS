@@ -16,6 +16,7 @@ enum OOTDTarget {
     case deleteOOTD(ootdId: Int)
     case likeOOTD(ootdId: Int)
     case getOOTDDetailComments(ootdId: Int)
+    case postOOTDComments(ootdId: Int, commentId: Int?, comment: String)
     
 }
 
@@ -44,6 +45,8 @@ extension OOTDTarget: TargetType {
             return "/api/v1/ootds/\(ootdId)"
         case .getOOTDDetailComments(let ootdId):
             return "/api/v1/ootds/\(ootdId)/comments"
+        case .postOOTDComments(let ootdId, _,_):
+            return "/api/v1/ootds/\(ootdId)/comments"
         }
     }
     
@@ -52,7 +55,7 @@ extension OOTDTarget: TargetType {
             
         case .getOOTDList, .getOOTDPerfume, .getOOTDDetails, .getOOTDDetailComments:
             return .get
-        case .createOOTD, .likeOOTD:
+        case .createOOTD, .likeOOTD, .postOOTDComments:
             return .post
         case .deleteOOTD:
             return .delete
@@ -77,14 +80,31 @@ extension OOTDTarget: TargetType {
             
         case .getOOTDDetails, .deleteOOTD,.likeOOTD, .getOOTDDetailComments:
             return .requestPlain
+            
+        case .postOOTDComments(_, let commentId, let comment):
+            var parameters: [String: Any] = [
+                "comment": comment
+            ]
+            
+            if let commentId = commentId {
+                parameters["commentId"] = commentId
+            }
+            
+            return .requestParameters(
+                parameters: parameters,
+                encoding: JSONEncoding.default
+            )
         }
+        
+  
+  
     }
     
     var headers: [String : String]? {
         var headers: [String: String] = [:]
         
         switch self {
-        case .getOOTDList, .getOOTDDetails, .deleteOOTD, .likeOOTD, .getOOTDDetailComments:
+        case .getOOTDList, .getOOTDDetails, .deleteOOTD, .likeOOTD, .getOOTDDetailComments, .postOOTDComments:
             headers["Content-Type"] = "application/json"
             
         case .createOOTD, .getOOTDPerfume:

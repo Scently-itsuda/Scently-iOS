@@ -240,6 +240,51 @@ class OOTDRepository: OOTDRepositoryProtocol {
             .eraseToAnyPublisher()
     }
     
+    func postOOTDComment(ootdId: Int, commentId: Int?, comment: String) -> AnyPublisher<Int, Error> {
+         return networkService
+             .request(.postOOTDComments(ootdId: ootdId, commentId: commentId, comment: comment),
+                     responseType: PostCommentResponse.self)
+             .tryMap { response in
+                 if !response.success {
+                     throw response.networkError ?? NetworkError.unknownError
+                 }
+                 return response.data?.commentId ?? 0
+             }
+             .handleEvents(receiveOutput: { commentId in
+                 if commentId != 0 {
+                     print("Successfully posted comment with ID: \(commentId)")
+                 } else {
+                     print("Comment posted but received invalid ID")
+                 }
+             })
+             .catch { error -> AnyPublisher<Int, Error> in
+                 if let networkError = error as? NetworkError {
+                     print("Failed to post comment: \(networkError.errorDescription ?? "")")
+                     
+                     // 특정 에러에 따른 처리
+                     switch networkError {
+                     case .invalidToken, .expiredToken:
+                         // 토큰 관련 에러 처리
+                         break
+                     case .ootdNotFound:
+                         // OOTD를 찾을 수 없는 경우
+                         break
+                     case .internalServerError:
+                         // 서버 에러 처리
+                         break
+                     default:
+                         break
+                     }
+                 } else {
+                     print("Failed to post comment: \(error.localizedDescription)")
+                 }
+                 return Just(0) /
+                     .setFailureType(to: Error.self)
+                     .eraseToAnyPublisher()
+             }
+             .eraseToAnyPublisher()
+     }
+    
     
     private func createEmptyDetailData() -> OOTDDetailData {
         return OOTDDetailData(
