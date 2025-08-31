@@ -170,6 +170,28 @@ class OOTDRepository: OOTDRepositoryProtocol {
             .eraseToAnyPublisher()
     }
     
+    //MARK: - OOTD 삭제
+    
+    func deleteOOTD(ootdId: Int) -> AnyPublisher<Bool, Error> {
+        return networkService
+            .request(.deleteOOTD(ootdId: ootdId),
+                    responseType: DeleteOOTDResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                return true
+            }
+            .catch { error -> AnyPublisher<Bool, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Delete failed: \(networkError.errorDescription ?? "")")
+                }
+                return Just(false).setFailureType(to: Error.self).eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    
     private func createEmptyDetailData() -> OOTDDetailData {
         return OOTDDetailData(
             ootdInfo:
