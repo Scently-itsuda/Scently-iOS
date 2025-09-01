@@ -18,6 +18,7 @@ enum OOTDTarget {
     case getOOTDDetailComments(ootdId: Int)
     case postOOTDComments(ootdId: Int, commentId: Int?, comment: String)
     case likeOOTDComments(ootdId: Int, commentId: Int)
+    case deleteOOTDComments(userId:Int, commentId: Int)
     
 }
 
@@ -50,6 +51,8 @@ extension OOTDTarget: TargetType {
             return "/api/v1/ootds/\(ootdId)/comments"
         case .likeOOTDComments(let ootdId, let commentId):
             return "/api/v1/ootds/\(ootdId)/comments/\(commentId)/like"
+        case .deleteOOTDComments(let userId, let commentId):
+            return "/api/v1/ootds/\(userId)/comments/\(commentId)"
         }
     }
     
@@ -60,7 +63,7 @@ extension OOTDTarget: TargetType {
             return .get
         case .createOOTD, .likeOOTD, .postOOTDComments, .likeOOTDComments:
             return .post
-        case .deleteOOTD:
+        case .deleteOOTD, .deleteOOTDComments:
             return .delete
         }
     }
@@ -81,7 +84,7 @@ extension OOTDTarget: TargetType {
                 .getOOTDPerfume(let content, let volume, let perfumeIds, let tagNames, let images):
                return createMultipartTask(content: content, volume: volume, perfumeIds: perfumeIds, tagNames: tagNames, images: images)
             
-        case .getOOTDDetails, .deleteOOTD,.likeOOTD, .getOOTDDetailComments, .likeOOTDComments:
+        case .getOOTDDetails, .deleteOOTD,.likeOOTD, .getOOTDDetailComments, .likeOOTDComments, .deleteOOTDComments:
             return .requestPlain
             
         case .postOOTDComments(_, let commentId, let comment):
@@ -107,7 +110,7 @@ extension OOTDTarget: TargetType {
         var headers: [String: String] = [:]
         
         switch self {
-        case .getOOTDList, .getOOTDDetails, .deleteOOTD, .likeOOTD, .getOOTDDetailComments, .postOOTDComments, .likeOOTDComments:
+        case .getOOTDList, .getOOTDDetails, .deleteOOTD, .likeOOTD, .getOOTDDetailComments, .postOOTDComments, .likeOOTDComments,.deleteOOTDComments:
             headers["Content-Type"] = "application/json"
             
         case .createOOTD, .getOOTDPerfume:

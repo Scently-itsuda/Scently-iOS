@@ -18,6 +18,8 @@ protocol OOTDRepositoryProtocol {
     func likeOOTD(ootdId: Int) -> AnyPublisher<Bool, Error>
     func getOOTDDetailComments(ootdId: Int) -> AnyPublisher<CommentData, Error>
     func postOOTDComment(ootdId: Int, commentId: Int?, comment: String) -> AnyPublisher<Int, Error>
+    func likeOOTDComment(ootdId: Int, commentId: Int) -> AnyPublisher<Bool, Error>
+    func deleteOOTDComments(userId: Int, commentId: Int) -> AnyPublisher<Bool, Error>
     
 }
 
@@ -337,6 +339,26 @@ class OOTDRepository: OOTDRepositoryProtocol {
             .eraseToAnyPublisher()
     }
     
+    //MARK: - OOTD 댓글 삭제
+    
+    func deleteOOTDComments(userId: Int, commentId: Int) -> AnyPublisher<Bool, Error> {
+        return networkService
+            .request(.deleteOOTDComments(userId: userId, commentId: commentId),
+                    responseType: DeleteCommentResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                return true
+            }
+            .catch { error -> AnyPublisher<Bool, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Delete failed: \(networkError.errorDescription ?? "")")
+                }
+                return Just(false).setFailureType(to: Error.self).eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
     
     private func createEmptyDetailData() -> OOTDDetailData {
         return OOTDDetailData(
