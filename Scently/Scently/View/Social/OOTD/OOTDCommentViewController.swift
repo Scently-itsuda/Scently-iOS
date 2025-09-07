@@ -15,7 +15,7 @@ final class OOTDCommentViewController: UIViewController {
     
     private var commentTextViewBottomConstraint: Constraint?
     
-    let mockComments = CommentResponse.mockData
+//    let mockComments = CommentResponse.mockData
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,7 +61,7 @@ extension OOTDCommentViewController {
     }
     
     private func configureComments() {
-        commentListView.configure(with: mockComments)
+//        commentListView.configure(with: mockComments)
     }
     
     private func setupKeyboardObservers() {
