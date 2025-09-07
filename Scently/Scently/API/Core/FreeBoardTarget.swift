@@ -10,6 +10,7 @@ import Moya
 
 enum FreeBoardTarget {
     case getFreeBoardList(order: String, page:Int, size: Int)
+    case postFreeBoard(title: String, content: String, tagNames: [String])
 }
 
 extension FreeBoardTarget: TargetType {
@@ -25,6 +26,8 @@ extension FreeBoardTarget: TargetType {
         switch self {
         case .getFreeBoardList:
             return "/api/v1/posts"
+        case .postFreeBoard:
+            return "/api/v1/posts"
         }
     }
     
@@ -32,6 +35,8 @@ extension FreeBoardTarget: TargetType {
         switch self {
         case .getFreeBoardList:
             return .get
+        case .postFreeBoard:
+            return .post
         }
     }
     
@@ -46,6 +51,9 @@ extension FreeBoardTarget: TargetType {
                 ],
                 encoding: URLEncoding.queryString
             )
+        case .postFreeBoard(let title, let content, let tagNames):
+            let requestBody = CreateFreeBoardPostRequest(title: title, content: content, tagNames: tagNames)
+            return .requestJSONEncodable(requestBody)
         }
     }
     
