@@ -13,6 +13,8 @@ protocol FreeBoardRepositoryProtocol {
     func getFreeBoardList(order: String, page:Int, size: Int) -> AnyPublisher<FreeBoardListData,Error>
     
     func postFreeBoard(title: String, content: String, tagNames: [String]) -> AnyPublisher<CreatedPostData, Error>
+    
+    func getDetailFreeBoard(postID: Int) -> AnyPublisher<FreeBoardDetailResponse, Error>
 }
 
 
@@ -85,5 +87,44 @@ class FreeBoardRepository: FreeBoardRepositoryProtocol {
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
+    }
+    
+    func getDetailFreeBoard(postID: Int) -> AnyPublisher<FreeBoardDetailData, any Error> {
+       return networkService.request(.getDetailFreeBoard(postID: postID), responseType: FreeBoardDetailResponse.self)
+           .tryMap { response in
+               if !response.success {
+                   throw response.networkError ?? NetworkError.unknownError
+               }
+               guard let data = response.data else {
+                   throw NetworkError.unknownError
+               }
+               return data
+           }
+           .handleEvents(receiveOutput: { detailData in
+               print("Successfully loaded post detail: \(detailData.postInfo.title)")
+           })
+           .catch { error -> AnyPublisher<FreeBoardDetailData, Error> in
+               if let networkError = error as? NetworkError {
+                   print("Failed to load post detail: \(networkError.errorDescription ?? "")")
+                   
+                   switch networkError {
+                   case .invalidToken, .expiredToken:
+                       // 토큰 관련 에러 처리
+                       break
+                   case .internalServerError:
+                       // 서버 에러 처리
+                       break
+
+                   default:
+                       break
+                   }
+               } else {
+                   print("Failed to load post detail: \(error.localizedDescription)")
+               }
+               
+               return Fail(error: error)
+                   .eraseToAnyPublisher()
+           }
+           .eraseToAnyPublisher()
     }
 }
