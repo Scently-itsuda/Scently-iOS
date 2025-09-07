@@ -11,6 +11,8 @@ import Combine
 
 protocol FreeBoardRepositoryProtocol {
     func getFreeBoardList(order: String, page:Int, size: Int) -> AnyPublisher<FreeBoardListData,Error>
+    
+    func postFreeBoard(title: String, content: String, tagNames: [String]) -> AnyPublisher<CreatedPostData, Error>
 }
 
 
@@ -46,4 +48,42 @@ class FreeBoardRepository: FreeBoardRepositoryProtocol {
             }
             .eraseToAnyPublisher()
         }
+    
+    func postFreeBoard(title: String, content: String, tagNames: [String]) -> AnyPublisher<CreatedPostData, any Error> {
+        return networkService.request(.postFreeBoard(title: title, content: content, tagNames: tagNames), responseType: CreatePostResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                guard let data = response.data else {
+                    throw NetworkError.unknownError
+                }
+                return data
+            }
+            .handleEvents(receiveOutput: { createdPost in
+                print("Successfully created post with ID: \(createdPost)")
+            })
+            .catch { error -> AnyPublisher<CreatedPostData, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Failed to create post: \(networkError.errorDescription ?? "")")
+                    
+                    switch networkError {
+                    case .invalidToken, .expiredToken:
+                        // 토큰 관련 에러 - 로그인 화면으로 이동 등
+                        break
+                    case .internalServerError:
+                        // 서버 에러 - 재시도 유도
+                        break
+                    default:
+                        break
+                    }
+                } else {
+                    print("Failed to create post: \(error.localizedDescription)")
+                }
+                return Just(CreatedPostData(postId: 0))
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
     }
+}
