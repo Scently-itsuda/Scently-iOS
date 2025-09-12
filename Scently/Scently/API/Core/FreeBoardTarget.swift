@@ -12,6 +12,7 @@ enum FreeBoardTarget {
     case getFreeBoardList(order: String, page:Int, size: Int)
     case postFreeBoard(title: String, content: String, tagNames: [String])
     case getDetailFreeBoard(postID: Int)
+    case deleteFreeBoard(postId: Int)
 }
 
 extension FreeBoardTarget: TargetType {
@@ -31,6 +32,8 @@ extension FreeBoardTarget: TargetType {
             return "/api/v1/posts"
         case .getDetailFreeBoard(let postId):
             return "/api/v1/posts/\(postId)"
+        case .deleteFreeBoard(let postId):
+            return "/api/v1/posts/\(postId)"
         }
     }
     
@@ -40,6 +43,8 @@ extension FreeBoardTarget: TargetType {
             return .get
         case .postFreeBoard:
             return .post
+        case .deleteFreeBoard:
+            return .delete
         }
     }
     
@@ -57,7 +62,7 @@ extension FreeBoardTarget: TargetType {
         case .postFreeBoard(let title, let content, let tagNames):
             let requestBody = CreateFreeBoardPostRequest(title: title, content: content, tagNames: tagNames)
             return .requestJSONEncodable(requestBody)
-        case .getDetailFreeBoard:
+        case .getDetailFreeBoard, .deleteFreeBoard:
             return .requestPlain
         }
     }
