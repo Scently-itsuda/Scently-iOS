@@ -17,6 +17,7 @@ protocol FreeBoardRepositoryProtocol {
     func getDetailFreeBoard(postID: Int) -> AnyPublisher<FreeBoardDetailData, Error>
     
     func deleteFreeBoard(postId: Int) -> AnyPublisher<DeleteFreeBoardResponse, Error>
+    func likeFreeBoard(postId: Int) -> AnyPublisher<LikeFreeBoardResponse, Error>
 }
 
 
@@ -132,6 +133,44 @@ class FreeBoardRepository: FreeBoardRepositoryProtocol {
     
     func deleteFreeBoard(postId: Int) -> AnyPublisher<DeleteFreeBoardResponse, any Error> {
         return networkService.request(.deleteFreeBoard(postId: postId), responseType: DeleteFreeBoardResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                return response
+            }
+            .handleEvents(receiveOutput: { response in
+                print("Successfully deleted post with ID: \(postId)")
+                print("Server message: \(response.message)")
+            })
+            .catch { error -> AnyPublisher<DeleteFreeBoardResponse, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Failed to delete post: \(networkError.errorDescription ?? "")")
+                    
+                    switch networkError {
+                    case .onlyAuthorCanDelete:
+                        print("Only author can delete this post")
+                    case .ootdNotFound, .ootdAlreadyDeleted:
+                        print("Post not found or already deleted")
+                    case .invalidToken, .expiredToken:
+                        print("Token error - need to re-login")
+                    case .internalServerError:
+                        print("Server error - please try again later")
+                    default:
+                        break
+                    }
+                } else {
+                    print("Failed to delete post: \(error.localizedDescription)")
+                }
+    
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func likeFreeBoard(postId: Int) -> AnyPublisher<LikeFreeBoardResponse, any Error> {
+        return networkService.request(.deleteFreeBoard(postId: postId), responseType: LikeFreeBoardResponse.self)
             .tryMap { response in
                 if !response.success {
                     throw response.networkError ?? NetworkError.unknownError
