@@ -18,6 +18,7 @@ protocol FreeBoardRepositoryProtocol {
     
     func deleteFreeBoard(postId: Int) -> AnyPublisher<DeleteFreeBoardResponse, Error>
     func likeFreeBoard(postId: Int) -> AnyPublisher<LikeFreeBoardResponse, Error>
+    func getFreeBoardComments(postId: Int) -> AnyPublisher<FreeBoardCommentsData, Error>
 }
 
 
@@ -206,4 +207,44 @@ class FreeBoardRepository: FreeBoardRepositoryProtocol {
             }
             .eraseToAnyPublisher()
     }
+    
+    func getFreeBoardComments(postId: Int) -> AnyPublisher<FreeBoardCommentsData, any Error> {
+        return networkService.request(.getFreeBoardComments(postId: postId), responseType: FreeBoardCommentsResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                guard let data = response.data else {
+                    throw NetworkError.unknownError
+                }
+                return data
+            }
+            .handleEvents(receiveOutput: { commentsData in
+                print("Successfully loaded \(commentsData.totalCommentCount) total comments")
+                print("Parent comments: \(commentsData.commentInfos.count)")
+            })
+            .catch { error -> AnyPublisher<FreeBoardCommentsData, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Failed to load comments: \(networkError.errorDescription ?? "")")
+                    
+                    switch networkError {
+                    case .ootdNotFound:
+                        print("Post not found")
+                    case .invalidToken, .expiredToken:
+                        print("Token error - need to re-login")
+                    case .internalServerError:
+                        print("Server error - please try again later")
+                    default:
+                        break
+                    }
+                } else {
+                    print("Failed to load comments: \(error.localizedDescription)")
+                }
+        
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
 }
