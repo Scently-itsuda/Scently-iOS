@@ -8,3 +8,4 @@
 import Foundation
 
 typealias DeleteFreeBoardResponse = BaseResponse<EmptyData>
+typealias LikeFreeBoardResponse = BaseResponse<EmptyData>
