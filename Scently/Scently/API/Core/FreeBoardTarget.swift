@@ -14,6 +14,7 @@ enum FreeBoardTarget {
     case getDetailFreeBoard(postID: Int)
     case deleteFreeBoard(postId: Int)
     case likeFreeBoardPost(postId: Int)
+    case getFreeBoardComments(postId: Int)
 }
 
 extension FreeBoardTarget: TargetType {
@@ -37,12 +38,14 @@ extension FreeBoardTarget: TargetType {
             return "/api/v1/posts/\(postId)"
         case .likeFreeBoardPost(let postId):
             return "/api/v1/posts/\(postId)"
+        case .getFreeBoardComments(let postId):
+            return "/api/v1/posts/\(postId)/comments"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getFreeBoardList, .getDetailFreeBoard:
+        case .getFreeBoardList, .getDetailFreeBoard,.getFreeBoardComments:
             return .get
         case .postFreeBoard,.likeFreeBoardPost:
             return .post
@@ -65,7 +68,7 @@ extension FreeBoardTarget: TargetType {
         case .postFreeBoard(let title, let content, let tagNames):
             let requestBody = CreateFreeBoardPostRequest(title: title, content: content, tagNames: tagNames)
             return .requestJSONEncodable(requestBody)
-        case .getDetailFreeBoard, .deleteFreeBoard, .likeFreeBoardPost:
+        case .getDetailFreeBoard, .deleteFreeBoard, .likeFreeBoardPost, .getFreeBoardComments:
             return .requestPlain
         }
     }
