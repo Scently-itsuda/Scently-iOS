@@ -9,6 +9,7 @@ import Foundation
 
 
 typealias PostFreeBoardCommentResponse = BaseResponse<FreeBoardCommentData>
+typealias LikeFreeBoardCommentResponse = BaseResponse<EmptyData>
 
 struct FreeBoardCommentData: Codable {
     let commentId: Int

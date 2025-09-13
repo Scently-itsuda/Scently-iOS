@@ -16,6 +16,7 @@ enum FreeBoardTarget {
     case likeFreeBoardPost(postId: Int)
     case getFreeBoardComments(postId: Int)
     case postFreeBoardComment(postId: Int, commentId:Int?, comment: String)
+    case likeFreeBoardComment(postId: Int, commentId: Int)
 }
 
 extension FreeBoardTarget: TargetType {
@@ -43,6 +44,8 @@ extension FreeBoardTarget: TargetType {
             return "/api/v1/posts/\(postId)/comments"
         case .postFreeBoardComment(let postId, _, _):
             return "/api/v1/posts/\(postId)/comments"
+        case .likeFreeBoardComment( let postId, let commentId):
+            return "/api/v1/posts/\(postId)/comments/\(commentId)/like"
         }
     }
     
@@ -50,7 +53,7 @@ extension FreeBoardTarget: TargetType {
         switch self {
         case .getFreeBoardList, .getDetailFreeBoard,.getFreeBoardComments:
             return .get
-        case .postFreeBoard,.likeFreeBoardPost, .postFreeBoardComment:
+        case .postFreeBoard,.likeFreeBoardPost, .postFreeBoardComment,.likeFreeBoardComment :
             return .post
         case .deleteFreeBoard:
             return .delete
@@ -71,7 +74,7 @@ extension FreeBoardTarget: TargetType {
         case .postFreeBoard(let title, let content, let tagNames):
             let requestBody = CreateFreeBoardPostRequest(title: title, content: content, tagNames: tagNames)
             return .requestJSONEncodable(requestBody)
-        case .getDetailFreeBoard, .deleteFreeBoard, .likeFreeBoardPost, .getFreeBoardComments:
+        case .getDetailFreeBoard, .deleteFreeBoard, .likeFreeBoardPost, .getFreeBoardComments, .likeFreeBoardComment:
             return .requestPlain
         case .postFreeBoardComment(let postId, let commentId, let comment):
             let requestBody = CreateFreeBoardCommentRequest(commentId: commentId, comment: comment)
