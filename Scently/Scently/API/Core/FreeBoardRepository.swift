@@ -20,6 +20,7 @@ protocol FreeBoardRepositoryProtocol {
     func likeFreeBoard(postId: Int) -> AnyPublisher<LikeFreeBoardResponse, Error>
     func getFreeBoardComments(postId: Int) -> AnyPublisher<FreeBoardCommentsData, Error>
     func postFreeBoardComment(postId: Int, commentId:Int?, comment: String)  -> AnyPublisher<FreeBoardCommentData, Error>
+    func likeFreeBoardComment(postId: Int, commentId: Int) -> AnyPublisher<LikeFreeBoardCommentResponse, Error>
 }
 
 
@@ -284,6 +285,42 @@ class FreeBoardRepository: FreeBoardRepositoryProtocol {
                     }
                 } else {
                     print("Failed to create comment: \(error.localizedDescription)")
+                }
+                
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func likeFreeBoardComment(postId: Int, commentId: Int) -> AnyPublisher<LikeFreeBoardCommentResponse, any Error> {
+        return networkService.request(.likeFreeBoardComment(postId: postId, commentId: commentId), responseType: LikeFreeBoardCommentResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                return response
+            }
+            .handleEvents(receiveOutput: { response in
+                print("Successfully liked comment ID: \(commentId) in post ID: \(postId)")
+                print("Server message: \(response.message)")
+            })
+            .catch { error -> AnyPublisher<LikeFreeBoardCommentResponse, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Failed to like comment: \(networkError.errorDescription ?? "")")
+                    
+                    switch networkError {
+                    case .ootdNotFound:
+                        print("Post or comment not found")
+                    case .invalidToken, .expiredToken:
+                        print("Token error - need to re-login")
+                    case .internalServerError:
+                        print("Server error - please try again later")
+                    default:
+                        break
+                    }
+                } else {
+                    print("Failed to like comment: \(error.localizedDescription)")
                 }
                 
                 return Fail(error: error)
