@@ -19,6 +19,7 @@ protocol FreeBoardRepositoryProtocol {
     func deleteFreeBoard(postId: Int) -> AnyPublisher<DeleteFreeBoardResponse, Error>
     func likeFreeBoard(postId: Int) -> AnyPublisher<LikeFreeBoardResponse, Error>
     func getFreeBoardComments(postId: Int) -> AnyPublisher<FreeBoardCommentsData, Error>
+    func postFreeBoardComment(postId: Int, commentId:Int?, comment: String)  -> AnyPublisher<FreeBoardCommentData, Error>
 }
 
 
@@ -247,4 +248,47 @@ class FreeBoardRepository: FreeBoardRepositoryProtocol {
             .eraseToAnyPublisher()
     }
     
+    
+    func postFreeBoardComment(postId: Int, commentId: Int?, comment: String) -> AnyPublisher<FreeBoardCommentData, any Error> {
+        return networkService.request(.postFreeBoardComment(postId: postId, commentId: commentId, comment: comment), responseType: PostFreeBoardCommentResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                guard let data = response.data else {
+                    throw NetworkError.unknownError
+                }
+                return data
+            }
+            .handleEvents(receiveOutput: { commentData in
+                if let commentId = commentId {
+                    print("Successfully created reply comment for parent ID: \(commentId)")
+                } else {
+                    print("Successfully created new comment for post ID: \(postId)")
+                }
+                print("Created comment ID: \(commentData.commentId)")
+            })
+            .catch { error -> AnyPublisher<FreeBoardCommentData, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Failed to create comment: \(networkError.errorDescription ?? "")")
+                    
+                    switch networkError {
+                    case .ootdNotFound:
+                        print("Post not found")
+                    case .invalidToken, .expiredToken:
+                        print("Token error - need to re-login")
+                    case .internalServerError:
+                        print("Server error - please try again later")
+                    default:
+                        break
+                    }
+                } else {
+                    print("Failed to create comment: \(error.localizedDescription)")
+                }
+                
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
 }
