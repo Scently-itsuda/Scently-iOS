@@ -21,6 +21,8 @@ protocol FreeBoardRepositoryProtocol {
     func getFreeBoardComments(postId: Int) -> AnyPublisher<FreeBoardCommentsData, Error>
     func postFreeBoardComment(postId: Int, commentId:Int?, comment: String)  -> AnyPublisher<FreeBoardCommentData, Error>
     func likeFreeBoardComment(postId: Int, commentId: Int) -> AnyPublisher<LikeFreeBoardCommentResponse, Error>
+    
+    func deleteFreeBoardComment(postId: Int, commentId: Int) -> AnyPublisher<DeleteFreeBoardCommentResponse, Error>
 }
 
 
@@ -328,4 +330,43 @@ class FreeBoardRepository: FreeBoardRepositoryProtocol {
             }
             .eraseToAnyPublisher()
     }
+    
+    func deleteFreeBoardComment(postId: Int, commentId: Int) -> AnyPublisher<DeleteFreeBoardCommentResponse, any Error> {
+        return networkService.request(.deleteFreeBoardComment(postId: postId, commentId: commentId), responseType: DeleteFreeBoardCommentResponse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                return response
+            }
+            .handleEvents(receiveOutput: { response in
+                print("Successfully deleted comment ID: \(commentId) from post ID: \(postId)")
+                print("Server message: \(response.message)")
+            })
+            .catch { error -> AnyPublisher<DeleteFreeBoardCommentResponse, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Failed to delete comment: \(networkError.errorDescription ?? "")")
+                    
+                    switch networkError {
+                    case .onlyAuthorCanDelete:
+                        print("Only comment author can delete this comment")
+                    case .ootdNotFound, .ootdAlreadyDeleted:
+                        print("Comment not found or already deleted")
+                    case .invalidToken, .expiredToken:
+                        print("Token error - need to re-login")
+                    case .internalServerError:
+                        print("Server error - please try again later")
+                    default:
+                        break
+                    }
+                } else {
+                    print("Failed to delete comment: \(error.localizedDescription)")
+                }
+                
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
 }
