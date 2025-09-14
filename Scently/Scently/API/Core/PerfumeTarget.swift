@@ -59,7 +59,7 @@ extension PerfumeTarget: TargetType {
     
     var headers: [String : String]? {
         var headers = [
-            "Content=Type:" : "application/json"
+            "Content-Type:" : "application/json"
         ]
         
         return headers
