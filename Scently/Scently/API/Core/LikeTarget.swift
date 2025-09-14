@@ -20,6 +20,12 @@ enum LikeTarget {
         page: Int,
         size: Int
     )
+    
+    case getLikedOOTDs(
+        order: String?,
+        page: Int,
+        size: Int
+    )
 }
 
 extension LikeTarget: TargetType {
@@ -36,12 +42,14 @@ extension LikeTarget: TargetType {
         switch self {
         case .getWishlistPerfumes:
             return "/api/v1/likes/perfumes"
+        case .getLikedOOTDs:
+            return "/api/v1/likes/ootds"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getWishlistPerfumes:
+        case .getWishlistPerfumes, .getLikedOOTDs:
             return .get
         }
     }
@@ -77,14 +85,24 @@ extension LikeTarget: TargetType {
             }
             
             return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+            
+        case .getLikedOOTDs(let order, let page, let size):
+            var parameters: [String: Any] = [
+                "page": page,
+                "size": size
+            ]
+            
+            if let order = order, !order.isEmpty {
+                parameters["order"] = order
+            }
+            
+            return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
         }
     }
     
     var headers: [String : String]? {
-        var headers = [
-            "Content-Type:" : "application/json"
+        return [
+            "Content-Type": "application/json"
         ]
-        
-        return headers
     }
 }
