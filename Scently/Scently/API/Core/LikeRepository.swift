@@ -21,6 +21,12 @@ protocol LikeRepositoryProtocol {
         page: Int,
         size: Int
     ) -> AnyPublisher<PerfumeWishlistData, Error>
+    
+    func getLikedOOTDs(
+        order: String?,
+        page: Int,
+        size: Int
+    ) -> AnyPublisher<LikedOOTDData, Error>
 }
 
 class LikeRepository: LikeRepositoryProtocol {
@@ -75,6 +81,47 @@ class LikeRepository: LikeRepositoryProtocol {
                 print("Failed to load wishlist perfumes: \(error.localizedDescription)")
             }
             return Just(PerfumeWishlistData(
+                dataList: [],
+                pageInfo: PageInfo(page: 0, size: 0, totalElements: 0, totalPages: 0)
+            ))
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func getLikedOOTDs(
+        order: String?,
+        page: Int,
+        size: Int
+    ) -> AnyPublisher<LikedOOTDData, Error> {
+        return networkService.request(
+            .getLikedOOTDs(
+                order: order,
+                page: page,
+                size: size
+            ),
+            responseType: LikedOOTDResponse.self
+        )
+        .tryMap { response in
+            if !response.success {
+                throw response.networkError ?? NetworkError.unknownError
+            }
+            return response.data ?? LikedOOTDData(
+                dataList: [],
+                pageInfo: PageInfo(page: 0, size: 0, totalElements: 0, totalPages: 0)
+            )
+        }
+        .handleEvents(receiveOutput: { likedOOTDData in
+            print("Successfully loaded \(likedOOTDData.dataList.count) liked OOTDs")
+        })
+        .catch { error -> AnyPublisher<LikedOOTDData, Error> in
+            if let networkError = error as? NetworkError {
+                print("Failed to load liked OOTDs: \(networkError.errorDescription ?? "")")
+            } else {
+                print("Failed to load liked OOTDs: \(error.localizedDescription)")
+            }
+            return Just(LikedOOTDData(
                 dataList: [],
                 pageInfo: PageInfo(page: 0, size: 0, totalElements: 0, totalPages: 0)
             ))
