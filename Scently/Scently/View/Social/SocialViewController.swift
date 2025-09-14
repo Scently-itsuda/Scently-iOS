@@ -50,6 +50,14 @@ final class SocialViewController: UIViewController {
         }
         
         pageViewController.didMove(toParent: self)
+        
+        // NotificationCenter 옵저버 추가
+//        NotificationCenter.default.addObserver(
+//            self,
+//            selector: #selector(handleFloatingButtonTapped(_:)),
+//            name: NSNotification.Name("FloatingButtonTapped"),
+//            object: nil
+//        )
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -112,8 +120,11 @@ private extension SocialViewController {
         
         for (index, item) in items.enumerated() {
             let itemView = FloatingActionItemView(title: item.0, iconName: item.1)
+            
+            // 초기에는 보이지 않음 (정상 동작)
             itemView.alpha = 0
-            itemView.delegate = self  // 델리게이트 설정 추가
+            
+            itemView.delegate = self
             view.addSubview(itemView)
             
             itemView.snp.makeConstraints {
@@ -155,12 +166,26 @@ private extension SocialViewController {
     
     // MARK: - Navigation Methods
     private func navigateToOOTDViewController() {
-        let writeOotdViewController = WriteOOTDViewController()
-        self.navigationController?.pushViewController(writeOotdViewController, animated: true)
-        
-        // 플로팅 버튼들 숨기기
+        // 먼저 플로팅 버튼들 숨기기 (화면 전환 전에 미리 처리)
         if isExpanded {
             toggleFloatingButtons()
+        }
+        
+        // WriteOOTDViewController 생성
+        let writeOotdViewController = WriteOOTDViewController()
+        
+        // NavigationController 존재 여부에 따라 처리
+        if let navigationController = self.navigationController {
+            print("✅ NavigationController 존재 - Push로 이동")
+            navigationController.pushViewController(writeOotdViewController, animated: true)
+            print("✅ Push 완료")
+        } else {
+            print("⚠️ NavigationController 없음 - Modal로 이동")
+            let navController = UINavigationController(rootViewController: writeOotdViewController)
+            navController.modalPresentationStyle = .fullScreen
+            self.present(navController, animated: true) {
+                print("✅ Modal Present 완료")
+            }
         }
     }
     
@@ -188,18 +213,42 @@ private extension SocialViewController {
 // MARK: - FloatingActionItemDelegate
 extension SocialViewController: FloatingActionItemDelegate {
     func didTapFloatingActionItem(with title: String) {
+        print("🔔 델리게이트 메서드 호출됨: \(title)")
+        
         switch title {
         case "OOTD 글쓰기":
+            print("📝 OOTD 글쓰기 케이스 매칭됨")
             navigateToOOTDViewController()
         case "리뷰쓰기":
+            print("📝 리뷰쓰기 케이스 매칭됨")
             navigateToReviewViewController()
         case "자유게시판 글쓰기":
+            print("📝 자유게시판 글쓰기 케이스 매칭됨")
             navigateToFreeBoardViewController()
         default:
+            print("❓ 매칭되지 않은 타이틀: '\(title)'")
             break
         }
     }
 }
+
+//    @objc private func handleFloatingButtonTapped(_ notification: Notification) {
+//        guard let title = notification.userInfo?["title"] as? String else { return }
+//        
+//        print("🔔 Notification으로 플로팅 버튼 탭 받음: \(title)")
+//        
+//        switch title {
+//        case "OOTD 글쓰기":
+//            navigateToOOTDViewController()
+//        case "리뷰쓰기":
+//            navigateToReviewViewController()
+//        case "자유게시판 글쓰기":
+//            navigateToFreeBoardViewController()
+//        default:
+//            break
+//        }
+//    }
+//}
 
 // MARK: - UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout
 

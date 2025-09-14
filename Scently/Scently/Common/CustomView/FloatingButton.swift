@@ -9,12 +9,12 @@ import UIKit
 
 final class FloatingActionItemView: UIView {
     weak var delegate: FloatingActionItemDelegate?
-
+    
     let iconButton = UIButton(type: .custom)
     let titleLabel = UILabel()
     
     private let title: String
-
+    
     init(title: String, iconName: String) {
         self.title = title
         super.init(frame: .zero)
@@ -48,7 +48,6 @@ final class FloatingActionItemView: UIView {
         }
     }
     
-    // 새로 추가할 메서드들
     private func setupGesture() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapView))
         self.addGestureRecognizer(tapGesture)
@@ -56,6 +55,7 @@ final class FloatingActionItemView: UIView {
     }
     
     @objc private func didTapView() {
-        delegate?.didTapFloatingActionItem(with: title)  // 이제 title에 접근 가능
+        print("🎯 FloatingActionItemView 탭됨: \(title)")
+        delegate?.didTapFloatingActionItem(with: title)
     }
 }
