@@ -8,12 +8,18 @@
 import UIKit
 
 final class FloatingActionItemView: UIView {
+    weak var delegate: FloatingActionItemDelegate?
+
     let iconButton = UIButton(type: .custom)
     let titleLabel = UILabel()
     
+    private let title: String
+
     init(title: String, iconName: String) {
+        self.title = title
         super.init(frame: .zero)
         setupUI(title: title, iconName: iconName)
+        setupGesture()
     }
     
     required init?(coder: NSCoder) {
@@ -40,5 +46,16 @@ final class FloatingActionItemView: UIView {
         hStack.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+    }
+    
+    // 새로 추가할 메서드들
+    private func setupGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapView))
+        self.addGestureRecognizer(tapGesture)
+        self.isUserInteractionEnabled = true
+    }
+    
+    @objc private func didTapView() {
+        delegate?.didTapFloatingActionItem(with: title)  // 이제 title에 접근 가능
     }
 }

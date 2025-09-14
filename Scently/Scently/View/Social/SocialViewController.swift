@@ -7,6 +7,11 @@
 
 import UIKit
 
+// MARK: - FloatingActionItemDelegate 추가
+protocol FloatingActionItemDelegate: AnyObject {
+    func didTapFloatingActionItem(with title: String)
+}
+
 final class SocialViewController: UIViewController {
     let socialView = SocialView()
     let pageViewController = SocialTabbarPageViewController()  // 초기화 될때 scroll 스타일 적용
@@ -108,6 +113,7 @@ private extension SocialViewController {
         for (index, item) in items.enumerated() {
             let itemView = FloatingActionItemView(title: item.0, iconName: item.1)
             itemView.alpha = 0
+            itemView.delegate = self  // 델리게이트 설정 추가
             view.addSubview(itemView)
             
             itemView.snp.makeConstraints {
@@ -145,6 +151,53 @@ private extension SocialViewController {
         
         // pageViewController에서 paging한 경우
         socialView.tabbarView.collectionView.selectItem(at: IndexPath(item: currentPage, section: 0), animated: true, scrollPosition: .centeredHorizontally)
+    }
+    
+    // MARK: - Navigation Methods
+    private func navigateToOOTDViewController() {
+        let writeOotdViewController = WriteOOTDViewController()
+        self.navigationController?.pushViewController(writeOotdViewController, animated: true)
+        
+        // 플로팅 버튼들 숨기기
+        if isExpanded {
+            toggleFloatingButtons()
+        }
+    }
+    
+    private func navigateToReviewViewController() {
+        // 리뷰쓰기 화면으로 이동하는 로직
+        print("리뷰쓰기 화면으로 이동")
+        
+        // 플로팅 버튼들 숨기기
+        if isExpanded {
+            toggleFloatingButtons()
+        }
+    }
+    
+    private func navigateToFreeBoardViewController() {
+        // 자유게시판 글쓰기 화면으로 이동하는 로직
+        print("자유게시판 글쓰기 화면으로 이동")
+        
+        // 플로팅 버튼들 숨기기
+        if isExpanded {
+            toggleFloatingButtons()
+        }
+    }
+}
+
+// MARK: - FloatingActionItemDelegate
+extension SocialViewController: FloatingActionItemDelegate {
+    func didTapFloatingActionItem(with title: String) {
+        switch title {
+        case "OOTD 글쓰기":
+            navigateToOOTDViewController()
+        case "리뷰쓰기":
+            navigateToReviewViewController()
+        case "자유게시판 글쓰기":
+            navigateToFreeBoardViewController()
+        default:
+            break
+        }
     }
 }
 

@@ -14,7 +14,6 @@ final class OOTDCollectionViewCell: UICollectionViewCell, ReuseIdentifying {
     private let ootdImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
-        //imageView.image = UIImage(named: "missDior")
         imageView.backgroundColor = .DDDDDD
         return imageView
     }()
