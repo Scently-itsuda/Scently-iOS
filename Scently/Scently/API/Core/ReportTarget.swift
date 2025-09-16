@@ -11,6 +11,7 @@ import Moya
 enum ReportTarget {
     case reportOOTD(ootdId: String,reportType:String,otherReason:String?)
     case reportFreeBoard(postId: String, reportType: String, otherReason: String?)
+    case reportComment(commentId: String, reportType: String, otherReason: String?)
 }
 
 extension ReportTarget: TargetType {
@@ -28,26 +29,24 @@ extension ReportTarget: TargetType {
             return "/api/v1/reports/ootds/\(ootdId)"
         case .reportFreeBoard(let postId, _, _):
             return "/api/v1/reports/posts/\(postId)"
+        case .reportComment(let commentId, _ , _):
+            return "/api/v1/reports/comments/\(commentId)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .reportOOTD, .reportFreeBoard:
+        case .reportOOTD, .reportFreeBoard, .reportComment:
             return .post
         }
     }
     
     var task: Moya.Task {
         switch self {
-        case .reportOOTD(_, let reportType, let otherReason):
-            var parameters: [String: Any] = ["reportType": reportType]
-            if let otherReason = otherReason {
-                parameters["otherReason"] = otherReason
-            }
-            return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
+        case .reportOOTD(_, let reportType, let otherReason),
+             .reportFreeBoard(_, let reportType, let otherReason),
+             .reportComment(_, let reportType, let otherReason):
             
-        case .reportFreeBoard(_, let reportType, let otherReason):
             var parameters: [String: Any] = ["reportType": reportType]
             if let otherReason = otherReason {
                 parameters["otherReason"] = otherReason

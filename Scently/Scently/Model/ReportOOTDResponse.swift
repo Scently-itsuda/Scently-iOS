@@ -9,6 +9,7 @@ import Foundation
 
 typealias ReportOOTDResponse = BaseResponse<ReportData>
 typealias ReportFreeBoardResponse = BaseResponse<ReportData>
+typealias ReportCommentResponse = BaseResponse<ReportData>
 
 struct ReportData: Codable {
     let reportId: Int
