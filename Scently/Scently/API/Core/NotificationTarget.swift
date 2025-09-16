@@ -10,6 +10,7 @@ import Moya
 
 enum NotificationTarget {
     case getNotifications(page: Int, size: Int)
+    case registerFCMToken(fcmToken: String)
 }
 
 extension NotificationTarget: TargetType {
@@ -26,13 +27,17 @@ extension NotificationTarget: TargetType {
         switch self {
         case .getNotifications(let page, let size):
             return "/api/v1/notifications"
+        case .registerFCMToken:
+            return "/api/v1/fcm/token"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getNotifications(let page, let size):
+        case .getNotifications:
             return .get
+        case .registerFCMToken:
+            return .put
         }
     }
     
@@ -43,6 +48,12 @@ extension NotificationTarget: TargetType {
                 parameters: ["page": page, "size": size],
                 encoding: URLEncoding.queryString
             )
+            
+        case .registerFCMToken(let fcmToken):
+            return .requestParameters(
+                parameters: ["fcmToken": fcmToken],
+                encoding: JSONEncoding.default
+            )
         }
     }
     
@@ -51,5 +62,4 @@ extension NotificationTarget: TargetType {
             "Content-Type": "application/json"
         ]
     }
-    
 }
