@@ -12,6 +12,7 @@ protocol ReportRepositoryProtocol {
     func reportOOTD(ootdId: String,reportType: String,otherReason: String?) -> AnyPublisher<ReportData, Error>
     func reportFreeBoard(postId: String, reportType: String, otherReason: String?) -> AnyPublisher<ReportData, Error>
     func reportCommentBoard(commentId: String, reportType: String, otherReason: String?) -> AnyPublisher<ReportData, Error>
+    func reportReview(reviewId: String, reportType: String, otherReason: String?) -> AnyPublisher<ReportData, Error>
 }
 
 
@@ -91,6 +92,36 @@ class ReportRepository: ReportRepositoryProtocol {
                 otherReason: otherReason
             ),
             responseType: ReportCommentResponse.self
+        )
+        .tryMap { response in
+            if !response.success {
+                throw response.networkError ?? NetworkError.unknownError
+            }
+            return response.data ?? ReportData(reportId: 0)
+        }
+        .handleEvents(receiveOutput: { reportData in
+            print("Successfully reported OOTD with report ID: \(reportData.reportId)")
+        })
+        .catch { error -> AnyPublisher<ReportData, Error> in
+            if let networkError = error as? NetworkError {
+                print("Failed to report OOTD: \(networkError.errorDescription ?? "")")
+            } else {
+                print("Failed to report OOTD: \(error.localizedDescription)")
+            }
+            return Fail(error: error)
+                .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func reportReview(reviewId: String, reportType: String, otherReason: String?) -> AnyPublisher<ReportData, Error> {
+        return networkService.request(
+            .reportReview(
+                reviewId: reviewId,
+                reportType: reportType,
+                otherReason: otherReason
+            ),
+            responseType: ReportReviewResponse.self
         )
         .tryMap { response in
             if !response.success {
