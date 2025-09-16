@@ -12,6 +12,7 @@ enum ReportTarget {
     case reportOOTD(ootdId: String,reportType:String,otherReason:String?)
     case reportFreeBoard(postId: String, reportType: String, otherReason: String?)
     case reportComment(commentId: String, reportType: String, otherReason: String?)
+    case reportReview(reviewId: String, reportType: String, otherReason: String?)
 }
 
 extension ReportTarget: TargetType {
@@ -31,12 +32,14 @@ extension ReportTarget: TargetType {
             return "/api/v1/reports/posts/\(postId)"
         case .reportComment(let commentId, _ , _):
             return "/api/v1/reports/comments/\(commentId)"
+        case .reportReview(let reviewId, _ , _):
+            return "/api/v1/reports/reviews/\(reviewId)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .reportOOTD, .reportFreeBoard, .reportComment:
+        case .reportOOTD, .reportFreeBoard, .reportComment, .reportReview:
             return .post
         }
     }
@@ -45,7 +48,9 @@ extension ReportTarget: TargetType {
         switch self {
         case .reportOOTD(_, let reportType, let otherReason),
              .reportFreeBoard(_, let reportType, let otherReason),
-             .reportComment(_, let reportType, let otherReason):
+             .reportComment(_, let reportType, let otherReason),
+             .reportReview(_, let reportType, let otherReason):
+            
             
             var parameters: [String: Any] = ["reportType": reportType]
             if let otherReason = otherReason {
