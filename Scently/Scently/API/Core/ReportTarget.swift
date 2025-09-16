@@ -10,6 +10,7 @@ import Moya
 
 enum ReportTarget {
     case reportOOTD(ootdId: String,reportType:String,otherReason:String?)
+    case reportFreeBoard(postId: String, reportType: String, otherReason: String?)
 }
 
 extension ReportTarget: TargetType {
@@ -25,12 +26,14 @@ extension ReportTarget: TargetType {
         switch self {
         case .reportOOTD(let ootdId, _, _):
             return "/api/v1/reports/ootds/\(ootdId)"
+        case .reportFreeBoard(let postId, _, _):
+            return "/api/v1/reports/posts/\(postId)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .reportOOTD:
+        case .reportOOTD, .reportFreeBoard:
             return .post
         }
     }
@@ -38,6 +41,13 @@ extension ReportTarget: TargetType {
     var task: Moya.Task {
         switch self {
         case .reportOOTD(_, let reportType, let otherReason):
+            var parameters: [String: Any] = ["reportType": reportType]
+            if let otherReason = otherReason {
+                parameters["otherReason"] = otherReason
+            }
+            return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
+            
+        case .reportFreeBoard(_, let reportType, let otherReason):
             var parameters: [String: Any] = ["reportType": reportType]
             if let otherReason = otherReason {
                 parameters["otherReason"] = otherReason
