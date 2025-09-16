@@ -13,6 +13,10 @@ protocol NotificationRepositoryProtocol {
          page: Int,
          size: Int
      ) -> AnyPublisher<NotificationData, Error>
+    
+    func registerFCMToken(
+        fcmToken: String
+    ) -> AnyPublisher<FCMTokenData, Error>
 }
 
 class NotificationRepository: NotificationRepositoryProtocol {
@@ -54,6 +58,34 @@ class NotificationRepository: NotificationRepositoryProtocol {
             ))
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func registerFCMToken(
+        fcmToken: String
+    ) -> AnyPublisher<FCMTokenData, Error> {
+        return networkService.request(
+            .registerFCMToken(fcmToken: fcmToken),
+            responseType: FCMTokenResponse.self
+        )
+        .tryMap { response in
+            if !response.success {
+                throw response.networkError ?? NetworkError.unknownError
+            }
+            return response.data ?? FCMTokenData(isSaved: false)
+        }
+        .handleEvents(receiveOutput: { fcmTokenData in
+            print("FCM Token registration result: \(fcmTokenData.isSaved)")
+        })
+        .catch { error -> AnyPublisher<FCMTokenData, Error> in
+            if let networkError = error as? NetworkError {
+                print("Failed to register FCM token: \(networkError.errorDescription ?? "")")
+            } else {
+                print("Failed to register FCM token: \(error.localizedDescription)")
+            }
+            return Fail(error: error)
+                .eraseToAnyPublisher()
         }
         .eraseToAnyPublisher()
     }
