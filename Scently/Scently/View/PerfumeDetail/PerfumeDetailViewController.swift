@@ -257,16 +257,19 @@ final class PerfumeDetailViewController: UIViewController {
         if let id = perfumeId {
             print("전달받은 perfumeId: \(id)")
            
-            viewModel.loadPerfumeDetail(id: id)
+            viewModel.loadPerfumeDetailWithMock(id: id)
+//            viewModel.loadPerfumeDetail(id: id)
           
         }
     }
     
     private func setupBindings() {
         viewModel.perfumeDetail
+            .compactMap { $0 }
             .sink { [weak self] detail in
                 DispatchQueue.main.async {
-                   print("향수 detail 정보\(detail)")
+                    print("향수 detail 정보: \(detail)")
+                    self?.updateUI(with: detail)
                 }
             }
             .store(in: &cancellables)
@@ -946,6 +949,38 @@ extension PerfumeDetailViewController {
             navigationController?.navigationBar.scrollEdgeAppearance = appearance
             navigationController?.navigationBar.compactAppearance = appearance
         }
+    }
+}
+
+extension PerfumeDetailViewController {
+    private func updateUI(with detail: PerfumeDetail ) {
+        perfumeBrandLabel.text = detail.brand
+        perfumeTitleLabel.text = detail.name
+        
+        loadImage(from: detail.imageURL)
+    }
+    
+    private func loadImage(from urlString: String) {
+        guard !urlString.isEmpty,
+              let url = URL(string: urlString) else {
+            self.perfumeImageView.image = UIImage(named: "perfume")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let data = data,
+                  let image = UIImage(data: data),
+                  error == nil else {
+                DispatchQueue.main.async {
+                    self?.perfumeImageView.image = UIImage(named: "placeholder")
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self?.perfumeImageView.image = image
+            }
+        }.resume()
     }
 }
 
