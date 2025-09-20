@@ -175,7 +175,14 @@ final class PerfumeViewController: UIViewController {
         setupUI()
         setAddtarget()
         setupBindings()
-        viewModel.loadPerfumes()
+        let filters = PerfumeFilterParameters(
+            minPrice: "100000",
+            maxPrice: "500000",
+            genders: "FEMALE",
+            accords: "만다린,바닐라",
+            brands: "DIOR"
+        )
+        viewModel.loadPerfumes(with: filters)
     }
     
     private func setupUI() {

@@ -9,7 +9,7 @@ import Foundation
 import Moya
 
 enum PerfumeTarget {
-    case getPerfumList
+    case getPerfumList(filters: PerfumeFilterParameters? = nil)
     case getAccords
     case getPerfumeDetail(perfumeId: Int)
     case addToWishList(perfumeId: Int, userId: Int) // ToDo: userId 고정일 경우 수정 
@@ -48,8 +48,18 @@ extension PerfumeTarget: TargetType {
     
     var task: Moya.Task {
         switch self {
-        case .getPerfumList,.getAccords,.getPerfumeDetail:
+        case .getPerfumList(let filters):
+            if let filters = filters, !filters.toDictionary().isEmpty {
+                return .requestParameters(
+                    parameters: filters.toDictionary(),
+                    encoding: URLEncoding.queryString
+                )
+            }
             return .requestPlain
+            
+        case .getAccords,.getPerfumeDetail:
+            return .requestPlain
+            
         case .addToWishList(_ , let userId):
             return .requestParameters(
                 parameters: ["userId": userId],

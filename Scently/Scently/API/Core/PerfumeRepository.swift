@@ -10,7 +10,7 @@ import Moya
 import Combine
 
 protocol PerfumeRepository {
-    func getPerfumes() -> AnyPublisher<[Perfume], Error>
+    func getPerfumes(filters: PerfumeFilterParameters?) -> AnyPublisher<[Perfume], Error>
     func getPerfumeDetail(id: Int) -> AnyPublisher<PerfumeDetail, Error>
 }
 
@@ -21,9 +21,9 @@ class DefaultPerfumeRepository: PerfumeRepository {
         self.networkService = networkService
     }
     
-    func getPerfumes() -> AnyPublisher<[Perfume], Error> {
-        return networkService.request(.getPerfumList, responseType: PerfumeResponse.self)
-            .map(\.data) 
+    func getPerfumes(filters: PerfumeFilterParameters?) -> AnyPublisher<[Perfume], Error> {
+        return networkService.request(.getPerfumList(filters: filters), responseType: PerfumeResponse.self)
+            .map(\.data)
             .handleEvents(receiveOutput: { perfumes in
                 print("Successfully loaded \(perfumes.count) perfumes")
             })

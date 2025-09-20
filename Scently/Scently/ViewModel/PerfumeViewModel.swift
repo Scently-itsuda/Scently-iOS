@@ -32,26 +32,26 @@ class PerfumeViewModel {
         self.repository = repository
     }
     
-    func loadPerfumes() {
+    func loadPerfumes(with filters: PerfumeFilterParameters? = nil) {
         _isLoading = true
         _errorMessage = nil
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?._perfumes = PerfumeMockData.mockPerfumes
-            self?._isLoading = false
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+//            self?._perfumes = PerfumeMockData.mockPerfumes
+//            self?._isLoading = false
+//        }
         
-//        repository.getPerfumes()
-//            .sink(
-//                receiveCompletion: { [weak self] completion in
-//                    self?._isLoading = false
-//                    if case .failure(let error) = completion {
-//                        self?._errorMessage = error.localizedDescription
-//                    }
-//                }, receiveValue: { [weak self] perfumes in
-//                    self?._perfumes = perfumes
-//                }
-//            )
-//            .store(in: &cancellables)
+        repository.getPerfumes(filters: filters)
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    self?._isLoading = false
+                    if case .failure(let error) = completion {
+                        self?._errorMessage = error.localizedDescription
+                    }
+                }, receiveValue: { [weak self] perfumes in
+                    self?._perfumes = perfumes
+                }
+            )
+            .store(in: &cancellables)
     }
 }
