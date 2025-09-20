@@ -33,6 +33,7 @@ class NetworkService<Target: TargetType>: NetworkServiceProtocol {
     
     func request<T: Codable>(_ target: Target, responseType: T.Type) -> AnyPublisher<T, Error> {
         return provider.requestPublisher(target)
+            .filterSuccessfulStatusCodes()
             .map { response in
                 if let jsonString = String(data: response.data, encoding: .utf8) {
                     print("Raw JSON Response: \(jsonString)")
