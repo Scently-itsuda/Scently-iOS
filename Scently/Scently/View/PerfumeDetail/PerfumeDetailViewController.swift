@@ -19,7 +19,7 @@ final class PerfumeDetailViewController: UIViewController {
     let selectedML = "50ML"
     let concentration = ["퍼퓸","오 드 퍼퓸","오 드 뚜왈렛","오 드 코롱","오 프레쉬"]
     let concentrationSubtitles = ["20% ~ 40%","15% ~ 20%","5% ~ 15%","2% ~ 5%","1% ~ 3%"]
-    let selectedConcentration = "오 드 퍼퓸"
+    var selectedConcentration = "오 드 퍼퓸"
     private let accords = ["🍊 시트러스", "🌳 우디", "💚 그린"]
     
     private let notes = ["탑노트","미들노트","베이스 노트"]
@@ -249,7 +249,7 @@ final class PerfumeDetailViewController: UIViewController {
         self.view.backgroundColor = .white
         setupUI()
         setupButtons()
-        setupConcentrationButtons()
+      //  setupConcentrationButtons()
         setupAccordViews()
         setupLayout()
         setupTableView()
@@ -958,6 +958,9 @@ extension PerfumeDetailViewController {
         perfumeTitleLabel.text = detail.name
         
         loadImage(from: detail.imageURL)
+        
+        selectedConcentration = detail.potential
+        setupConcentrationButtons()
     }
     
     private func loadImage(from urlString: String) {

@@ -37,7 +37,7 @@ class PerfumeDetailViewModel {
         errorMessageSubject.send(nil)
         
         // Mock 데이터를 0.5초 후에 로드 (네트워크 지연 시뮬레이션)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now()) { [weak self] in
             if let mockDetail = PerfumeDetailMockData.getDetail(for: id) {
                 self?.perfumeDetailSubject.send(mockDetail)
             } else {

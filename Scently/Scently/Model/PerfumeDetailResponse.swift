@@ -155,7 +155,7 @@ struct PerfumeDetailMockData {
                 PerfumeVolume(id: 9, volume: 30, price: 95000),
                 PerfumeVolume(id: 10, volume: 100, price: 185000)
             ],
-            potential: "코롱",
+            potential: "오 드 코롱",
             accords: PerfumeAccords(
                 topNotes: [
                     Note(id: 28, name: "킹 윌리엄 배"),
@@ -218,7 +218,7 @@ struct PerfumeDetailMockData {
                 PerfumeVolume(id: 14, volume: 50, price: 155000),
                 PerfumeVolume(id: 15, volume: 90, price: 215000)
             ],
-            potential: "오 드 퍼퓸",
+            potential: "오 프레쉬",
             accords: PerfumeAccords(
                 topNotes: [
                     Note(id: 44, name: "핑크 페퍼"),
