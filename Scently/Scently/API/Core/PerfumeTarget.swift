@@ -12,7 +12,8 @@ enum PerfumeTarget {
     case getPerfumList(filters: PerfumeFilterParameters? = nil)
     case getAccords
     case getPerfumeDetail(perfumeId: Int)
-    case addToWishList(perfumeId: Int, userId: Int) // ToDo: userId 고정일 경우 수정 
+    case addToWishList(perfumeId: Int, userId: Int) // ToDo: userId 고정일 경우 수정
+    case getPerfumeReview(perfumeId: Int, page: Int, size: Int)
 }
 
 
@@ -34,12 +35,14 @@ extension PerfumeTarget: TargetType {
             return "/api/v1/perfumes/\(perfumeId)"
         case .addToWishList(perfumeId: let perfumeId, _):
             return "/api/v1/perfumes/\(perfumeId)/like"
+        case .getPerfumeReview(let perfumeId, _,_):
+            return "/api/v1/perfumes/\(perfumeId)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getPerfumList,.getAccords,.getPerfumeDetail:
+        case .getPerfumList,.getAccords,.getPerfumeDetail,.getPerfumeReview:
             return .get
         case .addToWishList:
             return .post
@@ -64,6 +67,15 @@ extension PerfumeTarget: TargetType {
             return .requestParameters(
                 parameters: ["userId": userId],
                 encoding: URLEncoding.queryString)
+            
+        case .getPerfumeReview(_, let page, let size):
+            return .requestParameters(
+                parameters: [
+                    "page": page,
+                    "size": size
+                ],
+                encoding: URLEncoding.queryString
+            )
         }
     }
     
