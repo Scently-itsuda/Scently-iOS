@@ -12,6 +12,7 @@ import Combine
 protocol PerfumeRepository {
     func getPerfumes(filters: PerfumeFilterParameters?) -> AnyPublisher<[Perfume], Error>
     func getPerfumeDetail(id: Int) -> AnyPublisher<PerfumeDetail, Error>
+    func getPerfumeReview(id: Int, page: Int, size: Int) -> AnyPublisher<PerfumeReviewData, Error>
 }
 
 class DefaultPerfumeRepository: PerfumeRepository {
@@ -45,6 +46,30 @@ class DefaultPerfumeRepository: PerfumeRepository {
             .catch { error -> AnyPublisher<PerfumeDetail, Error> in
                 print("Failed to load perfume detail: \(error.localizedDescription)")
                 return Fail(error: error).eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func getPerfumeReview(id: Int, page: Int, size: Int) -> AnyPublisher<PerfumeReviewData, any Error> {
+        return networkService.request(.getPerfumeReview(perfumeId: id, page: page, size: size), responseType: PerfumeReviewResPonse.self)
+            .tryMap { response in
+                if !response.success {
+                    throw response.networkError ?? NetworkError.unknownError
+                }
+                return response.data ?? PerfumeReviewData(nickname: "")
+            }
+            .handleEvents(receiveOutput: { reviewData in
+                print("Successfully loaded \(reviewData.nickname) reviews")
+            })
+            .catch { error -> AnyPublisher<PerfumeReviewData, Error> in
+                if let networkError = error as? NetworkError {
+                    print("Failed to load OOTD list: \(networkError.errorDescription ?? "")")
+                } else {
+                    print("Failed to load OOTD list: \(error.localizedDescription)")
+                }
+                return Just(PerfumeReviewData(nickname: ""))
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
     }
