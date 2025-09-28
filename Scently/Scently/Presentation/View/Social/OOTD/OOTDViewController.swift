@@ -7,8 +7,13 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class OOTDViewController: UIViewController {
+    
+    private let viewModel = OOTDViewModel()
+    private var cancellables = Set<AnyCancellable>()
+    
     lazy var ootdCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -26,6 +31,8 @@ final class OOTDViewController: UIViewController {
         setupUI()
         setupConstraint()
         setupCollectionView()
+        setBinding()
+        viewModel.getOOTDList(order: "NEWEST_DESCENDING", page: 1, size: 1)
     }
 }
 
@@ -38,6 +45,16 @@ extension OOTDViewController {
         ootdCollectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+    }
+    
+    func setBinding() {
+        viewModel.ootdList
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] data in
+                print("Data-\(data)")
+            }
+            .store(in: &cancellables)
+
     }
     
     func setupCollectionView() {
