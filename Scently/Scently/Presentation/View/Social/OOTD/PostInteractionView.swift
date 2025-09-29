@@ -132,3 +132,19 @@ extension PostInteractionView {
         onCommentButtonTapped?()
     }
 }
+
+extension PostInteractionView {
+    func configure(likeCount: Int,commentCount: Int, isLiked: Bool) {
+        
+        let likeCount = String(likeCount)
+        let commentCount = String(commentCount)
+        
+        self.likeCountLabel.text = likeCount
+        self.commentCountLabel.text = commentCount
+        
+        let buttonImage = isLiked ? 
+        "icon-like-#12 1" : "icon-nav-like-off"
+        
+        self.likeButton.setImage(UIImage(named: buttonImage), for: .normal)
+    }
+}

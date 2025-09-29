@@ -159,6 +159,12 @@ final class OOTDDetailViewController: UIViewController {
         imageSliderView.configure(
             images: data.ootdInfo.ootdImageUrls
         )
+        
+        postInteractionView.configure(
+            likeCount: data.ootdInfo.likeCount,
+            commentCount: data.ootdInfo.commentCount,
+            isLiked: data.ootdInfo.isLiked
+        )
     }
 }
 
