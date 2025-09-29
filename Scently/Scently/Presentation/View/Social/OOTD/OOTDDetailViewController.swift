@@ -165,6 +165,8 @@ final class OOTDDetailViewController: UIViewController {
             commentCount: data.ootdInfo.commentCount,
             isLiked: data.ootdInfo.isLiked
         )
+        
+        postContentView.configure(text: data.ootdInfo.content)
     }
 }
 

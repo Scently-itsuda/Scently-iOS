@@ -59,7 +59,7 @@ extension OOTDDetailData {
                     likeCount: 324,
                     commentCount: 45,
                     volume: 3,
-                    content: "오늘 데이트룩으로 입어봤어요! 가을 느낌 물씬 나는 코디 🍂",
+                    content: "오늘 데이트룩으로 입어봤어요! 가을 느낌 물씬 나는 코디 🍂오늘 데이트룩으로 입어봤어요! 가을 느낌 물씬 나는 코디 🍂오늘 데이트룩으로 입어봤어요! 가을 느낌 물씬 나는 코디 🍂",
                     tags: ["데이트룩", "가을코디", "캐주얼"],
                     isLiked: true
                 ),
