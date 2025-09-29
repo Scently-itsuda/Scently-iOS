@@ -59,3 +59,12 @@ extension OOTDViewModel {
             .store(in: &cancellables)
     }
 }
+
+extension OOTDViewModel {
+    func loadMockData() {
+        let mockData = OOTDListData.mockData
+        ootdListSubject.send(mockData)
+        isLoadingSubject.send(false)
+    }
+}
+

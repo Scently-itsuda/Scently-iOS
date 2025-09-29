@@ -14,6 +14,8 @@ final class OOTDViewController: UIViewController {
     private let viewModel = OOTDViewModel()
     private var cancellables = Set<AnyCancellable>()
     
+    private var ootdItems: [OOTDItem] = []
+    
     lazy var ootdCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -32,7 +34,9 @@ final class OOTDViewController: UIViewController {
         setupConstraint()
         setupCollectionView()
         setBinding()
-        viewModel.getOOTDList(order: "NEWEST_DESCENDING", page: 1, size: 1)
+        //viewModel.getOOTDList(order: "NEWEST_DESCENDING", page: 1, size: 1)
+        
+        viewModel.loadMockData()
     }
 }
 
@@ -51,7 +55,22 @@ extension OOTDViewController {
         viewModel.ootdList
             .receive(on: DispatchQueue.main)
             .sink { [weak self] data in
-                print("Data-\(data)")
+                self?.updateUI(with: data)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.isLoading
+             .receive(on: DispatchQueue.main)
+             .sink { [weak self] isLoading in
+                 self?.updateLoadingState(isLoading)
+             }
+             .store(in: &cancellables)
+        
+        viewModel.errorMessage
+            .receive(on: DispatchQueue.main)
+            .compactMap { $0 }
+            .sink { [weak self] errorMessage in
+                self?.showError(errorMessage)
             }
             .store(in: &cancellables)
 
@@ -71,13 +90,16 @@ extension OOTDViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        10
+        ootdItems.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OOTDCollectionViewCell.reuseIdentifier, for: indexPath) as? OOTDCollectionViewCell else {
             return UICollectionViewCell()
         }
+        
+        let item = ootdItems[indexPath.item]
+        cell.configure(with: item)
         
         return cell
     }
@@ -115,5 +137,32 @@ extension OOTDViewController: UICollectionViewDelegate, UICollectionViewDataSour
         self.navigationController?.navigationBar.isHidden = true
         detailVC.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(detailVC, animated: true)
+    }
+}
+
+extension OOTDViewController {
+    
+    private func updateUI(with data: OOTDListData?) {
+        guard let data = data else { return }
+        
+        self.ootdItems = data.dataList
+        self.ootdCollectionView.reloadData()
+        print("OOTD 아이템 \(data.dataList.count)개 로드됨")
+        print("현재 페이지: \(data.pageInfo.page)/\(data.pageInfo.totalPages)")
+    }
+    
+    private func updateLoadingState(_ isLoading: Bool) {
+        if isLoading {
+            //TODO: - 로딩 인디케이터 표시(로딩화면)
+
+        } else {
+            //TODO: - 로딩 인디케이터 숨김(로딩완료시)
+        }
+    }
+    
+    private func showError(_ message: String) {
+        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }

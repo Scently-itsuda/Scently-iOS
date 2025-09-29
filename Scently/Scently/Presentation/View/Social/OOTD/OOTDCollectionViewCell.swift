@@ -16,6 +16,7 @@ final class OOTDCollectionViewCell: UICollectionViewCell, ReuseIdentifying {
         imageView.contentMode = .scaleAspectFill
         //imageView.image = UIImage(named: "missDior")
         imageView.backgroundColor = .DDDDDD
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -62,5 +63,37 @@ private extension OOTDCollectionViewCell {
             $0.top.trailing.equalTo(containerView)
             $0.width.height.equalTo(40)
         }
+    }
+}
+
+
+extension OOTDCollectionViewCell {
+    
+    func configure(with item: OOTDItem) {
+        loadImage(from: item.ootdImageUrl)
+        
+        let likeImageName = item.isLiked ? "icon-heart-fill" : "icon-nav-like-off"
+
+        likeButton.setImage(UIImage(named: likeImageName), for: .normal)
+                
+            likeButton.tag = item.ootdId
+    }
+    
+    private func loadImage(from urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        ootdImageView.image = nil
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let data = data,
+                  let image = UIImage(data: data),
+                  error == nil else {
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self?.ootdImageView.image = image
+            }
+        }.resume()
     }
 }
