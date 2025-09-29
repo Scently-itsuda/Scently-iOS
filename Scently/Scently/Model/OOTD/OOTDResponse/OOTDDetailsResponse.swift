@@ -31,8 +31,9 @@ struct OOTDInfo: Codable {
 
 // 사용자 정보
 struct UserInfo: Codable {
-    let gender: String
-    let age: Int
+    let userId: Int
+    let profileImageUrl: String
+    let nickname: Int
 }
 
 // 향수 정보
@@ -49,8 +50,8 @@ extension OOTDDetailData {
             // Mock Data 1
             OOTDDetailData(
                 ootdInfo: OOTDInfo(
-                    ootdId: 1,
-                    createdAt: Date().addingTimeInterval(-86400 * 2), // 2일 전
+                    ootdId: 0,
+                    createdAt: Date().addingTimeInterval(-86400 * 2),
                     ootdImageUrls: [
                         "https://picsum.photos/400/600?random=1",
                         "https://picsum.photos/400/600?random=2"
@@ -62,7 +63,11 @@ extension OOTDDetailData {
                     tags: ["데이트룩", "가을코디", "캐주얼"],
                     isLiked: true
                 ),
-                userInfo: UserInfo(gender: "여성", age: 25),
+                userInfo: UserInfo(
+                    userId: 1001,
+                    profileImageUrl: "https://picsum.photos/100/100?random=1001",
+                    nickname: 25
+                ),
                 perfumeInfo: [
                     PerfumeInfo(
                         perfumeId: 101,
@@ -76,7 +81,7 @@ extension OOTDDetailData {
             // Mock Data 2
             OOTDDetailData(
                 ootdInfo: OOTDInfo(
-                    ootdId: 2,
+                    ootdId: 1,
                     createdAt: Date().addingTimeInterval(-86400 * 5),
                     ootdImageUrls: [
                         "https://picsum.photos/400/600?random=3"
@@ -88,7 +93,11 @@ extension OOTDDetailData {
                     tags: ["출근룩", "오피스룩", "심플"],
                     isLiked: false
                 ),
-                userInfo: UserInfo(gender: "여성", age: 28),
+                userInfo: UserInfo(
+                    userId: 1002,
+                    profileImageUrl: "https://picsum.photos/100/100?random=1002",
+                    nickname: 28
+                ),
                 perfumeInfo: [
                     PerfumeInfo(
                         perfumeId: 102,
@@ -102,7 +111,7 @@ extension OOTDDetailData {
             // Mock Data 3
             OOTDDetailData(
                 ootdInfo: OOTDInfo(
-                    ootdId: 3,
+                    ootdId: 2,
                     createdAt: Date().addingTimeInterval(-86400 * 1),
                     ootdImageUrls: [
                         "https://picsum.photos/400/600?random=4",
@@ -116,7 +125,11 @@ extension OOTDDetailData {
                     tags: ["주말룩", "나들이", "스트릿"],
                     isLiked: true
                 ),
-                userInfo: UserInfo(gender: "남성", age: 30),
+                userInfo: UserInfo(
+                    userId: 1003,
+                    profileImageUrl: "https://picsum.photos/100/100?random=1003",
+                    nickname: 30
+                ),
                 perfumeInfo: [
                     PerfumeInfo(
                         perfumeId: 103,
@@ -136,7 +149,7 @@ extension OOTDDetailData {
             // Mock Data 4
             OOTDDetailData(
                 ootdInfo: OOTDInfo(
-                    ootdId: 4,
+                    ootdId: 3,
                     createdAt: Date().addingTimeInterval(-86400 * 7),
                     ootdImageUrls: [
                         "https://picsum.photos/400/600?random=7"
@@ -148,7 +161,11 @@ extension OOTDDetailData {
                     tags: ["미니멀", "모던", "블랙코디"],
                     isLiked: false
                 ),
-                userInfo: UserInfo(gender: "여성", age: 32),
+                userInfo: UserInfo(
+                    userId: 1004,
+                    profileImageUrl: "https://picsum.photos/100/100?random=1004",
+                    nickname: 32
+                ),
                 perfumeInfo: [
                     PerfumeInfo(
                         perfumeId: 105,
@@ -162,7 +179,7 @@ extension OOTDDetailData {
             // Mock Data 5
             OOTDDetailData(
                 ootdInfo: OOTDInfo(
-                    ootdId: 5,
+                    ootdId: 4,
                     createdAt: Date().addingTimeInterval(-86400 * 3),
                     ootdImageUrls: [
                         "https://picsum.photos/400/600?random=8",
@@ -175,7 +192,11 @@ extension OOTDDetailData {
                     tags: ["봄코디", "파스텔", "플로럴"],
                     isLiked: true
                 ),
-                userInfo: UserInfo(gender: "여성", age: 23),
+                userInfo: UserInfo(
+                    userId: 1005,
+                    profileImageUrl: "https://picsum.photos/100/100?random=1005",
+                    nickname: 23
+                ),
                 perfumeInfo: [
                     PerfumeInfo(
                         perfumeId: 106,
@@ -189,7 +210,7 @@ extension OOTDDetailData {
             // Mock Data 6
             OOTDDetailData(
                 ootdInfo: OOTDInfo(
-                    ootdId: 6,
+                    ootdId: 5,
                     createdAt: Date().addingTimeInterval(-86400 * 10),
                     ootdImageUrls: [
                         "https://picsum.photos/400/600?random=10"
@@ -201,7 +222,11 @@ extension OOTDDetailData {
                     tags: ["데일리룩", "청바지", "캐주얼"],
                     isLiked: false
                 ),
-                userInfo: UserInfo(gender: "남성", age: 27),
+                userInfo: UserInfo(
+                    userId: 1006,
+                    profileImageUrl: "https://picsum.photos/100/100?random=1006",
+                    nickname: 27
+                ),
                 perfumeInfo: [
                     PerfumeInfo(
                         perfumeId: 107,
@@ -215,7 +240,7 @@ extension OOTDDetailData {
             // Mock Data 7
             OOTDDetailData(
                 ootdInfo: OOTDInfo(
-                    ootdId: 7,
+                    ootdId: 6,
                     createdAt: Date().addingTimeInterval(-86400 * 4),
                     ootdImageUrls: [
                         "https://picsum.photos/400/600?random=11",
@@ -229,7 +254,11 @@ extension OOTDDetailData {
                     tags: ["겨울코디", "레이어링", "아우터"],
                     isLiked: true
                 ),
-                userInfo: UserInfo(gender: "남성", age: 29),
+                userInfo: UserInfo(
+                    userId: 1007,
+                    profileImageUrl: "https://picsum.photos/100/100?random=1007",
+                    nickname: 29
+                ),
                 perfumeInfo: [
                     PerfumeInfo(
                         perfumeId: 108,
@@ -249,7 +278,7 @@ extension OOTDDetailData {
             // Mock Data 8
             OOTDDetailData(
                 ootdInfo: OOTDInfo(
-                    ootdId: 8,
+                    ootdId: 7,
                     createdAt: Date().addingTimeInterval(-86400 * 6),
                     ootdImageUrls: [
                         "https://picsum.photos/400/600?random=14"
@@ -261,7 +290,11 @@ extension OOTDDetailData {
                     tags: ["휴가룩", "여름", "리조트"],
                     isLiked: false
                 ),
-                userInfo: UserInfo(gender: "여성", age: 26),
+                userInfo: UserInfo(
+                    userId: 1008,
+                    profileImageUrl: "https://picsum.photos/100/100?random=1008",
+                    nickname: 26
+                ),
                 perfumeInfo: [
                     PerfumeInfo(
                         perfumeId: 110,
@@ -275,7 +308,7 @@ extension OOTDDetailData {
             // Mock Data 9
             OOTDDetailData(
                 ootdInfo: OOTDInfo(
-                    ootdId: 9,
+                    ootdId: 8,
                     createdAt: Date().addingTimeInterval(-86400 * 8),
                     ootdImageUrls: [
                         "https://picsum.photos/400/600?random=15",
@@ -288,7 +321,11 @@ extension OOTDDetailData {
                     tags: ["드레스", "파티룩", "특별한날"],
                     isLiked: true
                 ),
-                userInfo: UserInfo(gender: "여성", age: 24),
+                userInfo: UserInfo(
+                    userId: 1009,
+                    profileImageUrl: "https://picsum.photos/100/100?random=1009",
+                    nickname: 24
+                ),
                 perfumeInfo: [
                     PerfumeInfo(
                         perfumeId: 111,
@@ -302,7 +339,7 @@ extension OOTDDetailData {
             // Mock Data 10
             OOTDDetailData(
                 ootdInfo: OOTDInfo(
-                    ootdId: 0,
+                    ootdId: 9,
                     createdAt: Date().addingTimeInterval(-86400 * 9),
                     ootdImageUrls: [
                         "https://picsum.photos/400/600?random=17"
@@ -314,7 +351,11 @@ extension OOTDDetailData {
                     tags: ["스포티", "애슬레저", "운동후"],
                     isLiked: false
                 ),
-                userInfo: UserInfo(gender: "남성", age: 31),
+                userInfo: UserInfo(
+                    userId: 1010,
+                    profileImageUrl: "https://picsum.photos/100/100?random=1010",
+                    nickname: 31
+                ),
                 perfumeInfo: [
                     PerfumeInfo(
                         perfumeId: 112,
