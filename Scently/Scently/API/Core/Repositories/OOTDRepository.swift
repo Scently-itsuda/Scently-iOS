@@ -375,9 +375,11 @@ class OOTDRepository: OOTDRepositoryProtocol {
                     isLiked: false
                 ),
             userInfo: UserInfo(
-                gender: "",
-                age: 0
-            ),
+                userId: 0000,
+                profileImageUrl: "",
+                nickname: ""),
+
+            
             perfumeInfo: []
         )
     }

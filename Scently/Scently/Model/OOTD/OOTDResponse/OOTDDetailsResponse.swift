@@ -33,7 +33,7 @@ struct OOTDInfo: Codable {
 struct UserInfo: Codable {
     let userId: Int
     let profileImageUrl: String
-    let nickname: Int
+    let nickname: String
 }
 
 // 향수 정보
@@ -66,7 +66,7 @@ extension OOTDDetailData {
                 userInfo: UserInfo(
                     userId: 1001,
                     profileImageUrl: "https://picsum.photos/100/100?random=1001",
-                    nickname: 25
+                    nickname: "안녕안녕0"
                 ),
                 perfumeInfo: [
                     PerfumeInfo(
@@ -96,7 +96,7 @@ extension OOTDDetailData {
                 userInfo: UserInfo(
                     userId: 1002,
                     profileImageUrl: "https://picsum.photos/100/100?random=1002",
-                    nickname: 28
+                    nickname: "안녕안녕1"
                 ),
                 perfumeInfo: [
                     PerfumeInfo(
@@ -128,7 +128,7 @@ extension OOTDDetailData {
                 userInfo: UserInfo(
                     userId: 1003,
                     profileImageUrl: "https://picsum.photos/100/100?random=1003",
-                    nickname: 30
+                    nickname: "안녕안녕2"
                 ),
                 perfumeInfo: [
                     PerfumeInfo(
@@ -164,7 +164,7 @@ extension OOTDDetailData {
                 userInfo: UserInfo(
                     userId: 1004,
                     profileImageUrl: "https://picsum.photos/100/100?random=1004",
-                    nickname: 32
+                    nickname: "안녕안녕3"
                 ),
                 perfumeInfo: [
                     PerfumeInfo(
@@ -195,7 +195,7 @@ extension OOTDDetailData {
                 userInfo: UserInfo(
                     userId: 1005,
                     profileImageUrl: "https://picsum.photos/100/100?random=1005",
-                    nickname: 23
+                    nickname: "안녕안녕4"
                 ),
                 perfumeInfo: [
                     PerfumeInfo(
@@ -225,7 +225,7 @@ extension OOTDDetailData {
                 userInfo: UserInfo(
                     userId: 1006,
                     profileImageUrl: "https://picsum.photos/100/100?random=1006",
-                    nickname: 27
+                    nickname: "안녕안녕5"
                 ),
                 perfumeInfo: [
                     PerfumeInfo(
@@ -257,7 +257,7 @@ extension OOTDDetailData {
                 userInfo: UserInfo(
                     userId: 1007,
                     profileImageUrl: "https://picsum.photos/100/100?random=1007",
-                    nickname: 29
+                    nickname: "안녕안녕6"
                 ),
                 perfumeInfo: [
                     PerfumeInfo(
@@ -293,7 +293,7 @@ extension OOTDDetailData {
                 userInfo: UserInfo(
                     userId: 1008,
                     profileImageUrl: "https://picsum.photos/100/100?random=1008",
-                    nickname: 26
+                    nickname: "안녕안녕7"
                 ),
                 perfumeInfo: [
                     PerfumeInfo(
@@ -324,7 +324,7 @@ extension OOTDDetailData {
                 userInfo: UserInfo(
                     userId: 1009,
                     profileImageUrl: "https://picsum.photos/100/100?random=1009",
-                    nickname: 24
+                    nickname: "안녕안녕8"
                 ),
                 perfumeInfo: [
                     PerfumeInfo(
@@ -354,7 +354,7 @@ extension OOTDDetailData {
                 userInfo: UserInfo(
                     userId: 1010,
                     profileImageUrl: "https://picsum.photos/100/100?random=1010",
-                    nickname: 31
+                    nickname: "안녕안녕9"
                 ),
                 perfumeInfo: [
                     PerfumeInfo(

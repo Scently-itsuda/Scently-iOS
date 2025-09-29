@@ -144,17 +144,17 @@ final class OOTDDetailViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .compactMap { $0 }
             .sink { [weak self] detailData in
-//                self?.updateUI(with: detailData)
+                self?.updateUI(with: detailData)
             }
             .store(in: &cancellables)
     }
     
-//    private func updateUI(with data: OOTDDetailData) {
-//        userProfileView.configure(
-//            image: data.userInfo.,
-//            nickName: <#T##String#>,
-//            time: <#T##String#>)
-//    }
+    private func updateUI(with data: OOTDDetailData) {
+        userProfileView.configure(
+            image: data.userInfo.profileImageUrl,
+            nickName: data.userInfo.nickname,
+            time: data.ootdInfo.createdAt.timeAgoString())
+    }
 }
 
 extension OOTDDetailViewController: OOTDNavigationViewDelegate {
