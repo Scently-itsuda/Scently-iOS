@@ -153,7 +153,12 @@ final class OOTDDetailViewController: UIViewController {
         userProfileView.configure(
             image: data.userInfo.profileImageUrl,
             nickName: data.userInfo.nickname,
-            time: data.ootdInfo.createdAt.timeAgoString())
+            time: data.ootdInfo.createdAt.timeAgoString()
+        )
+        
+        imageSliderView.configure(
+            images: data.ootdInfo.ootdImageUrls
+        )
     }
 }
 

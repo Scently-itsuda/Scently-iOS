@@ -42,6 +42,30 @@ extension ImageSliderCell {
     }
     
     func configure(imageName: String) {
-        imageView.image = UIImage(named: imageName)
+        loadImage(from: imageName)
     }
+    
+    private func loadImage(from urlString: String) {
+        guard !urlString.isEmpty,
+              let url = URL(string: urlString) else {
+            self.imageView.image = UIImage(named: "perfume")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let data = data,
+                  let image = UIImage(data: data),
+                  error == nil else {
+                DispatchQueue.main.async {
+                    self?.imageView.image = UIImage(named: "placeholder")
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self?.imageView.image = image
+            }
+        }.resume()
+    }
+    
 }
