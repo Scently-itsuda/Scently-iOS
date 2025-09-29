@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class OOTDDetailViewController: UIViewController {
     
@@ -18,6 +19,7 @@ final class OOTDDetailViewController: UIViewController {
     private var productListView = ProductListView()
     
     private let viewModel = OOTDDetailViewModel()
+    private var cancellables = Set<AnyCancellable>()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -37,6 +39,7 @@ final class OOTDDetailViewController: UIViewController {
         setupUI()
         setupConstraint()
         setupInteractions()
+        setBinding()
         
         navigationView.delegate = self
     }
@@ -106,7 +109,7 @@ final class OOTDDetailViewController: UIViewController {
     }
     
     func configure(ootdId: Int) {
-        viewModel.getOOTDDetails(ootdId: ootdId)
+        viewModel.loadMockData(ootdId: ootdId)
     }
     
     private func setupInteractions() {
@@ -135,6 +138,23 @@ final class OOTDDetailViewController: UIViewController {
         
         postContentView.configure(text: "실제 리뷰 텍스트가 여기에 들어갑니다. 매우 긴 텍스트일 수도 있고 짧을 수도 있습니다.실제 리뷰 텍스트가 여기에 들어갑니다. 매우실제 리뷰 텍스트가 여기에 들어갑니다. 매우 긴 텍스트일 수도 있고 짧을 수도 있습니다.실제 리뷰 텍스트가 여기에 들어갑니다. 매우실제 리뷰 텍스트가 여기에 들어갑니다. 매우 긴 텍스트일 수도 있고 짧을 수도 있습니다.실제 리뷰 텍스트가 여기에 들어갑니다. 매우")
     }
+    
+    private func setBinding() {
+        viewModel.detailData
+            .receive(on: DispatchQueue.main)
+            .compactMap { $0 }
+            .sink { [weak self] detailData in
+//                self?.updateUI(with: detailData)
+            }
+            .store(in: &cancellables)
+    }
+    
+//    private func updateUI(with data: OOTDDetailData) {
+//        userProfileView.configure(
+//            image: data.userInfo.,
+//            nickName: <#T##String#>,
+//            time: <#T##String#>)
+//    }
 }
 
 extension OOTDDetailViewController: OOTDNavigationViewDelegate {

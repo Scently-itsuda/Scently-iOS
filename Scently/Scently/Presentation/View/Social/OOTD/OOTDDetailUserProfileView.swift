@@ -102,4 +102,33 @@ extension OOTDDetailUserProfileView {
             $0.leading.centerY.equalToSuperview()
         }
     }
+    
+    func configure(image: String, nickName: String, time: String) {
+        loadImage(from: image)
+        self.nickNameLabel.text = nickName
+        self.timeLabel.text = time
+    }
+    
+    private func loadImage(from urlString: String) {
+        guard !urlString.isEmpty,
+              let url = URL(string: urlString) else {
+            self.profileImageView.image = UIImage(named: "perfume")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let data = data,
+                  let image = UIImage(data: data),
+                  error == nil else {
+                DispatchQueue.main.async {
+                    self?.profileImageView.image = UIImage(named: "placeholder")
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self?.profileImageView.image = image
+            }
+        }.resume()
+    }
 }

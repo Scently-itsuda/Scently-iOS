@@ -18,6 +18,20 @@ class OOTDDetailViewModel {
     
     private let errorMessageSubject = CurrentValueSubject<String?, Never>(nil)
     
+    var detailData: AnyPublisher<OOTDDetailData?, Never> {
+        ootdDetailSubject.eraseToAnyPublisher()
+    }
+    
+    var isLoading: AnyPublisher<Bool,Never> {
+        isLoadingSubject.eraseToAnyPublisher()
+    }
+    
+    var errorMessage: AnyPublisher<String?,Never> {
+        errorMessageSubject.eraseToAnyPublisher()
+    }
+    
+    
+    
     
     init(repository: OOTDRepository = OOTDRepository()) {
         self.repository = repository
@@ -43,5 +57,13 @@ extension OOTDDetailViewModel {
                 }
             )
             .store(in: &cancellables)
+    }
+    
+     func loadMockData(ootdId: Int) {
+
+        if let mockData = OOTDDetailData.mockData(forOOTDId: ootdId) {
+            ootdDetailSubject.send(mockData)
+        }
+        
     }
 }
