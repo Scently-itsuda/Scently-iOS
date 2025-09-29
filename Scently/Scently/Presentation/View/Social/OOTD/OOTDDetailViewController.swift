@@ -17,6 +17,8 @@ final class OOTDDetailViewController: UIViewController {
     private var postContentView = PostContentView()
     private var productListView = ProductListView()
     
+    private let viewModel = OOTDDetailViewModel()
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
@@ -103,8 +105,8 @@ final class OOTDDetailViewController: UIViewController {
         }
     }
     
-    func configure(num: String) {
-//        self.perfumeTitleLabel.text = num
+    func configure(ootdId: Int) {
+        viewModel.getOOTDDetails(ootdId: ootdId)
     }
     
     private func setupInteractions() {

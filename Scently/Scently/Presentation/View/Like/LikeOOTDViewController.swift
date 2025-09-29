@@ -105,7 +105,7 @@ extension LikeOOTDViewController: UICollectionViewDelegate, UICollectionViewData
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         print("didSelectItemAt cell \(indexPath.row)")
         let detailVC = OOTDDetailViewController()
-        detailVC.configure(num: "\(indexPath.row)")
+        detailVC.configure(ootdId: indexPath.row)
         self.navigationController?.navigationBar.isHidden = true
         detailVC.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(detailVC, animated: true)
