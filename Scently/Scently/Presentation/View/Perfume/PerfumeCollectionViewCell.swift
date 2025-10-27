@@ -79,10 +79,14 @@ class PerfumeCollectionViewCell: UICollectionViewCell,ReuseIdentifying {
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(perfumeImageView.snp.bottom).offset(8)
             $0.centerX.equalToSuperview()
+            $0.leading.greaterThanOrEqualToSuperview().inset(4)
+            $0.trailing.lessThanOrEqualToSuperview().inset(4)
         }
         subTitleLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(2)
             $0.centerX.equalToSuperview()
+            $0.leading.greaterThanOrEqualToSuperview().inset(4)
+            $0.trailing.lessThanOrEqualToSuperview().inset(4) 
         }
     }
     func configure(title: String, subTitle: String, imageURL: String) {
