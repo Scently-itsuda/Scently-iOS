@@ -14,6 +14,19 @@ final class UserInfoViewController: UIViewController {
     private var selectedGender: Gender? = nil
     private let orderedGenders: [Gender] = [.male, .female, .all]
     
+    // 스크롤뷰 추가
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.keyboardDismissMode = .interactive
+        return scrollView
+    }()
+    
+    private let contentView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "거의 다 왔어요 !"
@@ -83,10 +96,17 @@ final class UserInfoViewController: UIViewController {
         createGenderButtons()
         setupNicknameInput()
         setupBirthDateInput()
+        setupKeyboardHandling()
+        setupTapGesture()
     }
     
     private func setupUI() {
-        self.view.addSubviews(
+        self.view.addSubview(scrollView)
+        self.view.addSubview(completeButton)
+        
+        scrollView.addSubview(contentView)
+        
+        contentView.addSubviews(
             titleLabel,
             subTitleLabel,
             genderLabel,
@@ -94,15 +114,24 @@ final class UserInfoViewController: UIViewController {
             birthDayLabel,
             nicknameLabel,
             nicknameInputView,
-            completeButton,
             birthDateInputView
         )
         self.view.backgroundColor = .white
     }
     
     private func setupLayout() {
+        scrollView.snp.makeConstraints {
+            $0.top.leading.trailing.equalTo(self.view.safeAreaLayoutGuide)
+            $0.bottom.equalTo(completeButton.snp.top).offset(-20)
+        }
+        
+        contentView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.width.equalToSuperview()
+        }
+        
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(self.view.safeAreaLayoutGuide).offset(80)
+            $0.top.equalToSuperview().offset(80)
             $0.leading.equalToSuperview().offset(16)
         }
         
@@ -115,16 +144,19 @@ final class UserInfoViewController: UIViewController {
             $0.top.equalTo(subTitleLabel.snp.bottom).offset(52)
             $0.leading.equalTo(subTitleLabel.snp.leading)
         }
+        
         genderStackView.snp.makeConstraints {
             $0.top.equalTo(genderLabel.snp.bottom).offset(8)
             $0.leading.equalTo(genderLabel.snp.leading)
             $0.trailing.equalToSuperview().offset(-16)
             $0.height.equalTo(52)
         }
+        
         birthDayLabel.snp.makeConstraints {
             $0.top.equalTo(genderStackView.snp.bottom).offset(32)
             $0.leading.equalTo(genderStackView.snp.leading)
         }
+        
         birthDateInputView.snp.makeConstraints {
             $0.top.equalTo(birthDayLabel.snp.bottom).offset(8)
             $0.leading.trailing.equalToSuperview().inset(16)
@@ -138,6 +170,7 @@ final class UserInfoViewController: UIViewController {
         nicknameInputView.snp.makeConstraints {
             $0.top.equalTo(nicknameLabel.snp.bottom).offset(8)
             $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().offset(-40) // contentView 하단 여유 공간
         }
         
         completeButton.snp.makeConstraints {
@@ -147,19 +180,76 @@ final class UserInfoViewController: UIViewController {
         }
     }
     
-    private func setupNicknameInput() {
-
-            nicknameInputView.onTextChanged = { [weak self] text in
-                print("닉네임 입력: \(text)")
-            }
+    // 키보드 핸들링 설정
+    private func setupKeyboardHandling() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    // 바깥 터치 시 키보드 내리기
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else {
+            return
+        }
+        
+        let keyboardHeight = keyboardFrame.height
+        
+        UIView.animate(withDuration: duration) {
+            self.scrollView.contentInset.bottom = keyboardHeight
+            self.scrollView.verticalScrollIndicatorInsets.bottom = keyboardHeight
             
-            nicknameInputView.onDuplicateCheck = { [weak self] nickname in
-                self?.checkNicknameDuplicate(nickname)
+            // 현재 활성화된 텍스트필드가 보이도록 스크롤
+            if let activeField = self.view.findFirstResponder() {
+                let fieldFrame = activeField.convert(activeField.bounds, to: self.scrollView)
+                self.scrollView.scrollRectToVisible(fieldFrame, animated: true)
             }
         }
+    }
+    
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else {
+            return
+        }
+        
+        UIView.animate(withDuration: duration) {
+            self.scrollView.contentInset.bottom = 0
+            self.scrollView.verticalScrollIndicatorInsets.bottom = 0
+        }
+    }
+    
+    private func setupNicknameInput() {
+        nicknameInputView.onTextChanged = { [weak self] text in
+            print("닉네임 입력: \(text)")
+        }
+        
+        nicknameInputView.onDuplicateCheck = { [weak self] nickname in
+            self?.checkNicknameDuplicate(nickname)
+        }
+    }
     
     private func setupBirthDateInput() {
-        
         birthDateInputView.onDateSelected = { [weak self] date in
             if let date = date {
                 print("선택된 생년월일: \(date)")
@@ -206,31 +296,25 @@ final class UserInfoViewController: UIViewController {
         }
     }
     
-    // 네트워크 통신 가정 시뮬레이션 - 추후 데이터 통신으로 바꿀 예정
     private func checkNicknameDuplicate(_ nickname: String) {
         nicknameInputView.setDuplicateCheckEnabled(false)
         
-        // 1-3초 랜덤 딜레이로 실제 네트워크 환경 시뮬레이션
         let randomDelay = Double.random(in: 1.0...3.0)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + randomDelay) { [weak self] in
             self?.nicknameInputView.setDuplicateCheckEnabled(true)
             
-            // 랜덤 결과 (70% 성공, 20% 중복, 10% 에러)
             let randomResult = Int.random(in: 1...10)
             
             switch randomResult {
             case 1...7:
-                // 70% 확률로 성공
                 self?.nicknameInputView.showSuccess()
-                print("✅ 사용 가능한 닉네임: \(nickname)")
+                print("사용 가능한 닉네임: \(nickname)")
                 
             case 8...9:
-                // 20% 확률로 중복
                 self?.nicknameInputView.showError("다른 사람이 사용하고 있어요.")
                 
             case 10:
-                // 10% 확률로 네트워크 에러
                 self?.nicknameInputView.showError("네트워크 오류가 발생했습니다.")
                 
             default:
@@ -239,4 +323,7 @@ final class UserInfoViewController: UIViewController {
         }
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
 }
