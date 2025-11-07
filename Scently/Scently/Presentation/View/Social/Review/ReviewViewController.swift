@@ -50,6 +50,18 @@ extension ReviewViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         
+        cell.delegate = self
+        
         return cell
+    }
+}
+
+extension ReviewViewController: ReviewCellDelegate {
+    
+    func moreButtonTapped(isMyReview: Bool) {
+        let myReviewSheet = ReviewActionBottomSheetViewController(isMyReview: isMyReview)
+        myReviewSheet.modalPresentationStyle = .overFullScreen
+        myReviewSheet.modalTransitionStyle = .crossDissolve
+        present(myReviewSheet, animated: true)
     }
 }
