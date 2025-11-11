@@ -115,6 +115,10 @@ extension MyViewController: MyPageTableViewDelegate {
         let noticeVC = NoticeViewController()
         navigationController?.pushViewController(noticeVC, animated: true)
     }
+    
+    func didSelectLogout() {
+        coordinator?.logout()
+    }
 }
 
 extension MyViewController: RecentProductsViewDelegate {
@@ -122,6 +126,4 @@ extension MyViewController: RecentProductsViewDelegate {
         let recentlyViewedVC = RecentlyViewedViewController()
         navigationController?.pushViewController(recentlyViewedVC, animated: true)
     }
-    
-    
 }

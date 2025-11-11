@@ -11,6 +11,7 @@ import UIKit
 protocol MainTabCoordinatorProtocol: AnyObject {
     func requiresLogin(completion: @escaping (Bool) -> Void)
     func showLoginScreen()
+    func logout()
 }
 
 class MainTabCoordinator: Coordinator, MainTabCoordinatorProtocol {
@@ -22,6 +23,7 @@ class MainTabCoordinator: Coordinator, MainTabCoordinatorProtocol {
     private let isGuestMode: Bool
     
     var onLoginRequired: (() -> Void)?
+    var onLogout: (() -> Void)?
     
     init(tabBarController: UITabBarController, authService: AuthServiceProtocol, isGuestMode: Bool) {
         self.tabBarController = tabBarController
@@ -144,5 +146,26 @@ class MainTabCoordinator: Coordinator, MainTabCoordinatorProtocol {
     
     func showLoginScreen() {
         onLoginRequired?()
+    }
+    func logout() {
+        let alert = UIAlertController(
+            title: "로그아웃",
+            message: "정말 로그아웃하시겠습니까?",
+            preferredStyle: .alert
+        )
+        
+        let logoutAction = UIAlertAction(title: "로그아웃", style: .destructive) { [weak self] _ in
+            self?.authService.clearToken()
+            print("토큰 삭제 완료")
+            
+            self?.onLogout?()
+        }
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        
+        alert.addAction(cancelAction)
+        alert.addAction(logoutAction)
+        
+        tabBarController.present(alert, animated: true)
     }
 }

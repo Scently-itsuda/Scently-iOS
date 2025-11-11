@@ -101,6 +101,12 @@ class AppCoordinator: Coordinator {
             self.showLogin()
         }
         
+        mainTabCoordinator.onLogout = {
+            print("로그아웃 - 로그인 화면으로 전환")
+            self.removeChild(mainTabCoordinator)
+            self.showLogin()
+        }
+        
         childCoordinators.append(mainTabCoordinator)
         mainTabCoordinator.start()
 
