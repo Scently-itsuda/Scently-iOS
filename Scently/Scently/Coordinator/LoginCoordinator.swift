@@ -7,8 +7,8 @@
 
 import UIKit
 
-protocol LoginCoordinatorProtocol {
-    func didTapLogin(email: String, password: String)
+protocol LoginCoordinatorProtocol: AnyObject {
+    func didTapSocialLogin(type: SocialLoginType)
     func didTapGuestMode()
 }
 
@@ -29,16 +29,33 @@ class LoginCoordinator: Coordinator,LoginCoordinatorProtocol {
     
     func start() {
         let loginVC = LoginViewController()
-       // loginVC.coordinator = self
+        loginVC.coordinator = self
         navigationConotroller.setViewControllers([loginVC], animated: false)
     }
     
-    func didTapLogin(email: String, password: String) {
-        authService.saveToken("dummy_token_\(email)")
-        onLoginSuccess?()
+    func didTapSocialLogin(type: SocialLoginType) {
+        switch type {
+        case .kakao:
+            performKakaoLogin()
+        case .apple:
+            performAppleLogin()
+
+        case .none:
+            break 
+        }
     }
     
     func didTapGuestMode() {
         onGuestMode?()
+    }
+    
+    private func performKakaoLogin() {
+        // TODO: 카카오 로그인 로직
+        print("Coordinator: 카카오 로그인 시작")
+    }
+    
+    private func performAppleLogin() {
+        // TODO: 애플 로그인 로직
+        print("Coordinator: 애플 로그인 시작")
     }
 }

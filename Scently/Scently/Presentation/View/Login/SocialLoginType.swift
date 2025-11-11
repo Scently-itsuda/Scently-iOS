@@ -8,14 +8,12 @@
 import Foundation
 
 enum SocialLoginType: CaseIterable {
-    case kakao, google, apple, naver, none
+    case kakao,apple,none
     
     var imageName: String {
         switch self {
         case .kakao: return "kakaoButton"
-        case .google: return "NaverButton"
-        case .apple: return "GoogleButton"
-        case .naver: return "AppleButton"
+        case .apple: return "AppleButton"
         case .none: return "NoneButton"
         }
     }
