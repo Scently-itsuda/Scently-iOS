@@ -19,7 +19,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         self.window = window
         
-        appCoordinator = AppCoordinator(window: window)
+        let authService = AuthService()
+        
+        appCoordinator = AppCoordinator(
+            window: window,
+            authservice: authService
+        )
         appCoordinator?.start()
         window.makeKeyAndVisible()
         
