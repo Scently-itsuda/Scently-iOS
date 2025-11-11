@@ -7,13 +7,21 @@
 
 import UIKit
 
-class MainTabCoordinator: Coordinator {
+
+protocol MainTabCoordinatorProtocol: AnyObject {
+    func requiresLogin(completion: @escaping (Bool) -> Void)
+    func showLoginScreen()
+}
+
+class MainTabCoordinator: Coordinator, MainTabCoordinatorProtocol {
 
     var childCoordinators: [Coordinator] = []
     
     private let tabBarController: UITabBarController
     private let authService: AuthServiceProtocol
     private let isGuestMode: Bool
+    
+    var onLoginRequired: (() -> Void)?
     
     init(tabBarController: UITabBarController, authService: AuthServiceProtocol, isGuestMode: Bool) {
         self.tabBarController = tabBarController
@@ -31,6 +39,9 @@ class MainTabCoordinator: Coordinator {
         let homeVC = HomeViewController()
         let likeVC = LikeViewController()
         let myVC = MyViewController()
+        
+        myVC.coordinator = self
+        myVC.isGuestMode = isGuestMode
         
         let perfumeNav = createNavController(
             for: perfumeVC,
@@ -108,5 +119,30 @@ class MainTabCoordinator: Coordinator {
         navController.tabBarItem.selectedImage = selectedImage
         
         return navController
+    }
+    
+    func requiresLogin(completion: @escaping (Bool) -> Void) {
+        let alert = UIAlertController(
+            title: "로그인이 필요합니다",
+            message: "이 기능을 사용하려면 로그인이 필요합니다. \n로그인 하시겠습니까?",
+            preferredStyle: .alert
+        )
+        
+        let loginAction = UIAlertAction(title: "로그인", style: .default) { _ in
+            completion(true)
+        }
+        
+        let cancleAction = UIAlertAction(title: "취소", style: .cancel) { _ in
+            completion(false)
+        }
+        
+        alert.addAction(cancleAction)
+        alert.addAction(loginAction)
+        
+        tabBarController.present(alert, animated: true)
+    }
+    
+    func showLoginScreen() {
+        onLoginRequired?()
     }
 }

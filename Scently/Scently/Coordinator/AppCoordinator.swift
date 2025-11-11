@@ -71,6 +71,12 @@ class AppCoordinator: Coordinator {
             isGuestMode: isGuest
         )
         
+        
+        mainTabCoordinator.onLoginRequired = {
+            self.removeChild(mainTabCoordinator)
+            self.showLogin()
+        }
+        
         childCoordinators.append(mainTabCoordinator)
         mainTabCoordinator.start()
 
