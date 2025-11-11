@@ -7,7 +7,12 @@
 
 import UIKit
 
-class LoginCoordinator: Coordinator {
+protocol LoginCoordinatorProtocol {
+    func didTapLogin(email: String, password: String)
+    func didTapGuestMode()
+}
+
+class LoginCoordinator: Coordinator,LoginCoordinatorProtocol {
     
     var childCoordinators: [Coordinator] = []
     
