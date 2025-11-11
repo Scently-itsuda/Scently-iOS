@@ -12,6 +12,7 @@ protocol AuthServiceProtocol {
     func saveToken(_ token: String)
     func clearToken()
     func getToken() -> String?
+    func checkUserRegistration(token: String, completion: @escaping (Result<Bool, Error>) -> Void)
 }
 
 class AuthService: AuthServiceProtocol {
@@ -33,5 +34,12 @@ class AuthService: AuthServiceProtocol {
     
     func getToken() -> String? {
         UserDefaults.standard.string(forKey: tokenKey)
+    }
+    
+    func checkUserRegistration(token: String, completion: @escaping (Result<Bool,Error>) -> Void) {
+        DispatchQueue.main.asyncAfter(deadline:.now() + 1.0) {
+            let isRegisterd = !token.contains("new_")
+            completion(.success(isRegisterd))
+        }
     }
 }
