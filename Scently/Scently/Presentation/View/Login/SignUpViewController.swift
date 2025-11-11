@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-final class UserInfoViewController: UIViewController {
+final class SignUpViewController: UIViewController {
     
     private var genderButtons: [OptionButton] = []
     private var selectedGender: Gender? = nil
