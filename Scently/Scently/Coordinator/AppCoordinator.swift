@@ -64,9 +64,17 @@ class AppCoordinator: Coordinator {
     }
     
     private func showMainTab(isGuest: Bool) {
-        let mainVC = TabViewController()
+        let tabBarController = UITabBarController()
+        let mainTabCoordinator = MainTabCoordinator(
+            tabBarController: tabBarController,
+            authService: authService,
+            isGuestMode: isGuest
+        )
+        
+        childCoordinators.append(mainTabCoordinator)
+        mainTabCoordinator.start()
 
-        window.rootViewController = mainVC
+        window.rootViewController = tabBarController
         window.makeKeyAndVisible()
     }
     
