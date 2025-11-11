@@ -30,8 +30,49 @@ class AppCoordinator: Coordinator {
         
         if authService.hasValidToken() {
             print("토큰 있음 - MainTab으로 이동 예정")
+            showMainTab(isGuest: false)
         } else {
             print("토큰 없음 - Login으로 이동 예정")
+            showLogin()
         }
+    }
+    
+    private func showLogin() {
+        let navigationController = UINavigationController()
+        let loginCoordinator = LoginCoordinator(
+            navigationConotroller: navigationController,
+            authService: authService)
+        
+        loginCoordinator.onLoginSuccess = {
+            print("로그인 성공")
+            self.removeChild(loginCoordinator)
+            self.showMainTab(isGuest: false)
+        }
+        
+        loginCoordinator.onGuestMode = {
+            print("둘러보기 모드")
+            self.removeChild(loginCoordinator)
+            self.showMainTab(isGuest: true)
+        }
+        
+        childCoordinators.append(loginCoordinator)
+        loginCoordinator.start()
+        
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        
+    }
+    
+    private func showMainTab(isGuest: Bool) {
+        let mainVC = TabViewController()
+
+        window.rootViewController = mainVC
+        window.makeKeyAndVisible()
+    }
+    
+    private func removeChild(_ coordinator: Coordinator?) {
+        guard let coordinator = coordinator else {return}
+        
+        childCoordinators.removeAll { $0 === coordinator }
     }
 }
