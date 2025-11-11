@@ -60,6 +60,8 @@ class LoginCoordinator: Coordinator,LoginCoordinatorProtocol {
     private func performAppleLogin() {
         // TODO: 애플 로그인 로직
         print("Coordinator: 애플 로그인 시작")
+        let socialToken = "apple_token_existing"
+        handleSocialLoginSuccess(token: socialToken, provider: "apple")
     }
     
     private func handleSocialLoginSuccess(token: String, provider: String) {
