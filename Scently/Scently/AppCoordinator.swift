@@ -12,3 +12,18 @@ protocol Coordinator: AnyObject {
     
     func start()
 }
+
+class AppCoordinator: Coordinator {
+    
+    var childCoordinators: [Coordinator] = []
+    
+    private let window: UIWindow
+    
+    init(window: UIWindow) {
+        self.window = window
+    }
+    
+    func start() {
+        print("Coordinator 시작")
+    }
+}
