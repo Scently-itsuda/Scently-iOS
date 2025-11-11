@@ -13,6 +13,10 @@ import SnapKit
 final class ReviewActionBottomSheetViewController: UIViewController {
     
     private let isMyReview: Bool
+    
+    var onEditTapped: (() -> Void)?
+    var onDeleteTapped: (() -> Void)?
+    var onReportTapped: (() -> Void)?
         
     private let containerView: UIView = {
         let view = UIView()
@@ -177,6 +181,7 @@ extension ReviewActionBottomSheetViewController {
         dismiss(animated: true) {
             print("글 신고하기 tapped")
             // TODO: 신고 로직
+            self.onReportTapped?()
         }
     }
     
