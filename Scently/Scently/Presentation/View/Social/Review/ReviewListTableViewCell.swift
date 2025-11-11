@@ -8,6 +8,10 @@
 import UIKit
 import SnapKit
 
+protocol ReviewCellDelegate: AnyObject {
+    func moreButtonTapped(isMyReview: Bool)
+}
+
 final class ReviewListTableViewCell: UITableViewCell, ReuseIdentifying {
     
     private let profileImageView = UIImageView()
@@ -33,12 +37,15 @@ final class ReviewListTableViewCell: UITableViewCell, ReuseIdentifying {
     private let likeButton = UIButton()
     private let likeCountLabel = UILabel()
     
+    weak var delegate: ReviewCellDelegate?
+    
     // MARK: - Init
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
         setupConstraints()
+        setAddTargets()
         configure()
     }
     
@@ -329,6 +336,14 @@ private extension ReviewListTableViewCell {
             $0.centerY.equalTo(likeButton)
             $0.leading.equalTo(likeButton.snp.trailing).offset(4)
         }
+    }
+    
+    private func setAddTargets() {
+        moreButton.addTarget(self, action: #selector(moreButtonDidTap), for: .touchUpInside)
+    }
+    
+    @objc func moreButtonDidTap() {
+        delegate?.moreButtonTapped(isMyReview: true)
     }
 }
 
