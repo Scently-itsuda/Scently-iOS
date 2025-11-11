@@ -49,6 +49,11 @@ class AppCoordinator: Coordinator {
             self.showMainTab(isGuest: false)
         }
         
+        loginCoordinator.onSignUpRequired = { token in
+            print("회원가입 필요")
+            self.showSignUp(from: navigationController, token: token, loginCoordinator: loginCoordinator)
+        }
+        
         loginCoordinator.onGuestMode = {
             print("둘러보기 모드")
             self.removeChild(loginCoordinator)
@@ -61,6 +66,25 @@ class AppCoordinator: Coordinator {
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
         
+    }
+    
+    private func showSignUp(from navigationController: UINavigationController, token: String, loginCoordinator: LoginCoordinator) {
+        
+        let signUpCoordinator = SignUpCoordinator(
+            navigationController: navigationController,
+            authService: authService,
+            socialToken: token
+        )
+        
+        signUpCoordinator.onSignUpComplete = {
+            print("회원가입 완료 - MainTab으로 이동")
+            self.removeChild(signUpCoordinator)
+            self.removeChild(loginCoordinator)
+            self.showMainTab(isGuest: false)
+        }
+        
+        childCoordinators.append(signUpCoordinator)
+        signUpCoordinator.start()
     }
     
     private func showMainTab(isGuest: Bool) {
