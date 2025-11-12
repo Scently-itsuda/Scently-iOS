@@ -24,6 +24,7 @@ final class NicknameInputView: UIView {
         textField.placeholder = "닉네임 입력"
         textField.font = .pretendard(.regular, size: 16)
         textField.borderStyle = .none
+        textField.returnKeyType = .done
         return textField
     }()
     
@@ -53,6 +54,7 @@ final class NicknameInputView: UIView {
         setupUI()
         setupLayout()
         setupActions()
+        setupTextField()
     }
     
     required init?(coder: NSCoder) {
@@ -94,6 +96,10 @@ final class NicknameInputView: UIView {
     private func setupActions() {
         nicknameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         duplicateCheckButton.addTarget(self, action: #selector(duplicateCheckTapped), for: .touchUpInside)
+    }
+    
+    private func setupTextField() {
+        nicknameTextField.delegate = self
     }
     
     @objc private func textFieldDidChange() {
@@ -151,5 +157,12 @@ extension NicknameInputView {
     func setDuplicateCheckEnabled(_ enabled: Bool) {
         duplicateCheckButton.isEnabled = enabled
         duplicateCheckButton.alpha = enabled ? 1.0 : 0.6
+    }
+}
+
+extension NicknameInputView: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()  // 키보드 내리기
+        return true
     }
 }
