@@ -25,8 +25,8 @@ enum Gender: String, CaseIterable {
     var titleForInfo: String {
         switch self {
         case .all: return "비공개"
-        case .male: return " ♂️남성"
-        case .female: return "♀️여성"
+        case .male: return "남성"
+        case .female: return "여성"
         }
     }
 }
