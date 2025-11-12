@@ -84,7 +84,7 @@ final class SignUpViewController: UIViewController {
     
     private let completeButton: UIButton = {
         let button = UIButton()
-        button.setTitle("적용하기", for: .normal)
+        button.setTitle("완료하기", for: .normal)
         button.titleLabel?.font = .pretendard(.bold, size: 16)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .black
