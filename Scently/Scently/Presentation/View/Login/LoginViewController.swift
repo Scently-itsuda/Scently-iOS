@@ -10,6 +10,8 @@ import SnapKit
 
 final class LoginViewController: UIViewController {
     
+    weak var coordinator: LoginCoordinatorProtocol?
+    
     private let logoLabel: UILabel = {
         let label = UILabel()
         label.text = "SCENTLY"
@@ -121,19 +123,13 @@ final class LoginViewController: UIViewController {
     }
     
     private func handleSocialLogin(type: SocialLoginType) {
-            switch type {
-            case .kakao:
-                print("카카오 로그인 버튼 탭됨")
-            case .google:
-                print("구글 로그인 버튼 탭됨")
-            case .apple:
-                print("애플 로그인 버튼 탭됨")
-            case .naver:
-                print("네이버 로그인 버튼 탭됨")
+        switch type {
             case .none:
                 print("나중에 로그인 버튼 탭됨")
-            }
+            coordinator?.didTapGuestMode()
+            default:
+            coordinator?.didTapSocialLogin(type: type)
         }
-    
+    }
 }
 

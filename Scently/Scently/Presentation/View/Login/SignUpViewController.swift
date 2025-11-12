@@ -8,7 +8,10 @@
 import UIKit
 import SnapKit
 
-final class UserInfoViewController: UIViewController {
+final class SignUpViewController: UIViewController {
+    
+    weak var coordinator: SignUpCoordinator?
+    var socialToken: String?
     
     private var genderButtons: [OptionButton] = []
     private var selectedGender: Gender? = nil
@@ -98,6 +101,7 @@ final class UserInfoViewController: UIViewController {
         setupBirthDateInput()
         setupKeyboardHandling()
         setupTapGesture()
+        setUpAddTargets()
     }
     
     private func setupUI() {
@@ -178,6 +182,15 @@ final class UserInfoViewController: UIViewController {
             $0.bottom.equalTo(self.view.safeAreaLayoutGuide).offset(-20)
             $0.height.equalTo(52)
         }
+    }
+    
+    private func setUpAddTargets() {
+        completeButton.addTarget(self, action: #selector(completeButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc private func completeButtonTapped() {
+        // TODO: 실제 회원가입 API 호출
+        coordinator?.didCompleteSignUp()
     }
     
     // 키보드 핸들링 설정

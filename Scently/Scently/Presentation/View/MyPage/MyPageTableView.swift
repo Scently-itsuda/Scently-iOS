@@ -11,6 +11,7 @@ import SnapKit
 protocol MyPageTableViewDelegate: AnyObject {
     func didSelectNotificationSettings()
     func didSelecteNotices()
+    func didSelectLogout()
 }
 
 
@@ -97,6 +98,8 @@ extension MyPageTableView: UITableViewDelegate {
             delegate?.didSelectNotificationSettings()
         case 2:
             delegate?.didSelecteNotices()
+        case 4:
+            delegate?.didSelectLogout()
         default:
             break
         }

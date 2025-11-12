@@ -9,10 +9,22 @@ import UIKit
 
 final class MyViewController: UIViewController {
         
+    weak var coordinator: MainTabCoordinatorProtocol?
+    var isGuestMode:Bool = false
+    
     private var myPageHeaderView = MyPageHeaderView()
     private var myPageProfileView = MyPageProfileView()
     private var recentProductsView = RecentProductsView()
     private var myPageTableView = MyPageTableView()
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if isGuestMode {
+            checkLoginRequired()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +37,20 @@ final class MyViewController: UIViewController {
         myPageTableView.delegate = self
         recentProductsView.delegate = self
     }
+    
+    private func checkLoginRequired() {
+        coordinator?.requiresLogin { [weak self] shouldLogin in
+            if shouldLogin {
+                print("로그인 화면 이동 필요")
+                self?.coordinator?.showLoginScreen()
+            } else {
+                print("취소 - 다른 탭으로 이동 필요")
+                self?.navigationController?.tabBarController?.selectedIndex = 2
+            }
+        }
+    }
+    
+    
 }
 
 
@@ -89,6 +115,10 @@ extension MyViewController: MyPageTableViewDelegate {
         let noticeVC = NoticeViewController()
         navigationController?.pushViewController(noticeVC, animated: true)
     }
+    
+    func didSelectLogout() {
+        coordinator?.logout()
+    }
 }
 
 extension MyViewController: RecentProductsViewDelegate {
@@ -96,6 +126,4 @@ extension MyViewController: RecentProductsViewDelegate {
         let recentlyViewedVC = RecentlyViewedViewController()
         navigationController?.pushViewController(recentlyViewedVC, animated: true)
     }
-    
-    
 }
