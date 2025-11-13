@@ -145,6 +145,7 @@ extension NicknameInputView {
     func showError(_ message: String) {
         hideLoading()
         errorLabel.text = message
+        errorLabel.textColor = .systemRed
         errorLabel.isHidden = false
         
         containerView.layer.borderColor = UIColor.systemRed.cgColor
@@ -169,7 +170,7 @@ extension NicknameInputView {
         containerView.layer.borderColor = UIColor.systemGreen.cgColor
         
         errorLabel.text = message
-        errorLabel.textColor = .green
+        errorLabel.textColor = .systemGreen
         errorLabel.isHidden = false
         
         UIView.animate(withDuration: 0.3) {
