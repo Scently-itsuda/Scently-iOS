@@ -7,11 +7,15 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class SignUpViewController: UIViewController {
     
     weak var coordinator: SignUpCoordinator?
     var socialToken: String?
+    
+    private let viewModel: SignupViewModel
+    private var cancellables = Set<AnyCancellable>()
     
     private var genderButtons: [OptionButton] = []
     private var selectedGender: Gender? = nil
@@ -92,6 +96,15 @@ final class SignUpViewController: UIViewController {
         return button
     }()
     
+    init(viewModel: SignupViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
@@ -112,6 +125,7 @@ final class SignUpViewController: UIViewController {
         setupKeyboardHandling()
         setupTapGesture()
         setUpAddTargets()
+        bindViewModel()
     }
     
     private func setupUI() {
@@ -199,8 +213,20 @@ final class SignUpViewController: UIViewController {
     }
     
     @objc private func completeButtonTapped() {
-        // TODO: 실제 회원가입 API 호출
+        let result = viewModel.canSubmit()
+        
+        if !result.canSubmit, let errorMessage = result.errorMessage {
+            // 에러 메시지 표시 (간단하게 alert로)
+            showAlert(message: errorMessage)
+            return
+        }
         coordinator?.didCompleteSignUp()
+    }
+    
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
     
     // 키보드 핸들링 설정
@@ -265,23 +291,23 @@ final class SignUpViewController: UIViewController {
     private func setupNicknameInput() {
         nicknameInputView.onTextChanged = { [weak self] text in
             print("닉네임 입력: \(text)")
+            self?.viewModel.nickname = text
         }
         
         nicknameInputView.onDuplicateCheck = { [weak self] nickname in
-            self?.checkNicknameDuplicate(nickname)
+            Task {
+                await self?.viewModel.checkNicknameDuplicate()
+            }
         }
     }
     
     private func setupBirthDateInput() {
         birthDateInputView.onDateSelected = { [weak self] date in
-            if let date = date {
-                print("선택된 생년월일: \(date)")
-            } else {
-                print("생년월일이 초기화됨")
-            }
+            self?.viewModel.birthDate = date
         }
+        
         birthDateInputView.onPrivateToggle = { [weak self] isPrivate in
-            print("비공개 상태: \(isPrivate)")
+            self?.viewModel.isBirthDatePrivate = isPrivate
         }
     }
     
@@ -302,6 +328,69 @@ final class SignUpViewController: UIViewController {
         return button
     }
     
+    private func bindViewModel() {
+        
+        viewModel.$isFormValid
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isValid in
+                self?.updateCompleteButton(isEnabled: isValid)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$nicknameValidationState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                self?.updateNicknameInputView(state: state)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$shouldHilightedDuplicatedCheck
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] shouldHighlight in
+            //    self?.nicknameInputView.highlightDuplicateCheckButton(shouldHighlight)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateCompleteButton(isEnabled: Bool) {
+        completeButton.isEnabled = isEnabled
+        completeButton.backgroundColor = isEnabled ? .black : .gray3
+        completeButton.alpha = isEnabled ? 1.0 : 0.6
+    }
+    
+    private func updateNicknameInputView(state: NicknameValidationState) {
+        switch state {
+        case .empty:
+            nicknameInputView.hideError()
+            nicknameInputView.setDuplicateCheckEnabled(false)
+            
+        case .invalid(let reason):
+            nicknameInputView.showError(reason)
+            nicknameInputView.setDuplicateCheckEnabled(false)
+            
+        case .validButNotChecked:
+            nicknameInputView.hideError()
+            nicknameInputView.setDuplicateCheckEnabled(true)
+            
+        case .checking:
+            nicknameInputView.hideError()
+            nicknameInputView.setDuplicateCheckEnabled(false)
+           // nicknameInputView.showLoading()
+            
+        case .available:
+            nicknameInputView.showSuccess()
+            nicknameInputView.setDuplicateCheckEnabled(false)
+            
+        case .duplicate:
+            nicknameInputView.showError("다른 사람이 사용하고 있어요")
+            nicknameInputView.setDuplicateCheckEnabled(true)
+            
+        case .error(let message):
+            nicknameInputView.showError(message)
+            nicknameInputView.setDuplicateCheckEnabled(true)
+        }
+    }
+    
     @objc private func genderButtonTapped(_ sender: OptionButton) {
         let tappedGender = orderedGenders[sender.tag]
         
@@ -309,6 +398,7 @@ final class SignUpViewController: UIViewController {
         updateGenderButtonsUI()
         
         print("선택된 성별: \(selectedGender?.titleForInfo ?? "선택 안함")")
+        viewModel.selectedGender = selectedGender
     }
     
     private func updateGenderButtonsUI() {
@@ -316,33 +406,6 @@ final class SignUpViewController: UIViewController {
             let button = genderButtons[index]
             let isSelected = selectedGender == gender
             button.updateSelectedState(isSelected: isSelected)
-        }
-    }
-    
-    private func checkNicknameDuplicate(_ nickname: String) {
-        nicknameInputView.setDuplicateCheckEnabled(false)
-        
-        let randomDelay = Double.random(in: 1.0...3.0)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + randomDelay) { [weak self] in
-            self?.nicknameInputView.setDuplicateCheckEnabled(true)
-            
-            let randomResult = Int.random(in: 1...10)
-            
-            switch randomResult {
-            case 1...7:
-                self?.nicknameInputView.showSuccess()
-                print("사용 가능한 닉네임: \(nickname)")
-                
-            case 8...9:
-                self?.nicknameInputView.showError("다른 사람이 사용하고 있어요.")
-                
-            case 10:
-                self?.nicknameInputView.showError("네트워크 오류가 발생했습니다.")
-                
-            default:
-                break
-            }
         }
     }
     
