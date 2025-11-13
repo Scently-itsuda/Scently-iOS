@@ -166,3 +166,25 @@ extension NicknameInputView: UITextFieldDelegate {
         return true
     }
 }
+
+extension NicknameInputView {
+
+    func highlightDuplicateCheckButton(_ shouldHighlight: Bool) {
+        UIView.animate(withDuration: 0.3) {
+            if shouldHighlight {
+                // 강조 상태 - 파란색으로 변경
+                self.duplicateCheckButton.backgroundColor = .systemBlue
+                self.duplicateCheckButton.setTitleColor(.white, for: .normal)
+                
+                // 살짝 커지는 효과
+                self.duplicateCheckButton.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+                
+            } else {
+                // 기본 상태로 복귀
+                self.duplicateCheckButton.backgroundColor = .gray4
+                self.duplicateCheckButton.setTitleColor(.gray3, for: .normal)
+                self.duplicateCheckButton.transform = .identity
+            }
+        }
+    }
+}

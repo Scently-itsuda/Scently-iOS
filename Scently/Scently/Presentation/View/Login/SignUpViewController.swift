@@ -347,7 +347,7 @@ final class SignUpViewController: UIViewController {
         viewModel.$shouldHilightedDuplicatedCheck
             .receive(on: DispatchQueue.main)
             .sink { [weak self] shouldHighlight in
-            //    self?.nicknameInputView.highlightDuplicateCheckButton(shouldHighlight)
+                self?.nicknameInputView.highlightDuplicateCheckButton(shouldHighlight)
             }
             .store(in: &cancellables)
     }
