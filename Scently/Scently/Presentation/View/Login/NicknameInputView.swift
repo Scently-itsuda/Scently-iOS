@@ -141,9 +141,17 @@ extension NicknameInputView {
         }
     }
     
-    func showSuccess() {
+    func showSuccess(_ message: String) {
         hideError()
         containerView.layer.borderColor = UIColor.systemGreen.cgColor
+        
+        errorLabel.text = message
+        errorLabel.textColor = .green
+        errorLabel.isHidden = false
+        
+        UIView.animate(withDuration: 0.3) {
+            self.layoutIfNeeded()
+        }
     }
     
     func getNickname() -> String {

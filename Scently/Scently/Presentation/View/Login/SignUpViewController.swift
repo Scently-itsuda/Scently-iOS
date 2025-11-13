@@ -378,7 +378,7 @@ final class SignUpViewController: UIViewController {
            // nicknameInputView.showLoading()
             
         case .available:
-            nicknameInputView.showSuccess()
+            nicknameInputView.showSuccess("사용 가능한 닉네임 입니다")
             nicknameInputView.setDuplicateCheckEnabled(false)
             
         case .duplicate:

@@ -117,19 +117,19 @@ extension SignupViewModel {
             return .empty
         }
         
-        if text.count < 2 {
-            return .invalid(reason: "닉네임은 2글자 이상이여야 합니다")
-        }
-        
-        if text.count < 10 {
-            return .invalid(reason: "닉네임은 10글자 이하로 입력해주세요")
-        }
-        
         let allowedCharacters = CharacterSet.alphanumerics
             .union(CharacterSet(charactersIn: "가-힣"))
         
         if text.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
             return .invalid(reason: "한글, 영문, 숫자만 입력 가능해요")
+        }
+        
+        if text.count < 2 {
+            return .invalid(reason: "닉네임은 2글자 이상이여야 합니다")
+        }
+        
+        if text.count > 10 {
+            return .invalid(reason: "닉네임은 10글자 이하로 입력해주세요")
         }
         
         return .validButNotChecked
