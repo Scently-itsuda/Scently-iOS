@@ -46,6 +46,13 @@ final class NicknameInputView: UIView {
         return label
     }()
     
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.hidesWhenStopped = true
+        indicator.color = .gray
+        return indicator
+    }()
+    
     var onDuplicateCheck: ((String) -> Void)?
     var onTextChanged: ((String) -> Void)?
     
@@ -63,7 +70,7 @@ final class NicknameInputView: UIView {
     
     private func setupUI() {
         self.addSubviews(containerView, errorLabel)
-        containerView.addSubviews(nicknameTextField, duplicateCheckButton)
+        containerView.addSubviews(nicknameTextField, duplicateCheckButton,loadingIndicator)
     }
     
     private func setupLayout() {
@@ -83,6 +90,10 @@ final class NicknameInputView: UIView {
             $0.centerY.equalToSuperview()
             $0.width.equalTo(60)
             $0.height.equalTo(32)
+        }
+        
+        loadingIndicator.snp.makeConstraints {
+            $0.center.equalTo(duplicateCheckButton)
         }
         
         errorLabel.snp.makeConstraints {
@@ -121,7 +132,18 @@ final class NicknameInputView: UIView {
 
 extension NicknameInputView {
     
+    func showLoading() {
+        duplicateCheckButton.isHidden = true
+        loadingIndicator.startAnimating()
+    }
+    
+    func hideLoading() {
+        loadingIndicator.stopAnimating()
+        duplicateCheckButton.isHidden = false
+    }
+    
     func showError(_ message: String) {
+        hideLoading()
         errorLabel.text = message
         errorLabel.isHidden = false
         
@@ -142,6 +164,7 @@ extension NicknameInputView {
     }
     
     func showSuccess(_ message: String) {
+        hideLoading()
         hideError()
         containerView.layer.borderColor = UIColor.systemGreen.cgColor
         

@@ -362,20 +362,23 @@ final class SignUpViewController: UIViewController {
         switch state {
         case .empty:
             nicknameInputView.hideError()
+            nicknameInputView.hideLoading()
             nicknameInputView.setDuplicateCheckEnabled(false)
             
         case .invalid(let reason):
             nicknameInputView.showError(reason)
+            nicknameInputView.hideLoading()
             nicknameInputView.setDuplicateCheckEnabled(false)
             
         case .validButNotChecked:
             nicknameInputView.hideError()
+            nicknameInputView.hideLoading()
             nicknameInputView.setDuplicateCheckEnabled(true)
             
         case .checking:
             nicknameInputView.hideError()
             nicknameInputView.setDuplicateCheckEnabled(false)
-           // nicknameInputView.showLoading()
+            nicknameInputView.showLoading()
             
         case .available:
             nicknameInputView.showSuccess("사용 가능한 닉네임 입니다")
