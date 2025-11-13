@@ -250,6 +250,7 @@ final class SignUpViewController: UIViewController {
     private func setupTapGesture() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
+        tapGesture.delegate = self
         view.addGestureRecognizer(tapGesture)
     }
     
@@ -414,5 +415,19 @@ final class SignUpViewController: UIViewController {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+}
+
+extension SignUpViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // 터치된 뷰가 중복확인 버튼이면 제스처를 무시
+        if let touchedView = touch.view,
+           touchedView.isDescendant(of: nicknameInputView) {
+            // NicknameInputView 내부의 어떤 버튼이나 컨트롤이면
+            if touchedView is UIButton || touchedView is UIControl {
+                return false // 키보드 안 내려감
+            }
+        }
+        return true // 다른 곳 터치하면 키보드 내려감
     }
 }
