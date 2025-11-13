@@ -24,6 +24,7 @@ final class NicknameInputView: UIView {
         textField.placeholder = "닉네임 입력"
         textField.font = .pretendard(.regular, size: 16)
         textField.borderStyle = .none
+        textField.returnKeyType = .done
         return textField
     }()
     
@@ -45,6 +46,13 @@ final class NicknameInputView: UIView {
         return label
     }()
     
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.hidesWhenStopped = true
+        indicator.color = .gray
+        return indicator
+    }()
+    
     var onDuplicateCheck: ((String) -> Void)?
     var onTextChanged: ((String) -> Void)?
     
@@ -53,6 +61,7 @@ final class NicknameInputView: UIView {
         setupUI()
         setupLayout()
         setupActions()
+        setupTextField()
     }
     
     required init?(coder: NSCoder) {
@@ -61,7 +70,7 @@ final class NicknameInputView: UIView {
     
     private func setupUI() {
         self.addSubviews(containerView, errorLabel)
-        containerView.addSubviews(nicknameTextField, duplicateCheckButton)
+        containerView.addSubviews(nicknameTextField, duplicateCheckButton,loadingIndicator)
     }
     
     private func setupLayout() {
@@ -83,6 +92,10 @@ final class NicknameInputView: UIView {
             $0.height.equalTo(32)
         }
         
+        loadingIndicator.snp.makeConstraints {
+            $0.center.equalTo(duplicateCheckButton)
+        }
+        
         errorLabel.snp.makeConstraints {
             $0.top.equalTo(containerView.snp.bottom).offset(4)
             $0.leading.trailing.equalToSuperview()
@@ -94,6 +107,10 @@ final class NicknameInputView: UIView {
     private func setupActions() {
         nicknameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         duplicateCheckButton.addTarget(self, action: #selector(duplicateCheckTapped), for: .touchUpInside)
+    }
+    
+    private func setupTextField() {
+        nicknameTextField.delegate = self
     }
     
     @objc private func textFieldDidChange() {
@@ -115,8 +132,20 @@ final class NicknameInputView: UIView {
 
 extension NicknameInputView {
     
+    func showLoading() {
+        duplicateCheckButton.isHidden = true
+        loadingIndicator.startAnimating()
+    }
+    
+    func hideLoading() {
+        loadingIndicator.stopAnimating()
+        duplicateCheckButton.isHidden = false
+    }
+    
     func showError(_ message: String) {
+        hideLoading()
         errorLabel.text = message
+        errorLabel.textColor = .systemRed
         errorLabel.isHidden = false
         
         containerView.layer.borderColor = UIColor.systemRed.cgColor
@@ -135,9 +164,18 @@ extension NicknameInputView {
         }
     }
     
-    func showSuccess() {
+    func showSuccess(_ message: String) {
+        hideLoading()
         hideError()
         containerView.layer.borderColor = UIColor.systemGreen.cgColor
+        
+        errorLabel.text = message
+        errorLabel.textColor = .systemGreen
+        errorLabel.isHidden = false
+        
+        UIView.animate(withDuration: 0.3) {
+            self.layoutIfNeeded()
+        }
     }
     
     func getNickname() -> String {
@@ -151,5 +189,34 @@ extension NicknameInputView {
     func setDuplicateCheckEnabled(_ enabled: Bool) {
         duplicateCheckButton.isEnabled = enabled
         duplicateCheckButton.alpha = enabled ? 1.0 : 0.6
+    }
+}
+
+extension NicknameInputView: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()  // 키보드 내리기
+        return true
+    }
+}
+
+extension NicknameInputView {
+
+    func highlightDuplicateCheckButton(_ shouldHighlight: Bool) {
+        UIView.animate(withDuration: 0.3) {
+            if shouldHighlight {
+                // 강조 상태 - 파란색으로 변경
+                self.duplicateCheckButton.backgroundColor = .systemBlue
+                self.duplicateCheckButton.setTitleColor(.white, for: .normal)
+                
+                // 살짝 커지는 효과
+                self.duplicateCheckButton.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+                
+            } else {
+                // 기본 상태로 복귀
+                self.duplicateCheckButton.backgroundColor = .gray4
+                self.duplicateCheckButton.setTitleColor(.gray3, for: .normal)
+                self.duplicateCheckButton.transform = .identity
+            }
+        }
     }
 }

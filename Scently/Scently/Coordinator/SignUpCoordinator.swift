@@ -23,7 +23,8 @@ class SignUpCoordinator: Coordinator {
     }
     
     func start() {
-        let signUpVC = SignUpViewController()
+        let viewModel = SignupViewModel(authService: authService)
+        let signUpVC = SignUpViewController(viewModel: viewModel)
         signUpVC.socialToken = socialToken
         signUpVC.coordinator = self
         navigationController.pushViewController(signUpVC, animated: true)
