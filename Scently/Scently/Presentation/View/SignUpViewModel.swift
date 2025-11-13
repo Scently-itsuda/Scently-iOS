@@ -135,7 +135,22 @@ extension SignupViewModel {
         return .validButNotChecked
     }
     
-    func checkNicknameDuplicate() {
+    func checkNicknameDuplicate() async {
+        nicknameValidationState = .checking
         
+        let isAvailable = await mockCheckNickname(nickname)
+        
+        await MainActor.run {
+            if isAvailable {
+                nicknameValidationState = .available
+            } else {
+                nicknameValidationState = .duplicate
+            }
+        }
+    }
+    
+    private func mockCheckNickname(_ nickname: String) async -> Bool {
+        try? await Task.sleep(nanoseconds: 1_500_000_000)
+        return Int.random(in: 1...10) <= 7
     }
 }
