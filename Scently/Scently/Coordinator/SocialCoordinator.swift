@@ -45,6 +45,7 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
         self.navigationController = navigationController
         self.authService = authService
         self.isGusetMode = isGusetMode
+        print("SocialCoordinator init")
     }
     
     deinit {

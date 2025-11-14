@@ -37,7 +37,7 @@ class MainTabCoordinator: Coordinator, MainTabCoordinatorProtocol {
     
     private func setupTabBar() {
         let perfumeVC = PerfumeViewController()
-        let socialVC = SocialViewController()
+        let socialNav = createSocialTab()
         let homeVC = HomeViewController()
         let likeVC = LikeViewController()
         let myVC = MyViewController()
@@ -50,13 +50,6 @@ class MainTabCoordinator: Coordinator, MainTabCoordinatorProtocol {
             title: NSLocalizedString("PERFUME", comment: ""),
             image: UIImage(named: "icon-nav-perfume")!,
             selectedImage: UIImage(named: "icon-nav-perfume-off")!
-        )
-        
-        let socialNav = createNavController(
-            for: socialVC,
-            title: NSLocalizedString("SOCIAL", comment: ""),
-            image: UIImage(named: "icon-nav-social")!,
-            selectedImage: UIImage(named: "icon-nav-social-off")!
         )
         
         let homeNav = createNavController(
@@ -167,5 +160,55 @@ class MainTabCoordinator: Coordinator, MainTabCoordinatorProtocol {
         alert.addAction(logoutAction)
         
         tabBarController.present(alert, animated: true)
+    }
+}
+
+extension MainTabCoordinator {
+    private func createSocialTab() -> UINavigationController {
+        let navigationController = UINavigationController()
+        
+        let socialCoordinator = SocialCoordinator(
+            navigationController: navigationController,
+            authService: authService,
+            isGusetMode: isGuestMode)
+        
+        socialCoordinator.onLoginRequired = { [weak self] in
+            self?.onLoginRequired?()
+        }
+        
+        childCoordinators.append(socialCoordinator)
+        
+        let socialVC = SocialViewController()
+        
+        let ootdVC = OOTDViewController()
+        let freeBoardVC = FreeBoardViewController()
+        let reviewVC = ReviewViewController()
+        
+        ootdVC.coordinator = socialCoordinator
+        freeBoardVC.coordinator = socialCoordinator
+        reviewVC.coordinator = socialCoordinator
+        
+        socialVC.tabbarViewModel.dataSourceVC = [ootdVC,freeBoardVC,reviewVC]
+        
+        navigationController.setViewControllers([socialVC], animated: false)
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .white
+        appearance.shadowColor = .clear
+        
+        navigationController.navigationBar.isHidden = true
+        navigationController.navigationBar.standardAppearance = appearance
+        navigationController.navigationBar.scrollEdgeAppearance = appearance
+        navigationController.navigationBar.compactAppearance = appearance
+        navigationController.navigationBar.isTranslucent = false
+        
+        // TabBarItem 설정
+        navigationController.tabBarItem.title = NSLocalizedString("SOCIAL", comment: "")
+        navigationController.tabBarItem.image = UIImage(named: "icon-nav-social")
+        navigationController.tabBarItem.selectedImage = UIImage(named: "icon-nav-social-off")
+        
+        return navigationController
+        
     }
 }

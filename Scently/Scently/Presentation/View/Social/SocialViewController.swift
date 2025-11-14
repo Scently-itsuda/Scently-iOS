@@ -36,10 +36,13 @@ final class SocialViewController: UIViewController {
         registerCell()
         setupFloatingButtons()
         
-        // 1. 뷰컨트롤러들을 생성하고 배열에 저장
-        tabbarViewModel.setupViewControllers()
-
-        // 2. 생성된 배열에서 초기 페이지 설정
+        // dataSourceVC가 비어있지 않으면 사용 (Coordinator가 주입한 것)
+        // 비어있으면 fallback으로 생성
+        if tabbarViewModel.dataSourceVC.isEmpty {
+            tabbarViewModel.setupViewControllers()
+        }
+        
+        // PageViewController 초기 설정
         if let firstVC = tabbarViewModel.dataSourceVC.first {
             pageViewController.setViewControllers([firstVC], direction: .forward, animated: false, completion: nil)
         }
