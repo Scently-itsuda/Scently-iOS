@@ -8,6 +8,9 @@
 import UIKit
 
 final class ReviewViewController: UIViewController {
+    
+    weak var coordinator: SocialCoordinatorProtocol?
+    
     lazy var reviewTableView: UITableView = {
         let tableView = UITableView()
         return tableView
@@ -59,64 +62,43 @@ extension ReviewViewController: UITableViewDelegate, UITableViewDataSource {
 extension ReviewViewController: ReviewCellDelegate {
     
     func moreButtonTapped(isMyReview: Bool) {
-        let myReviewSheet = ReviewActionBottomSheetViewController(isMyReview: isMyReview)
-        
-        myReviewSheet.onReportTapped = { [weak self] in
-            self?.showReportReasonSheet()
-        }
-        
-        myReviewSheet.onEditTapped = { [weak self] in
-            print("수정하기")
-            // TODO: 수정 로직
-        }
-        
-        myReviewSheet.onDeleteTapped = { [weak self] in
-            print("삭제하기")
-            // TODO: 삭제 로직
-        }
-        
-        
-        myReviewSheet.modalPresentationStyle = .overFullScreen
-        myReviewSheet.modalTransitionStyle = .crossDissolve
-        present(myReviewSheet, animated: true)
+        coordinator?.showReviewActionSheet(
+            isMyReview: isMyReview,
+            onEdit: { [weak self] in
+                print("수정하기")
+                // TODO: 수정 로직
+            },
+            onDelete: { [weak self] in
+                print("삭제하기")
+                // TODO: 삭제 로직
+            },
+            onReport: { [weak self] in
+                self?.showReportReasonSheet()
+            }
+        )
     }
     
 
     private func showReportReasonSheet() {
-        let sheet = ReportReasonBottomSheetViewController()
-        
-        sheet.onReasonSelected = { [weak self] reason in //
-            if reason == .other { // 또는 reason.needsDetail
-                // "기타" 선택 → 텍스트 입력 필요
+        coordinator?.showReportReasonSheet { [weak self] reason in
+            if reason == .other {
                 self?.showReportTextInput(reason: reason)
             } else {
-                // 바로 신고 제출
-               // self?.submitReport(reason: reason, detail: nil)
+                self?.submitReport(reason: reason, detail: nil)
             }
         }
-        
-        sheet.modalPresentationStyle = .overCurrentContext
-        sheet.modalTransitionStyle = .crossDissolve
-        present(sheet, animated: true)
     }
     private func showReportTextInput(reason: ReportReason) {
-//         let sheet = ReportTextInputBottomSheetViewController(reason: reason)
-//         
-//         sheet.onSubmit = { [weak self] detail in
-//             self?.submitReport(reason: reason, detail: detail)
-//         }
-//         
-//         sheet.modalPresentationStyle = .overFullScreen
-//         present(sheet, animated: true)
+        coordinator?.showReportTextInput(reason: reason) { [weak self] detail in
+            self?.submitReport(reason: reason, detail: detail)
+        }
+
      }
      
-     private func submitReport(reason: ReportReason, detail: String?) {
-         print("신고 제출 - 사유: \(reason.rawValue), 상세: \(detail ?? "없음")")
-         // TODO: API 호출
-         dismiss(animated: true) {
-             // 신고 완료 알림 등
-         }
-     }
+    private func submitReport(reason: ReportReason, detail: String?) {
+        print("신고 제출 - 사유: \(reason.rawValue), 상세: \(detail ?? "없음")")
+        // TODO: API 호출
+    }
 }
 
 enum ReportReason: String {
