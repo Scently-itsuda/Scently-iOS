@@ -71,7 +71,10 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
         print("OOTD 작성 화면")
         
         if isGuestMode {
-            onLoginRequired?()
+            showLoginRequiredAlert {
+                self.onLoginRequired?()
+            }
+            
             return
         }
         
@@ -94,7 +97,9 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
         
         
         if isGuestMode {
-            onLoginRequired?()
+            showLoginRequiredAlert {
+                self.onLoginRequired?()
+            }
             return
         }
         
@@ -108,7 +113,10 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
         print("리뷰 작성 화면")
         
         if isGuestMode {
-            onLoginRequired?()
+            showLoginRequiredAlert {
+                self.onLoginRequired?()
+            }
+
             return
         }
         
@@ -149,5 +157,24 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
     
     func showReportTextInput(reason: ReportReason, onSubmit: @escaping (String) -> Void) {
         print("신고 상세 입력")
+    }
+    
+    private func showLoginRequiredAlert(onLogin: @escaping () -> Void) {
+        let alert = UIAlertController(
+            title: "로그인이 필요합니다",
+            message: "글을 작성하려면 로그인이 필요합니다.\n로그인 하시겠습니까?",
+            preferredStyle: .alert
+        )
+        
+        let loginAction = UIAlertAction(title: "로그인", style: .default) { _ in
+            onLogin()
+        }
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        
+        alert.addAction(cancelAction)
+        alert.addAction(loginAction)
+        
+        navigationController.present(alert, animated: true)
     }
 }
