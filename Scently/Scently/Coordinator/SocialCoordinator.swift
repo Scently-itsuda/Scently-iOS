@@ -60,6 +60,11 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
     
     func showOOTDDetail(ootdId: Int) {
         print("OOTD 상세화면 ID - \(ootdId)")
+        let detailVC = OOTDDetailViewController()
+        detailVC.configure(ootdId: ootdId)
+        detailVC.hidesBottomBarWhenPushed = true
+        navigationController.navigationBar.isHidden = true
+        navigationController.pushViewController(detailVC, animated: true)
     }
     
     func showOOTDWrite() {
@@ -68,6 +73,10 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
     
     func showFreeBoardDetail(postId: Int) {
         print("자유게시판 상세 화면 - ID: \(postId)")
+        let detailVC = FreeBoardDetailViewController()
+        detailVC.hidesBottomBarWhenPushed = true
+        navigationController.navigationBar.isHidden = true
+        navigationController.pushViewController(detailVC, animated: true)
     }
     
     func showFreeBoardWrite() {
