@@ -15,6 +15,14 @@ final class SocialViewController: UIViewController {
     private let floatingMainButton = UIButton(type: .custom)
     private var isExpanded = false
     
+    private let dimmedBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        view.alpha = 0
+        view.isUserInteractionEnabled = true
+        return view
+    }()
+    
     var tabbarViewModel = TabBarViewModel()
     
     var currentPage: Int = 0 {
@@ -64,12 +72,17 @@ private extension SocialViewController {
         self.view.backgroundColor = .white
         addChild(pageViewController)
         view.addSubview(pageViewController.view)
+        view.addSubview(dimmedBackgroundView)
     }
     
     func setupConstraint() {
         pageViewController.view.snp.makeConstraints {
             $0.top.equalTo(socialView.customSearchBar.snp.bottom).offset(13)
             $0.leading.trailing.bottom.equalToSuperview()
+        }
+        
+        dimmedBackgroundView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
     }
     
@@ -120,6 +133,9 @@ private extension SocialViewController {
             
             actionItemViews.append(itemView)
         }
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleFloatingButtons))
+                dimmedBackgroundView.addGestureRecognizer(tapGesture)
     }
 
     @objc func toggleFloatingButtons() {
@@ -127,6 +143,18 @@ private extension SocialViewController {
 
         let iconName = isExpanded ? "xmark" : "plus"
         floatingMainButton.setImage(UIImage(systemName: iconName), for: .normal)
+
+        // Dimmed background 애니메이션
+        UIView.animate(withDuration: 0.3) {
+            self.dimmedBackgroundView.alpha = self.isExpanded ? 1 : 0
+        }
+        
+        // dimmedBackgroundView를 floating button 바로 아래로 이동
+        if isExpanded {
+            view.bringSubviewToFront(dimmedBackgroundView)
+            view.bringSubviewToFront(floatingMainButton)
+            actionItemViews.forEach { view.bringSubviewToFront($0) }
+        }
 
         for (index, itemView) in actionItemViews.enumerated() {
             UIView.animate(withDuration: 0.3, delay: 0.05 * Double(index), options: [], animations: {
