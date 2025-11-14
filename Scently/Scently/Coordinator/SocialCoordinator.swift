@@ -92,10 +92,28 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
                                onDelete: @escaping () -> Void,
                                onReport: @escaping () -> Void) {
         print("리뷰 Action Sheet")
+        
+        let sheet = ReviewActionBottomSheetViewController(isMyReview: isMyReview)
+        
+        sheet.onEditTapped = onEdit
+        sheet.onDeleteTapped = onDelete
+        sheet.onReportTapped = onReport
+        
+        sheet.modalPresentationStyle = .overFullScreen
+        sheet.modalTransitionStyle = .crossDissolve
+        navigationController.present(sheet, animated: true)
     }
     
     func showReportReasonSheet(onReasonSelected: @escaping (ReportReason) -> Void) {
         print("신고 사유 선택 Sheet")
+        
+        let sheet = ReportReasonBottomSheetViewController()
+        
+        sheet.onReasonSelected = onReasonSelected
+        
+        sheet.modalPresentationStyle = .overCurrentContext
+        sheet.modalTransitionStyle = .crossDissolve
+        navigationController.present(sheet, animated: true)
     }
     
     func showReportTextInput(reason: ReportReason, onSubmit: @escaping (String) -> Void) {
