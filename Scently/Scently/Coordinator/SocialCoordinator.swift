@@ -34,7 +34,7 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
     
     private let navigationController: UINavigationController
     private let authService: AuthServiceProtocol
-    private let isGusetMode: Bool
+    private let isGuestMode: Bool
     
     var onLoginRequired: (() -> Void)?
     
@@ -44,7 +44,7 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
 
         self.navigationController = navigationController
         self.authService = authService
-        self.isGusetMode = isGusetMode
+        self.isGuestMode = isGusetMode
         print("SocialCoordinator init")
     }
     
@@ -69,6 +69,16 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
     
     func showOOTDWrite() {
         print("OOTD 작성 화면")
+        
+        if isGuestMode {
+            onLoginRequired?()
+            return
+        }
+        
+        let writeVC = OOTDWriteViewController()
+        writeVC.hidesBottomBarWhenPushed = true
+        navigationController.navigationBar.isHidden = true
+        navigationController.pushViewController(writeVC, animated: true)
     }
     
     func showFreeBoardDetail(postId: Int) {
@@ -81,10 +91,31 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
     
     func showFreeBoardWrite() {
         print("자유게시판 작성 화면")
+        
+        
+        if isGuestMode {
+            onLoginRequired?()
+            return
+        }
+        
+        let writeVC = FreeBoardWriteViewController()
+        writeVC.hidesBottomBarWhenPushed = true
+        navigationController.navigationBar.isHidden = true
+        navigationController.pushViewController(writeVC, animated: true)
     }
     
     func showReviewWrite() {
         print("리뷰 작성 화면")
+        
+        if isGuestMode {
+            onLoginRequired?()
+            return
+        }
+        
+        let writeVC = ReviewWriteViewController()
+        writeVC.hidesBottomBarWhenPushed = true
+        navigationController.navigationBar.isHidden = true
+        navigationController.pushViewController(writeVC, animated: true)
     }
     
     func showReviewActionSheet(isMyReview: Bool,
