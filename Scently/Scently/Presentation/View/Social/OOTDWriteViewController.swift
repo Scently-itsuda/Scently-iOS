@@ -71,8 +71,9 @@ final class OOTDWriteViewController: UIViewController {
         layout.itemSize = CGSize(width: 80, height: 80)
         layout.minimumInteritemSpacing = 8
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = .clear
+        cv.backgroundColor = .white
         cv.layer.cornerRadius = 8
+        cv.showsHorizontalScrollIndicator = false
         return cv
     }()
     
@@ -251,6 +252,10 @@ extension OOTDWriteViewController: UICollectionViewDataSource, UICollectionViewD
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as! PhotoCell
         let image = viewModel.getSelectedImagesValue()[indexPath.item]
         cell.configure(with: image)
+        
+        cell.onDeleteTapped = { [weak self] in
+            self?.viewModel.removeImage(at: indexPath.item)
+        }
         return cell
     }
     
