@@ -7,6 +7,8 @@
 
 import Foundation
 import UIKit
+import Combine
+import PhotosUI
 
 protocol SocialCoordinatorProtocol: AnyObject {
     /// OOTD 관련
@@ -77,12 +79,63 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
             
             return
         }
-        
-        let writeVC = OOTDWriteViewController()
-        writeVC.hidesBottomBarWhenPushed = true
-        navigationController.navigationBar.isHidden = true
-        navigationController.pushViewController(writeVC, animated: true)
+        checkPhotoPermissionAndPick()
     }
+    
+    
+    private func checkPhotoPermissionAndPick() {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        
+        switch status {
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { [weak self] newStatus in
+                DispatchQueue.main.async {
+                    if newStatus == .authorized || newStatus == .limited {
+                        self?.presentOOTDPhotoPicker()
+                    } else {
+                        self?.showPhotoPermissionDeniedAlert()
+                    }
+                }
+            }
+        case .restricted, .denied:
+            showPhotoPermissionDeniedAlert()
+        case .authorized, .limited:
+            presentOOTDPhotoPicker()
+        @unknown default:
+            showPhotoPermissionDeniedAlert()
+
+        }
+    }
+    
+    private func presentOOTDPhotoPicker() {
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 5
+        configuration.filter = .images
+        
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        navigationController.present(picker, animated: true)
+    }
+
+    private func showPhotoPermissionDeniedAlert() {
+        let alert = UIAlertController(
+            title: "사진 접근 권한 필요",
+            message: "OOTD 사진을 업로드하려면 사진 라이브러리 접근 권한이 필요합니다.\n설정에서 권한을 허용해주세요.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        alert.addAction(UIAlertAction(title: "설정으로 이동", style: .default) { _ in
+            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsURL)
+            }
+        })
+        
+        navigationController.present(alert, animated: true)
+    }
+    
+    
     
     func showFreeBoardDetail(postId: Int) {
         print("자유게시판 상세 화면 - ID: \(postId)")
@@ -176,5 +229,36 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
         alert.addAction(loginAction)
         
         navigationController.present(alert, animated: true)
+    }
+}
+
+extension SocialCoordinator: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        guard !results.isEmpty else { return }
+        
+        var selectedImages: [UIImage] = []
+        let group = DispatchGroup()
+        
+        for result in results {
+            group.enter()
+            result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
+                defer { group.leave() }
+                if let image = object as? UIImage {
+                    selectedImages.append(image)
+                }
+            }
+        }
+        
+        group.notify(queue: .main) { [weak self] in
+            guard !selectedImages.isEmpty else { return }
+            
+            let writeVC = OOTDWriteViewController()
+            writeVC.configure(with: selectedImages)
+            writeVC.hidesBottomBarWhenPushed = true
+            self?.navigationController.navigationBar.isHidden = true
+            self?.navigationController.pushViewController(writeVC, animated: true)
+        }
     }
 }
