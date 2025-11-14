@@ -35,6 +35,11 @@ class OOTDWriteViewModel {
     
     private let maxImageCount = 5
     
+    func setInitialImages(_ images: [UIImage]) {
+        let limitedImages = Array(images.prefix(maxImageCount))
+        selectedImagesSubject.send(limitedImages)
+    }
+    
     func checkPhotoPermission() {
         let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         
