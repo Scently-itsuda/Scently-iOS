@@ -16,12 +16,43 @@ final class OOTDWriteViewController: UIViewController {
     private let viewModel = OOTDWriteViewModel()
     private var cancellables = Set<AnyCancellable>()
     
+    private let navigationBar: UIView = {
+       let view = UIView()
+        view.backgroundColor = .white
+        return view
+    }()
+    
+    private var backButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "chevron.left"), for: .normal)
+        button.tintColor = .black
+        button.addTarget(self, action: #selector(backButtonDidTap), for: .touchUpInside)
+        return button
+    }()
+    
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "OOTD 글쓰기"
-        label.font = .systemFont(ofSize: 24, weight: .bold)
+        label.text = "OOTD"
+        label.font = .pretendard(.bold, size: 17)
         label.textAlignment = .center
+        label.textColor = .black
         return label
+    }()
+    
+    private lazy var nextButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("다음", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.tintColor = .systemBlue
+        button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    private let separatorLine: UIView = {
+        let view = UIView()
+        view.backgroundColor = .lightGray
+        return view
     }()
     
     private lazy var selectPhotoButton: UIButton = {
@@ -59,19 +90,41 @@ final class OOTDWriteViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.addSubview(titleLabel)
-        view.addSubview(selectPhotoButton)
-        view.addSubview(photoCollectionView)
+        view.addSubviews(navigationBar,selectPhotoButton,photoCollectionView,separatorLine)
+        navigationBar.addSubviews(backButton,titleLabel,nextButton)
     }
     
     private func setupConstraints() {
-        titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(20)
-            $0.centerX.equalToSuperview()
+        
+        navigationBar.snp.makeConstraints {
+             $0.top.equalTo(view.safeAreaLayoutGuide)
+             $0.leading.trailing.equalToSuperview()
+             $0.height.equalTo(44)
+         }
+         
+         backButton.snp.makeConstraints {
+             $0.leading.equalToSuperview().offset(16)
+             $0.centerY.equalToSuperview()
+             $0.width.height.equalTo(44)
+         }
+         
+         titleLabel.snp.makeConstraints {
+             $0.center.equalToSuperview()
+         }
+         
+         nextButton.snp.makeConstraints {
+             $0.trailing.equalToSuperview().offset(-16)
+             $0.centerY.equalToSuperview()
+         }
+         
+        separatorLine.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom).offset(12)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(1)
         }
         
         selectPhotoButton.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(40)
+            $0.top.equalTo(separatorLine.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
             $0.width.equalTo(200)
             $0.height.equalTo(50)
@@ -111,6 +164,14 @@ final class OOTDWriteViewController: UIViewController {
                 }
             }
             .store(in: &cancellables)
+    }
+    
+    @objc private func backButtonDidTap() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func nextButtonTapped() {
+        print("다음 버튼 클릭")
     }
     
     @objc private func selectPhotoButtonTapped() {
