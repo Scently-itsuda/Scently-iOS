@@ -8,6 +8,10 @@
 import UIKit
 
 final class SocialViewController: UIViewController {
+    
+    weak var coordinator: SocialCoordinatorProtocol?
+    var isGuestMode: Bool = false
+    
     let socialView = SocialView()
     let pageViewController = SocialTabbarPageViewController()  // 초기화 될때 scroll 스타일 적용
     
@@ -124,6 +128,10 @@ private extension SocialViewController {
         for (index, item) in items.enumerated() {
             let itemView = FloatingActionItemView(title: item.0, iconName: item.1)
             itemView.alpha = 0
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(floatingItemTapped(_:)))
+            itemView.tag = index
+            itemView.addGestureRecognizer(tapGesture)
+            itemView.isUserInteractionEnabled = true
             view.addSubview(itemView)
             
             itemView.snp.makeConstraints {
@@ -166,6 +174,26 @@ private extension SocialViewController {
                     itemView.transform = .identity
                 }
             }, completion: nil)
+        }
+    }
+    
+    @objc private func floatingItemTapped(_ sender: UITapGestureRecognizer) {
+        
+        guard let index = sender.view?.tag else { return }
+       
+        // FloatingButton 닫기
+        toggleFloatingButtons()
+        
+        // Coordinator로 화면 전환
+        switch index {
+        case 0:  // 리뷰쓰기
+            coordinator?.showReviewWrite()
+        case 1:  // 자유게시판 글쓰기
+            coordinator?.showFreeBoardWrite()
+        case 2:  // OOTD 글쓰기
+            coordinator?.showOOTDWrite()
+        default:
+            break
         }
     }
     

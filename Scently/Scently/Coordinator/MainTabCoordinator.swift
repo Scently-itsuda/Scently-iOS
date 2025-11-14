@@ -180,6 +180,9 @@ extension MainTabCoordinator {
         
         let socialVC = SocialViewController()
         
+        socialVC.coordinator = socialCoordinator
+        socialVC.isGuestMode = isGuestMode
+        
         let ootdVC = OOTDViewController()
         let freeBoardVC = FreeBoardViewController()
         let reviewVC = ReviewViewController()
