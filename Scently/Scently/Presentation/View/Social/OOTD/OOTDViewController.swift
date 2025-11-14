@@ -11,7 +11,7 @@ import Combine
 
 final class OOTDViewController: UIViewController {
     
-    private var coordinator: SocialCoordinatorProtocol?
+    weak var coordinator: SocialCoordinatorProtocol?
     private let viewModel = OOTDViewModel()
     private var cancellables = Set<AnyCancellable>()
     
