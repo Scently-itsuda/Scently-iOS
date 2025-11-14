@@ -77,12 +77,31 @@ final class OOTDWriteViewController: UIViewController {
         return cv
     }()
     
+    private let contentTextView: UITextView = {
+        let tv = UITextView()
+        tv.font = .systemFont(ofSize: 16)
+        tv.textColor = .black
+        tv.backgroundColor = .white
+        tv.layer.cornerRadius = 8
+        tv.textContainerInset = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
+        return tv
+    }()
+    
+    private let placeholderLabel: UILabel = {
+        let label = UILabel()
+        label.text = "내용을 입력하세요"
+        label.font = .systemFont(ofSize: 16)
+        label.textColor = .systemGray3
+        return label
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
         setupConstraints()
         setupCollectionView()
+        setupTextView()
         bindViewModel()
     }
     
@@ -91,8 +110,10 @@ final class OOTDWriteViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.addSubviews(navigationBar,selectPhotoButton,photoCollectionView,separatorLine)
+        view.addSubviews(navigationBar,selectPhotoButton,photoCollectionView,separatorLine,contentTextView)
         navigationBar.addSubviews(backButton,titleLabel,nextButton)
+        
+        contentTextView.addSubview(placeholderLabel)
     }
     
     private func setupConstraints() {
@@ -130,6 +151,17 @@ final class OOTDWriteViewController: UIViewController {
             $0.height.equalTo(90)
         }
         
+        contentTextView.snp.makeConstraints {
+            $0.top.equalTo(photoCollectionView.snp.bottom).offset(16)
+            $0.leading.trailing.equalToSuperview().inset(24)
+            $0.height.equalTo(150)
+        }
+        
+        placeholderLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(12)
+            $0.leading.equalToSuperview().offset(16)
+        }
+        
         selectPhotoButton.snp.makeConstraints {
             $0.top.equalTo(photoCollectionView.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
@@ -143,6 +175,10 @@ final class OOTDWriteViewController: UIViewController {
         photoCollectionView.dataSource = self
         photoCollectionView.delegate = self
         photoCollectionView.register(PhotoCell.self, forCellWithReuseIdentifier: "PhotoCell")
+    }
+    
+    private func setupTextView() {
+        contentTextView.delegate = self
     }
     
     private func bindViewModel() {
@@ -221,6 +257,20 @@ final class OOTDWriteViewController: UIViewController {
         )
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
+    }
+}
+
+extension OOTDWriteViewController: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        placeholderLabel.isHidden = !textView.text.isEmpty
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        placeholderLabel.isHidden = !textView.text.isEmpty
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        placeholderLabel.isHidden = !textView.text.isEmpty
     }
 }
 
