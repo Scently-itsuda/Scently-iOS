@@ -123,18 +123,19 @@ final class OOTDWriteViewController: UIViewController {
             $0.height.equalTo(1)
         }
         
+        photoCollectionView.snp.makeConstraints {
+            $0.top.equalTo(separatorLine.snp.bottom).offset(24)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(90)
+        }
+        
         selectPhotoButton.snp.makeConstraints {
-            $0.top.equalTo(separatorLine.snp.bottom).offset(40)
+            $0.top.equalTo(photoCollectionView.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
             $0.width.equalTo(200)
             $0.height.equalTo(50)
         }
         
-        photoCollectionView.snp.makeConstraints {
-            $0.top.equalTo(selectPhotoButton.snp.bottom).offset(20)
-            $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(120)
-        }
     }
     
     private func setupCollectionView() {
