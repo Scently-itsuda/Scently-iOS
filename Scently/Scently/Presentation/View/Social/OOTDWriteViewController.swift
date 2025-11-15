@@ -102,6 +102,7 @@ final class OOTDWriteViewController: UIViewController {
         setupConstraints()
         setupCollectionView()
         setupTextView()
+        setupKeyboard()
         bindViewModel()
     }
     
@@ -114,6 +115,8 @@ final class OOTDWriteViewController: UIViewController {
         navigationBar.addSubviews(backButton,titleLabel,nextButton)
         
         contentTextView.addSubview(placeholderLabel)
+        
+        contentTextView.backgroundColor = .lightGray
     }
     
     private func setupConstraints() {
@@ -181,6 +184,65 @@ final class OOTDWriteViewController: UIViewController {
         contentTextView.delegate = self
     }
     
+    private func setupKeyboard() {
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        
+        // 이미지 추가 버튼
+        let addPhotoButton = UIBarButtonItem(
+            image: UIImage(systemName: "photo"),
+            style: .plain,
+            target: self,
+            action: #selector(selectPhotoButtonTapped)
+        )
+        
+        // 태그 입력 버튼
+        let hashtagButton = UIBarButtonItem(
+            title: "#태그입력",
+            style: .plain,
+            target: self,
+            action: #selector(hashtagButtonTapped)
+        )
+        
+        let fixedSpace = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        fixedSpace.width = 16
+        
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "완료", style: .done, target: self, action: #selector(dismissKeyboard))
+        
+        toolbar.items = [
+            addPhotoButton,
+            fixedSpace,
+            hashtagButton,
+            flexSpace,
+            doneButton
+        ]
+        
+        contentTextView.inputAccessoryView = toolbar
+    }
+    
+    @objc private func hashtagButtonTapped() {
+        showHashtagBottomSheet()
+    }
+
+    private func showHashtagBottomSheet() {
+        let bottomSheet = HashtagBottomSheetViewController()
+        bottomSheet.onHashtagSelected = { [weak self] hashtags in
+            // 선택된 태그를 contentTextView에 추가
+            let currentText = self?.contentTextView.text ?? ""
+            let hashtagText = hashtags.map { "#\($0)" }.joined(separator: " ")
+            self?.contentTextView.text = currentText + " " + hashtagText
+            self?.placeholderLabel.isHidden = true
+        }
+        
+        if let sheet = bottomSheet.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        present(bottomSheet, animated: true)
+    }
+    
     private func bindViewModel() {
         viewModel.selectedImages
             .receive(on: DispatchQueue.main)
@@ -219,6 +281,10 @@ final class OOTDWriteViewController: UIViewController {
         }
         
         viewModel.checkPhotoPermission()
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func presentPhotoPicker() {
@@ -271,6 +337,14 @@ extension OOTDWriteViewController: UITextViewDelegate {
     
     func textViewDidEndEditing(_ textView: UITextView) {
         placeholderLabel.isHidden = !textView.text.isEmpty
+    }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            textView.resignFirstResponder()
+            return false  // 줄바꿈 방지
+        }
+        return true
     }
 }
 
