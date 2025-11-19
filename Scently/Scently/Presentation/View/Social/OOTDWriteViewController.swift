@@ -15,6 +15,7 @@ final class OOTDWriteViewController: UIViewController {
     
     private let viewModel = OOTDWriteViewModel()
     private var cancellables = Set<AnyCancellable>()
+    private var selectedHashtags: [String] = []
     
     private let navigationBar: UIView = {
        let view = UIView()
@@ -95,6 +96,18 @@ final class OOTDWriteViewController: UIViewController {
         return label
     }()
     
+    private lazy var hashtagCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        layout.minimumInteritemSpacing = 8
+        
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.backgroundColor = .clear
+        cv.showsHorizontalScrollIndicator = false
+        return cv
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -111,7 +124,15 @@ final class OOTDWriteViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.addSubviews(navigationBar,selectPhotoButton,photoCollectionView,separatorLine,contentTextView)
+        view.addSubviews(
+            navigationBar,
+            selectPhotoButton,
+            photoCollectionView,
+            separatorLine,
+            contentTextView,
+            hashtagCollectionView
+        )
+        
         navigationBar.addSubviews(backButton,titleLabel,nextButton)
         
         contentTextView.addSubview(placeholderLabel)
@@ -165,6 +186,12 @@ final class OOTDWriteViewController: UIViewController {
             $0.leading.equalToSuperview().offset(16)
         }
         
+        hashtagCollectionView.snp.makeConstraints {
+            $0.top.equalTo(contentTextView.snp.bottom).offset(12)
+            $0.leading.trailing.equalToSuperview().inset(24)
+            $0.height.equalTo(40)
+        }
+        
         selectPhotoButton.snp.makeConstraints {
             $0.top.equalTo(photoCollectionView.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
@@ -178,6 +205,10 @@ final class OOTDWriteViewController: UIViewController {
         photoCollectionView.dataSource = self
         photoCollectionView.delegate = self
         photoCollectionView.register(PhotoCell.self, forCellWithReuseIdentifier: "PhotoCell")
+        
+        hashtagCollectionView.dataSource = self
+              hashtagCollectionView.delegate = self
+              hashtagCollectionView.register(HashtagChipCell.self, forCellWithReuseIdentifier: "HashtagChipCell")
     }
     
     private func setupTextView() {
@@ -219,28 +250,6 @@ final class OOTDWriteViewController: UIViewController {
         ]
         
         contentTextView.inputAccessoryView = toolbar
-    }
-    
-    @objc private func hashtagButtonTapped() {
-        showHashtagBottomSheet()
-    }
-
-    private func showHashtagBottomSheet() {
-        let bottomSheet = HashtagBottomSheetViewController()
-        bottomSheet.onHashtagSelected = { [weak self] hashtags in
-            // 선택된 태그를 contentTextView에 추가
-            let currentText = self?.contentTextView.text ?? ""
-            let hashtagText = hashtags.map { "#\($0)" }.joined(separator: " ")
-            self?.contentTextView.text = currentText + " " + hashtagText
-            self?.placeholderLabel.isHidden = true
-        }
-        
-        if let sheet = bottomSheet.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
-            sheet.prefersGrabberVisible = true
-        }
-        
-        present(bottomSheet, animated: true)
     }
     
     private func bindViewModel() {
@@ -285,6 +294,32 @@ final class OOTDWriteViewController: UIViewController {
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    @objc private func hashtagButtonTapped() {
+        view.endEditing(true)
+        
+        let bottomSheet = HashtagBottomSheetViewController()
+        bottomSheet.onHashtagSelected = { [weak self] hashtags in
+            guard let self = self else { return }
+            
+            // 기존 태그에 추가
+            for tag in hashtags {
+                if !self.selectedHashtags.contains(tag) {
+                    self.selectedHashtags.append(tag)
+                }
+            }
+            
+            self.hashtagCollectionView.reloadData()
+        }
+        
+        if let sheet = bottomSheet.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 20
+        }
+        
+        present(bottomSheet, animated: true)
     }
     
     private func presentPhotoPicker() {
@@ -368,27 +403,117 @@ extension OOTDWriteViewController: PHPickerViewControllerDelegate {
 
 
 extension OOTDWriteViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.getSelectedImagesValue().count
+        if collectionView == photoCollectionView {
+            return viewModel.getSelectedImagesValue().count
+        } else {
+            return selectedHashtags.count
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as! PhotoCell
-        let image = viewModel.getSelectedImagesValue()[indexPath.item]
-        cell.configure(with: image)
-        
-        cell.onDeleteTapped = { [weak self] in
-            self?.viewModel.removeImage(at: indexPath.item)
+        if collectionView == photoCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as! PhotoCell
+            let image = viewModel.getSelectedImagesValue()[indexPath.item]
+            cell.configure(with: image)
+            
+            cell.onDeleteTapped = { [weak self] in
+                self?.viewModel.removeImage(at: indexPath.item)
+            }
+            
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "HashtagChipCell", for: indexPath) as! HashtagChipCell
+            let hashtag = selectedHashtags[indexPath.item]
+            cell.configure(with: hashtag)
+            
+            cell.onDeleteTapped = { [weak self] in
+                guard let self = self else { return }
+                
+                // 현재 indexPath가 유효한지 확인
+                guard indexPath.item < self.selectedHashtags.count else { return }
+                
+                self.selectedHashtags.remove(at: indexPath.item)
+                
+                collectionView.performBatchUpdates {
+                    collectionView.deleteItems(at: [indexPath])
+                }
+            }
+            
+            return cell
         }
-        return cell
+    }
+}
+
+class HashtagChipCell: UICollectionViewCell {
+    
+    var onDeleteTapped: (() -> Void)?
+    
+    private let containerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBlue.withAlphaComponent(0.1)
+        view.layer.cornerRadius = 16
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.systemBlue.cgColor
+        return view
+    }()
+    
+    private let hashtagLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.textColor = .systemBlue
+        return label
+    }()
+    
+    private lazy var deleteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        button.tintColor = .systemBlue
+        button.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let alert = UIAlertController(title: "사진 삭제", message: "이 사진을 삭제하시겠습니까?", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
-            self?.viewModel.removeImage(at: indexPath.item)
-        })
-        present(alert, animated: true)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUI() {
+        contentView.addSubview(containerView)
+        containerView.addSubview(hashtagLabel)
+        containerView.addSubview(deleteButton)
+        
+        containerView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        hashtagLabel.snp.makeConstraints {
+            $0.leading.equalToSuperview().offset(12)
+            $0.centerY.equalToSuperview()
+        }
+        
+        deleteButton.snp.makeConstraints {
+            $0.leading.equalTo(hashtagLabel.snp.trailing).offset(6)
+            $0.trailing.equalToSuperview().offset(-8)
+            $0.centerY.equalToSuperview()
+            $0.width.height.equalTo(20)
+            $0.top.bottom.equalToSuperview().inset(8)
+        }
+    }
+    
+    @objc private func deleteButtonTapped() {
+        onDeleteTapped?()
+    }
+    
+    func configure(with hashtag: String) {
+        hashtagLabel.text = "#\(hashtag)"
     }
 }
