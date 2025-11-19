@@ -45,7 +45,9 @@ final class OOTDWriteViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.tintColor = .systemBlue
+        button.tintColor = .white
+        button.layer.cornerRadius = 8
+        button.isEnabled = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -255,8 +257,35 @@ final class OOTDWriteViewController: UIViewController {
     private func bindViewModel() {
         viewModel.selectedImages
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.photoCollectionView.reloadData()
+            .sink { [weak self] images in
+                guard let self = self else { return }
+
+                let previousCount = self.photoCollectionView.numberOfItems(inSection: 0)
+                let currentCount = images.count
+                
+                if currentCount < previousCount {
+                    // 삭제
+                    let deletedIndex = currentCount
+                    self.photoCollectionView.performBatchUpdates {
+                        let indexPath = IndexPath(item: deletedIndex, section: 0)
+                        self.photoCollectionView.deleteItems(at: [indexPath])
+                    }
+                } else if currentCount > previousCount {
+                    // 추가
+                    let startIndex = previousCount
+                    let indexPaths = (startIndex..<currentCount).map { IndexPath(item: $0, section: 0) }
+                    self.photoCollectionView.performBatchUpdates {
+                        self.photoCollectionView.insertItems(at: indexPaths)
+                    }
+                } else {
+                    // 초기 로드
+                    UIView.performWithoutAnimation {
+                        self.photoCollectionView.reloadData()
+                    }
+                }
+                
+                // 이미지 변경 시 버튼 상태 업데이트
+                self.updateNextButtonState()
             }
             .store(in: &cancellables)
         
@@ -264,12 +293,12 @@ final class OOTDWriteViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] status in
                 switch status {
-                case .authorized:
-                    self?.presentPhotoPicker()
-                case .denied:
-                    self?.showPermissionDeniedAlert()
-                case .notDetermined:
-                    break
+                    case .authorized:
+                        self?.presentPhotoPicker()
+                    case .denied:
+                        self?.showPermissionDeniedAlert()
+                    case .notDetermined:
+                        break
                 }
             }
             .store(in: &cancellables)
@@ -281,6 +310,26 @@ final class OOTDWriteViewController: UIViewController {
     
     @objc private func nextButtonTapped() {
         print("다음 버튼 클릭")
+        guard !viewModel.getSelectedImagesValue().isEmpty else {
+             showAlert(title: "사진이 없습니다", message: "최소 1장의 사진을 추가해주세요.")
+             return
+         }
+         
+         guard let text = contentTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else {
+             showAlert(title: "내용이 없습니다", message: "내용을 입력해주세요.")
+             return
+         }
+         
+         print("다음 단계로 이동")
+         print("선택된 이미지:", viewModel.getSelectedImagesValue().count)
+         print("입력된 텍스트:", text)
+         print("선택된 태그:", selectedHashtags)
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
     
     @objc private func selectPhotoButtonTapped() {
@@ -359,11 +408,29 @@ final class OOTDWriteViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
     }
+
+    private func updateNextButtonState() {
+        let hasImages = !viewModel.getSelectedImagesValue().isEmpty
+        let hasText = !(contentTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+        
+        let isEnabled = hasImages && hasText
+        
+        nextButton.isEnabled = isEnabled
+        
+        UIView.animate(withDuration: 0.2) {
+            if isEnabled {
+                self.nextButton.tintColor = .systemBlue
+            } else {
+                self.nextButton.tintColor = .systemGray2
+            }
+        }
+    }
 }
 
 extension OOTDWriteViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         placeholderLabel.isHidden = !textView.text.isEmpty
+        updateNextButtonState()
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
