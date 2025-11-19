@@ -429,18 +429,22 @@ extension OOTDWriteViewController: UICollectionViewDataSource, UICollectionViewD
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "HashtagChipCell", for: indexPath) as! HashtagChipCell
             let hashtag = selectedHashtags[indexPath.item]
+            
+            // 해시태그를 직접 전달
             cell.configure(with: hashtag)
             
+            // 해시태그 값으로 찾아서 삭제
             cell.onDeleteTapped = { [weak self] in
                 guard let self = self else { return }
                 
-                // 현재 indexPath가 유효한지 확인
-                guard indexPath.item < self.selectedHashtags.count else { return }
-                
-                self.selectedHashtags.remove(at: indexPath.item)
-                
-                collectionView.performBatchUpdates {
-                    collectionView.deleteItems(at: [indexPath])
+                // 해시태그 값으로 인덱스 찾기
+                if let index = self.selectedHashtags.firstIndex(of: hashtag) {
+                    self.selectedHashtags.remove(at: index)
+                    
+                    let indexPathToDelete = IndexPath(item: index, section: 0)
+                    collectionView.performBatchUpdates {
+                        collectionView.deleteItems(at: [indexPathToDelete])
+                    }
                 }
             }
             
