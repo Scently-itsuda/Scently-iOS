@@ -260,14 +260,48 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
     }
     
     private func showProductSearchViewController() {
-        // TODO: 다음 단계
-        print("제품 검색 화면으로 이동")
-        print("저장된 데이터:", writeData)
+        let vc = OOTDProductSearchViewController()
+        
+        vc.configure(with: writeData.products)
+        
+        vc.onCompleteTapped = { [weak self] products in
+            guard let self = self else { return }
+            
+            self.writeData.products = products
+            self.uploadOOTD()
+        }
+        
+        navigationController.pushViewController(vc, animated: true)
     }
 
     private func finishWriteFlow() {
-        writeData = OOTDWriteData()
+        let vc = OOTDProductSearchViewController()
+        
+        vc.configure(with: writeData.products)
+        
+        vc.onCompleteTapped = { [weak self] products in
+            guard let self = self else {return}
+            
+            self.writeData.products = products
+            
+            self.uploadOOTD()
+            
+            
+        }
         navigationController.popToRootViewController(animated: true)
+    }
+    
+    private func uploadOOTD() {
+        print("OOTD 업로드")
+        print("이미지:", writeData.images.count)
+        print("내용:", writeData.content)
+        print("태그:", writeData.hashtags)
+        print("제품:", writeData.products.count)
+        
+        // TODO: 실제 API 업로드
+        
+        // 업로드 성공 후 플로우 종료
+        finishWriteFlow()
     }
     
 }
