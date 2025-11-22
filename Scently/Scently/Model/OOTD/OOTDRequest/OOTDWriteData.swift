@@ -5,10 +5,10 @@
 //  Created by 임재현 on 11/19/25.
 //
 
-import Foundation
+import UIKit
 
 struct OOTDWriteData {
-    var images: [String]
+    var images: [UIImage]
     var content: String
     var hashtags: [String]
     var products: [Product]

@@ -39,6 +39,7 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
     private let isGuestMode: Bool
     
     var onLoginRequired: (() -> Void)?
+    private var writeData = OOTDWriteData()
     
     init(navigationController: UINavigationController,
          authService: AuthServiceProtocol,
@@ -230,6 +231,45 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
         
         navigationController.present(alert, animated: true)
     }
+    
+    private func showWriteViewController() {
+        let writeVC = OOTDWriteViewController()
+        
+        writeVC.configure(with: writeData)
+        writeVC.hidesBottomBarWhenPushed = true
+        
+        writeVC.onNextTapped = { [weak self] images, content, hastags in
+            
+            guard let self = self else {return}
+            
+            self.writeData.images = images
+            self.writeData.content = content
+            self.writeData.hashtags = hastags
+            
+            self.showProductSearchViewController()
+            
+        }
+        
+        writeVC.onCancelTapped = { [weak self] in
+            self?.finishWriteFlow()
+        }
+        
+        navigationController.navigationBar.isHidden = true
+        navigationController.pushViewController(writeVC, animated: true)
+        
+    }
+    
+    private func showProductSearchViewController() {
+        // TODO: 다음 단계
+        print("제품 검색 화면으로 이동")
+        print("저장된 데이터:", writeData)
+    }
+
+    private func finishWriteFlow() {
+        writeData = OOTDWriteData()
+        navigationController.popToRootViewController(animated: true)
+    }
+    
 }
 
 extension SocialCoordinator: PHPickerViewControllerDelegate {
@@ -254,11 +294,9 @@ extension SocialCoordinator: PHPickerViewControllerDelegate {
         group.notify(queue: .main) { [weak self] in
             guard !selectedImages.isEmpty else { return }
             
-            let writeVC = OOTDWriteViewController()
-            writeVC.configure(with: selectedImages)
-            writeVC.hidesBottomBarWhenPushed = true
-            self?.navigationController.navigationBar.isHidden = true
-            self?.navigationController.pushViewController(writeVC, animated: true)
+            self?.writeData.images = selectedImages
+            self?.showWriteViewController()
+
         }
     }
 }

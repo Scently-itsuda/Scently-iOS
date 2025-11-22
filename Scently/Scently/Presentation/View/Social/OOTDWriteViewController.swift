@@ -17,6 +17,9 @@ final class OOTDWriteViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
     private var selectedHashtags: [String] = []
     
+    var onNextTapped: (([UIImage], String, [String]) -> Void)?
+    var onCancelTapped: (() -> Void)?
+    
     private let navigationBar: UIView = {
        let view = UIView()
         view.backgroundColor = .white
@@ -121,8 +124,14 @@ final class OOTDWriteViewController: UIViewController {
         bindViewModel()
     }
     
-    func configure(with images: [UIImage]) {
-        viewModel.setInitialImages(images)
+    func configure(with data: OOTDWriteData) {
+        viewModel.setInitialImages(data.images)
+        contentTextView.text = data.content
+        selectedHashtags = data.hashtags
+        
+        placeholderLabel.isHidden = !data.content.isEmpty
+        hashtagCollectionView.reloadData()
+        updateNextButtonState()
     }
     
     private func setupUI() {
@@ -305,7 +314,8 @@ final class OOTDWriteViewController: UIViewController {
     }
     
     @objc private func backButtonDidTap() {
-        navigationController?.popViewController(animated: true)
+//        navigationController?.popViewController(animated: true)
+        onCancelTapped?()
     }
     
     @objc private func nextButtonTapped() {
@@ -319,6 +329,12 @@ final class OOTDWriteViewController: UIViewController {
              showAlert(title: "내용이 없습니다", message: "내용을 입력해주세요.")
              return
          }
+        
+        onNextTapped?(
+            viewModel.getSelectedImagesValue(),
+            text,
+            selectedHashtags
+        )
          
          print("다음 단계로 이동")
          print("선택된 이미지:", viewModel.getSelectedImagesValue().count)
