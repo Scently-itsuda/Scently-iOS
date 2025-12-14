@@ -46,15 +46,36 @@ final class SearchBarView: UIView {
         return button
     }()
     
+    // 설정 옵션
+    struct Configuration {
+        var placeholder: String = "search"
+        var showBottomView: Bool = true
+        
+        static let `default` = Configuration()
+    }
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    private var configuration: Configuration
+    
+    init(configuration: Configuration = .default) {
+        self.configuration = configuration
+        super.init(frame: .zero)
         setupUI()
         setupConstraint()
+        applyConfiguration()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func applyConfiguration() {
+        searchBar.placeholder = configuration.placeholder
+        bottomView.isHidden = !configuration.showBottomView
+    }
+    
+    // 외부에서 개수 업데이트
+    func updateCount(_ count: Int) {
+        countLabel.text = "\(count)"
     }
 }
 

@@ -49,13 +49,24 @@ final class OOTDProductSearchViewController: UIViewController {
     
     private let tempLabel: UILabel = {
         let label = UILabel()
-        label.text = "제품 검색 화면"
+        label.text = "게시글에 등록할 제품을 검색해주세요."
         label.numberOfLines = 0
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 20, weight: .bold)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = .systemGray
         return label
     }()
+    
+    
+    let dividerView = DividerView()
+    
+    let customSearchBar = SearchBarView(
+        configuration: .init(
+            placeholder: "제품명 또는 브랜드 검색",
+            showBottomView: false
+        )
+    )
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,7 +76,7 @@ final class OOTDProductSearchViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.addSubviews(navigationBar, tempLabel)
+        view.addSubviews(navigationBar,dividerView,customSearchBar,tempLabel)
         navigationBar.addSubviews(backButton, titleLabel, completeButton)
     }
     
@@ -89,6 +100,16 @@ final class OOTDProductSearchViewController: UIViewController {
         completeButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().offset(-16)
             $0.centerY.equalToSuperview()
+        }
+        
+        dividerView.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom).offset(22)
+            $0.leading.trailing.equalToSuperview()
+        }
+        
+        customSearchBar.snp.makeConstraints {
+            $0.top.equalTo(dividerView.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview()
         }
         
         tempLabel.snp.makeConstraints {

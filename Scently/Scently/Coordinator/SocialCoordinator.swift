@@ -253,7 +253,7 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
         writeVC.onCancelTapped = { [weak self] in
             self?.finishWriteFlow()
         }
-        
+            
         navigationController.navigationBar.isHidden = true
         navigationController.pushViewController(writeVC, animated: true)
         
@@ -302,6 +302,11 @@ class SocialCoordinator: Coordinator, SocialCoordinatorProtocol {
         
         // 업로드 성공 후 플로우 종료
         finishWriteFlow()
+    }
+    
+    private func resetWriteData() {
+        writeData = OOTDWriteData()
+        print("WriteData 초기화 완료")
     }
     
 }
