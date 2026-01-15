@@ -8,12 +8,24 @@
 import UIKit
 
 final class SocialViewController: UIViewController {
+    
+    weak var coordinator: SocialCoordinatorProtocol?
+    var isGuestMode: Bool = false
+    
     let socialView = SocialView()
     let pageViewController = SocialTabbarPageViewController()  // 초기화 될때 scroll 스타일 적용
     
     private var actionItemViews: [FloatingActionItemView] = []
     private let floatingMainButton = UIButton(type: .custom)
     private var isExpanded = false
+    
+    private let dimmedBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        view.alpha = 0
+        view.isUserInteractionEnabled = true
+        return view
+    }()
     
     var tabbarViewModel = TabBarViewModel()
     
@@ -36,10 +48,13 @@ final class SocialViewController: UIViewController {
         registerCell()
         setupFloatingButtons()
         
-        // 1. 뷰컨트롤러들을 생성하고 배열에 저장
-        tabbarViewModel.setupViewControllers()
-
-        // 2. 생성된 배열에서 초기 페이지 설정
+        // dataSourceVC가 비어있지 않으면 사용 (Coordinator가 주입한 것)
+        // 비어있으면 fallback으로 생성
+        if tabbarViewModel.dataSourceVC.isEmpty {
+            tabbarViewModel.setupViewControllers()
+        }
+        
+        // PageViewController 초기 설정
         if let firstVC = tabbarViewModel.dataSourceVC.first {
             pageViewController.setViewControllers([firstVC], direction: .forward, animated: false, completion: nil)
         }
@@ -61,12 +76,17 @@ private extension SocialViewController {
         self.view.backgroundColor = .white
         addChild(pageViewController)
         view.addSubview(pageViewController.view)
+        view.addSubview(dimmedBackgroundView)
     }
     
     func setupConstraint() {
         pageViewController.view.snp.makeConstraints {
             $0.top.equalTo(socialView.customSearchBar.snp.bottom).offset(13)
             $0.leading.trailing.bottom.equalToSuperview()
+        }
+        
+        dimmedBackgroundView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
     }
     
@@ -108,6 +128,10 @@ private extension SocialViewController {
         for (index, item) in items.enumerated() {
             let itemView = FloatingActionItemView(title: item.0, iconName: item.1)
             itemView.alpha = 0
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(floatingItemTapped(_:)))
+            itemView.tag = index
+            itemView.addGestureRecognizer(tapGesture)
+            itemView.isUserInteractionEnabled = true
             view.addSubview(itemView)
             
             itemView.snp.makeConstraints {
@@ -117,6 +141,9 @@ private extension SocialViewController {
             
             actionItemViews.append(itemView)
         }
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleFloatingButtons))
+                dimmedBackgroundView.addGestureRecognizer(tapGesture)
     }
 
     @objc func toggleFloatingButtons() {
@@ -124,6 +151,18 @@ private extension SocialViewController {
 
         let iconName = isExpanded ? "xmark" : "plus"
         floatingMainButton.setImage(UIImage(systemName: iconName), for: .normal)
+
+        // Dimmed background 애니메이션
+        UIView.animate(withDuration: 0.3) {
+            self.dimmedBackgroundView.alpha = self.isExpanded ? 1 : 0
+        }
+        
+        // dimmedBackgroundView를 floating button 바로 아래로 이동
+        if isExpanded {
+            view.bringSubviewToFront(dimmedBackgroundView)
+            view.bringSubviewToFront(floatingMainButton)
+            actionItemViews.forEach { view.bringSubviewToFront($0) }
+        }
 
         for (index, itemView) in actionItemViews.enumerated() {
             UIView.animate(withDuration: 0.3, delay: 0.05 * Double(index), options: [], animations: {
@@ -135,6 +174,26 @@ private extension SocialViewController {
                     itemView.transform = .identity
                 }
             }, completion: nil)
+        }
+    }
+    
+    @objc private func floatingItemTapped(_ sender: UITapGestureRecognizer) {
+        
+        guard let index = sender.view?.tag else { return }
+       
+        // FloatingButton 닫기
+        toggleFloatingButtons()
+        
+        // Coordinator로 화면 전환
+        switch index {
+        case 0:  // 리뷰쓰기
+            coordinator?.showReviewWrite()
+        case 1:  // 자유게시판 글쓰기
+            coordinator?.showFreeBoardWrite()
+        case 2:  // OOTD 글쓰기
+            coordinator?.showOOTDWrite()
+        default:
+            break
         }
     }
     
