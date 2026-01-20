@@ -54,7 +54,7 @@ extension OOTDCommentViewController {
         commentTextView.snp.makeConstraints {
             $0.top.equalTo(commentListView.snp.bottom).offset(10)
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(36)
+            $0.height.greaterThanOrEqualTo(36)
             self.commentTextViewBottomConstraint = $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).constraint
 //            $0.bottom.equalTo(self.view.safeAreaLayoutGuide).offset(-16)
         }

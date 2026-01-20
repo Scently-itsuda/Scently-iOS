@@ -12,10 +12,13 @@ final class CommentTextView: UIView {
     
     private let dividerView = DividerView()
     
+    private let maxTextViewHeight: CGFloat = 100
+    
+    private var textViewContainerHeightConstraint: Constraint?
+    
     let profileImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.backgroundColor = .lightGray
-//        imageView.image = UIImage(named: "LOGO")
+        imageView.backgroundColor = .red
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 18
         imageView.clipsToBounds = true
@@ -37,7 +40,7 @@ final class CommentTextView: UIView {
         textView.backgroundColor = .clear
         textView.font = .pretendard(.regular, size: 12)
         textView.textColor = .black
-        textView.textContainerInset =  UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 50)
+        textView.textContainerInset = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 50)
         textView.isScrollEnabled = false
         textView.showsVerticalScrollIndicator = false
         
@@ -48,7 +51,7 @@ final class CommentTextView: UIView {
         let label = UILabel()
         label.text = "댓글을 남겨주세요"
         label.textColor = .gray3
-        label.font = .pretendard(.regular,size: 14)
+        label.font = .pretendard(.regular, size: 14)
         
         return label
     }()
@@ -60,8 +63,6 @@ final class CommentTextView: UIView {
         button.isEnabled = false
         return button
     }()
-    
-    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -84,48 +85,44 @@ extension CommentTextView {
         )
         
         self.textViewContainer.addSubviews(
-                textView,
-                placeholderLabel,
-                sendButton
-            )
+            textView,
+            placeholderLabel,
+            sendButton
+        )
     }
     
     private func setupConstraints() {
-        
-//        dividerView.snp.makeConstraints {
-//            $0.top.leading.trailing.equalToSuperview()
-//        }
-        
-        profileImageView.snp.makeConstraints {
-            $0.size.equalTo(36)
-            $0.leading.equalToSuperview().offset(16)
+            profileImageView.snp.makeConstraints {
+                $0.size.equalTo(36)
+                $0.leading.equalToSuperview().offset(16)
+                $0.centerY.equalToSuperview()
+            }
+            
+            textViewContainer.snp.makeConstraints {
+                $0.leading.equalTo(profileImageView.snp.trailing).offset(8)
+                $0.top.bottom.equalToSuperview()
+                $0.trailing.equalToSuperview().offset(-16)
+                $0.height.greaterThanOrEqualTo(36)
+            }
+            
+            textView.snp.makeConstraints {
+                $0.edges.equalToSuperview()
+            }
+            
+            placeholderLabel.snp.makeConstraints {
+                $0.leading.equalToSuperview().offset(20)
+                $0.centerY.equalToSuperview()
+            }
+            
+            sendButton.snp.makeConstraints {
+                $0.trailing.equalToSuperview().offset(-12)
+                $0.centerY.equalToSuperview()
+                $0.width.greaterThanOrEqualTo(32)
+            }
+            
+            textViewContainer.backgroundColor = .lightGray
         }
-        
-        textViewContainer.snp.makeConstraints {
-            $0.leading.equalTo(profileImageView.snp.trailing).offset(8)
-            $0.top.bottom.equalToSuperview()
-            $0.trailing.equalToSuperview().offset(-16)
-            $0.height.greaterThanOrEqualTo(36)
-        }
-        
-        textView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        placeholderLabel.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(20)
-            $0.centerY.equalToSuperview()
-        }
-        
-        sendButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().offset(-12)
-            $0.centerY.equalToSuperview()
-            $0.width.greaterThanOrEqualTo(32)
-        }
-        
-        textViewContainer.backgroundColor = .lightgray
-        
-    }
+
     
     private func setupTextView() {
         textView.delegate = self
@@ -146,13 +143,24 @@ extension CommentTextView: UITextViewDelegate {
         updatePlaceholder()
         updateSendButtonState()
         
-//        let size = textView.sizeThatFits(CGSize(width: textView.frame.width, height: CGFloat.greatestFiniteMagnitude))
+        // 높이 자동 조절
+        let size = CGSize(width: textView.frame.width, height: .infinity)
+        let estimatedSize = textView.sizeThatFits(size)
         
-//        let newHeight = max(36,min(size.height,100))
-//        
-//        textViewContainer.snp.remakeConstraints {
-//            $0.height.greaterThanOrEqualTo(newHeight)
-//        }
+        // 최대 높이 이상이면 스크롤 활성화
+        guard estimatedSize.height < maxTextViewHeight else {
+            textView.isScrollEnabled = true
+            return
+        }
+        
+        textView.isScrollEnabled = false
+        
+        // textViewContainer의 height constraint 찾아서 업데이트
+        textViewContainer.constraints.forEach { constraint in
+            if constraint.firstAttribute == .height {
+                constraint.constant = estimatedSize.height
+            }
+        }
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
