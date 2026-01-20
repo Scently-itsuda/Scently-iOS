@@ -8,7 +8,12 @@
 import UIKit
 import SnapKit
 
-final class ProductTableViewCell: UITableViewCell,ReuseIdentifying {
+final class ProductTableViewCell: UITableViewCell, ReuseIdentifying {
+    
+    enum CellMode {
+        case like      // 좋아요 버튼 (하트)
+        case selection // 선택 모드 (X 버튼)
+    }
     
     private let containerView: UIView = {
         let view = UIView()
@@ -41,31 +46,54 @@ final class ProductTableViewCell: UITableViewCell,ReuseIdentifying {
         return label
     }()
     
-    
-    private let likeButton: UIButton = {
+    private let actionButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "icon-like-#12"), for: .normal)
         return button
     }()
     
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
         setupConstraints()
-        
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-//    override func layoutSubviews() {
-//        super.layoutSubviews()
-//        
-//        let insets = UIEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
-//        contentView.frame = contentView.frame.inset(by: insets)
-//    }
+    // Configure 메서드 - 기본값은 .like 모드
+    func configure(with perfume: Perfume, mode: CellMode = .like) {
+        brandLabel.text = perfume.brand
+        perfumeTitleLabel.text = perfume.name
+        
+        // 기존 constraints 제거
+        actionButton.snp.removeConstraints()
+        
+        // 모드에 따라 버튼 아이콘과 크기 변경
+        switch mode {
+        case .like:
+            actionButton.setImage(UIImage(named: "icon-like-#12"), for: .normal)
+            actionButton.tintColor = nil
+            actionButton.snp.makeConstraints {
+                $0.size.equalTo(24)
+                $0.centerY.equalToSuperview()
+                $0.trailing.equalToSuperview().inset(20)
+            }
+            
+        case .selection:
+            actionButton.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+            actionButton.tintColor = .systemGray3
+            actionButton.snp.makeConstraints {
+                $0.size.equalTo(20) // X 버튼은 조금 작게
+                $0.centerY.equalToSuperview()
+                $0.trailing.equalToSuperview().inset(20)
+            }
+        }
+        
+        // 이미지 로딩
+        // perfumeImageView.kf.setImage(with: URL(string: perfume.imageURL))
+    }
 }
 
 extension ProductTableViewCell {
@@ -77,9 +105,8 @@ extension ProductTableViewCell {
                 perfumeImageView,
                 brandLabel,
                 perfumeTitleLabel,
-                likeButton
+                actionButton
             )
-        
         
         containerView.layer.borderWidth = 1
         containerView.layer.borderColor = UIColor.lightgray.cgColor
@@ -111,7 +138,8 @@ extension ProductTableViewCell {
             $0.top.equalTo(brandLabel.snp.bottom).offset(4)
         }
         
-        likeButton.snp.makeConstraints {
+        // actionButton의 초기 constraints (like 모드 기본값)
+        actionButton.snp.makeConstraints {
             $0.size.equalTo(24)
             $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview().inset(20)

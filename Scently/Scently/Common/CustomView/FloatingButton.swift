@@ -25,16 +25,19 @@ final class FloatingActionItemView: UIView {
         titleLabel.font = .systemFont(ofSize: 14)
         titleLabel.textColor = .white
         titleLabel.textAlignment = .right
+        titleLabel.isUserInteractionEnabled = false
         
         iconButton.setImage(UIImage(systemName: iconName), for: .normal)
         iconButton.tintColor = .white
         iconButton.backgroundColor = .black
         iconButton.layer.cornerRadius = 20
+        iconButton.isUserInteractionEnabled = false
         iconButton.snp.makeConstraints { $0.width.height.equalTo(40) }
         
         let hStack = UIStackView(arrangedSubviews: [titleLabel, iconButton])
         hStack.spacing = 8
         hStack.alignment = .center
+        hStack.isUserInteractionEnabled = false
         addSubview(hStack)
         
         hStack.snp.makeConstraints {

@@ -15,7 +15,7 @@ class OOTDViewModel {
     
     private let ootdListSubject = CurrentValueSubject<OOTDListData?, Never>(nil)
     
-    var isLoadingSubject = CurrentValueSubject<Bool,Never>(false)
+    private var isLoadingSubject = CurrentValueSubject<Bool,Never>(false)
     
     private let errorMessageSubject = CurrentValueSubject<String?, Never>(nil)
     

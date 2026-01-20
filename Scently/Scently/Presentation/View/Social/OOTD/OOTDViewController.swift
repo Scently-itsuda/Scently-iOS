@@ -11,6 +11,7 @@ import Combine
 
 final class OOTDViewController: UIViewController {
     
+    weak var coordinator: SocialCoordinatorProtocol?
     private let viewModel = OOTDViewModel()
     private var cancellables = Set<AnyCancellable>()
     
@@ -131,12 +132,8 @@ extension OOTDViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("didSelectItemAt cell \(indexPath.row)")
-        let detailVC = OOTDDetailViewController()
-        detailVC.configure(ootdId: indexPath.row)
-        self.navigationController?.navigationBar.isHidden = true
-        detailVC.hidesBottomBarWhenPushed = true
-        self.navigationController?.pushViewController(detailVC, animated: true)
+        print("didSelectItemAt cell \(indexPath.row)")        
+        coordinator?.showOOTDDetail(ootdId: indexPath.row)
     }
 }
 

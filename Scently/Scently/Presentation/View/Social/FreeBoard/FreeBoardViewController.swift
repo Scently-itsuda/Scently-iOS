@@ -10,6 +10,8 @@ import SnapKit
 
 final class FreeBoardViewController: UIViewController {
     
+    weak var coordinator: SocialCoordinatorProtocol?
+    
     private let freeBoardtableView: UITableView = {
        let tableView = UITableView()
         tableView.separatorStyle = .none
@@ -68,10 +70,6 @@ extension FreeBoardViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-      
-        let detailVC = FreeBoardDetailViewController()
-        self.navigationController?.navigationBar.isHidden = true
-        detailVC.hidesBottomBarWhenPushed = true
-        self.navigationController?.pushViewController(detailVC, animated: true)
+        coordinator?.showFreeBoardDetail(postId: indexPath.row)
     }
 }
